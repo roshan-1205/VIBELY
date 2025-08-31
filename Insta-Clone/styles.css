@@ -1,0 +1,786 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+.main_box {
+    background-color: black;
+    background-position: 100%;
+    height: 100vh;
+    width: 100%;
+}
+
+#check_one, #check_two {
+    display: none;
+}
+
+i {
+    cursor: pointer;
+}
+
+.logo {
+    color: white;
+    font-size: 25px;
+    position: absolute;
+    top: 35px;
+    left: 35px;
+}
+
+.main_box .sidebar_menu {
+    position: fixed;
+    height: 100vh;
+    width: 300px;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.btn_one {
+    position: absolute;
+    bottom: 50px;
+    padding: 14px 20px;
+}
+
+.btn_one i{
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    position: absolute;
+    left: 10px;
+    padding: 14px 20px;
+}
+
+.btn_one a {
+    color: white;
+    font-size: 16px;
+    position: relative;
+    left: 50px;
+    top: 15px;
+}
+
+.btn_two {
+    position: absolute;
+    bottom: 20px;
+    padding: 14px 20px;
+}
+
+.btn_two i{
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    position: absolute;
+    left: 10px;
+    padding: 14px 20px;
+}
+
+.btn_two a {
+    color: white;
+    font-size: 16px;
+    position: relative;
+    left: 50px;
+    top: 15px;
+}
+
+
+.menu li i + .btn_two,i,a {
+    color: white;
+}
+
+.sidebar_menu .menu {
+    font-size: 20px;
+    position: absolute;
+    width: 100%;
+    top: 100px;
+    padding: 14px 20px;
+}
+
+.sidebar_menu .menu li {
+    padding: 20px;
+    width: 210px;
+}
+
+.sidebar_menu .menu i {
+    padding-right: 10px;
+}
+
+.sidebar_menu .menu li:hover {
+    background-color: rgba(128, 128, 128, 0.395);
+    transform: scale(1.1);
+}
+
+.main_box .topbar_story div {
+    margin-left: 250px;
+}
+
+.topbar_story {
+    position: absolute;
+    left: 400px;
+    right: 80px;
+    width: 630px;
+    height: 124px;
+    color: white;
+    text-align: center;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 0 rgba(37, 37, 37, 0.5);
+    padding: 10px;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.topbar_story .one {
+    background-image: url(Aayush.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgb(255, 171, 171);
+    margin-right: 10px;
+    line-height: 225px;
+    position: absolute;
+    left: -200px;
+    top: 20px;
+}
+
+
+.topbar_story .two {
+    background-image: url(roshan.JPG);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(246, 253, 45);
+    position: absolute;
+    line-height: 225px;
+    left: -50px;
+    top: 20px;
+}
+
+.topbar_story .three {
+    background-image: url(Shivangi.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(255, 0, 144);
+    position: absolute;
+    line-height: 225px;
+    left: 100px;
+    top: 20px;
+}
+
+.topbar_story .four {
+    background-image: url(Drishti.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(255, 0, 55) ;
+    position: absolute;
+    line-height: 225px;
+    left: 250px;
+    top: 20px;
+}
+
+.topbar_story .five {
+    background-image: url(Arpit.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(128, 0, 255);
+    position: absolute;
+    line-height: 225px;
+    left: 400px;
+    top: 20px;
+}
+
+.topbar_story .six {
+    background-image: url(Shiva.png);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(0, 255, 68);
+    position: absolute;
+    line-height: 225px;
+    left: 550px;
+    top: 20px;
+}
+
+.topbar_story .seven {
+    background-image: url(Sahil.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 8px rgb(0, 186, 186);
+    position: absolute;
+    line-height: 225px;
+    left: 700px;
+    top: 20px;
+}
+
+body {
+    height: 500vh;
+    background-color: black;
+}
+
+.scroll_box {
+    background-color: rgb(0, 0, 0);
+    height: 10000px;
+    width: 600px;
+    position: absolute;
+    left: 425px;
+    right: 80px;
+    top: 220px;
+    padding: 20px;
+}
+
+#like,#comment,#save,#share {
+    display: none;
+}
+
+.scroll_box_one {
+    background-image: url(1.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: rgb(119, 191, 255);
+    height: 800px;
+    width: 600px;
+    
+}
+
+.like_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 5px;
+    top: 820px;
+    padding: 10px;
+}
+
+.like_btn i {
+    font-size: 30px;
+}
+
+.comment_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 50px;
+    top: 820px;
+    padding: 10px;
+}
+
+.comment_btn i {
+    font-size: 30px;
+}
+
+.share_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 100px;
+    top: 820px;
+    padding: 10px;
+}
+
+.share_btn i {
+    font-size: 30px;
+}
+
+.save_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 580px;
+    top: 820px;
+    padding: 10px;
+    margin-right: 15px;
+}
+
+.save_btn i {
+    font-size: 30px;
+}
+
+.caption {
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 870px;
+}
+
+#text {
+    background-color: black;
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 920px;
+}
+
+.line {
+    background-color: rgb(255, 255, 255);
+    width: 600px;
+    height: 1px;
+    position: absolute;
+    top: 980px;
+}
+
+ .scroll_box_two {
+    background-image: url(2.JPG);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: rgb(125, 195, 255);
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    top: 1000px;
+}
+
+.box_two .like_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 5px;
+    top: 1800px;
+    padding: 10px;
+}
+
+.box_two .like_btn i {
+    font-size: 30px;
+}
+
+.box_two .comment_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 50px;
+    top: 1800px;
+    padding: 10px;
+}
+
+.box_two .comment_btn i {
+    font-size: 30px;
+}
+
+.box_two .share_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 100px;
+    top: 1800px;
+    padding: 10px;
+}
+
+.box_two .share_btn i {
+    font-size: 30px;
+}
+
+.box_two .save_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 580px;
+    top: 1800px;
+    padding: 10px;
+    margin-right: 15px;
+}
+
+.box_two .save_btn i {
+    font-size: 30px;
+}
+
+.box_two .caption {
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 1850px;
+}
+
+.box_two #text {
+    background-color: black;
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 1900px;
+}
+
+.box_two .line {
+    background-color: rgb(255, 255, 255);
+    width: 600px;
+    height: 1px;
+    position: absolute;
+    top: 1960px;
+}
+
+
+.scroll_box_three {
+    background-image: url(3.JPG);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: rgb(133, 198, 255);
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    top: 1980px;
+}
+
+.box_three .like_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 5px;
+    top: 2780px;
+    padding: 10px;
+}
+
+.box_three .like_btn i {
+    font-size: 30px;
+}
+
+.box_three .comment_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 50px;
+    top: 2780px;
+    padding: 10px;
+}
+
+.box_three .comment_btn i {
+    font-size: 30px;
+}
+
+.box_three .share_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 100px;
+    top: 2780px;
+    padding: 10px;
+}
+
+.box_three .share_btn i {
+    font-size: 30px;
+}
+
+.box_three .save_btn {
+    height: 24px;
+    width: 24px;
+    position: absolute;
+    left: 580px;
+    top: 2780px;
+    padding: 10px;
+    margin-right: 15px;
+}
+
+.box_three .save_btn i {
+    font-size: 30px;
+}
+
+.box_three .caption {
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 2830px;
+}
+
+.box_three #text {
+    background-color: black;
+    color: white;
+    width: 600px;
+    height: 50px;
+    position: absolute;
+    top: 2880px;
+}
+
+.box_three .line {
+    background-color: rgb(255, 255, 255);
+    width: 600px;
+    height: 1px;
+    position: absolute;
+    top: 2940px;
+}
+/* .scroll_box_four {
+    background-image: url();
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: aliceblue;
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    left: 425px;
+    right: 80px;
+    top: 220px;
+}
+
+.scroll_box_five {
+    background-image: url();
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: aliceblue;
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    left: 425px;
+    right: 80px;
+    top: 220px;
+}
+
+.scroll_box_six {
+    background-image: url();
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: aliceblue;
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    left: 425px;
+    right: 80px;
+    top: 220px;
+}
+
+.scroll_box_seven {
+    background-image: url();
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: aliceblue;
+    height: 800px;
+    width: 600px;
+    position: absolute;
+    left: 425px;
+    right: 80px;
+    top: 220px;
+} */
+
+.profile {
+    position: absolute;
+    left: 1100px;
+    right: 80px;
+    width: 300px;
+    height: 200px;
+    color: white;
+    text-align: center;
+    background-color: rgb(0, 0, 0);
+    box-shadow: 0 0 0 rgba(37, 37, 37, 0.5);
+}
+
+.my_profile {
+    display: inline-block;
+    color: white;
+    position: absolute;
+    top: 5px;
+    left: 130px;
+    top: 20px;
+}
+
+p {
+    position: absolute;
+    top: 5px;
+}
+.profile_pic {
+    background-image: url(3.JPG);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background-color: wheat;
+    position: absolute;
+    left: -70px;
+}
+
+#switch {
+    color: rgb(75, 135, 255);
+    height: 40px;
+    width: 40px;
+    position: absolute;
+    top: 20px;
+    left: 200px;
+}
+
+.sugg {
+    background-image: url(sc.png);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    position: absolute;
+    top: 100px;
+    left: -70px;
+    width: 300px;
+    height: 400px;
+    color: white;
+    text-align: center;
+    background-color: rgb(255, 255, 255);
+}
+
+.float_box {
+    height: 50px;
+    background-color: rgba(128, 128, 128, 0.275);
+    position: fixed;
+    top: 700px;
+    left: 1230px;
+    border-radius: 50px;
+    width: 250px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+}
+
+.float_box i {
+    color: white;
+    position: absolute;
+    left: 20px;
+    top: 13px;
+    font-size: 25px;
+}
+
+.float_box a{
+    color: white;
+    position: absolute;
+    left: 60px;
+    top: 15px;
+    font-size: 20px;
+}
+
+
+
+@media (max-width: 1200px) {
+    .profile {
+        display: none;
+    }
+
+    .float_box {
+        left: auto;
+        right: 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .sidebar_menu {
+        width: 200px;
+    }
+
+    .topbar_story {
+        left: 220px;
+        width: calc(100% - 240px);
+    }
+
+    .scroll_box {
+        left: 220px;
+        width: calc(100% - 260px);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar_menu {
+        width: 70px;
+    }
+
+    .sidebar_menu .logo a,
+    .sidebar_menu .menu li a,
+    .btn_one a,
+    .btn_two a {
+        display: none;
+    }
+
+    .topbar_story {
+        left: 90px;
+        width: calc(100% - 110px);
+    }
+
+    .scroll_box {
+        left: 90px;
+        width: calc(100% - 110px);
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar_menu {
+        display: none;
+    }
+
+    .topbar_story {
+        left: 0;
+        width: 100%;
+        height: 110px;
+    }
+
+    .scroll_box {
+        left: 0;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .scroll_box_one,
+    .scroll_box_two,
+    .scroll_box_three {
+        width: 100%;
+        height: auto;
+    }
+
+    .caption,
+    #text,
+    .line,
+    .box_two .caption,
+    .box_two #text,
+    .box_two .line,
+    .box_three .caption,
+    .box_three #text,
+    .box_three .line {
+        width: 100%;
+        position: relative;
+        top: auto;
+        margin-top: 10px;
+    }
+
+    .like_btn,
+    .comment_btn,
+    .share_btn,
+    .save_btn,
+    .box_two .like_btn,
+    .box_two .comment_btn,
+    .box_two .share_btn,
+    .box_two .save_btn,
+    .box_three .like_btn,
+    .box_three .comment_btn,
+    .box_three .share_btn,
+    .box_three .save_btn {
+        position: relative;
+        top: auto;
+        left: auto;
+        display: inline-block;
+        margin: 10px 15px 0 0;
+    }
+
+    .float_box {
+        bottom: 20px;
+        top: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+    }
+}
