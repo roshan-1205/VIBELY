@@ -1,0 +1,45 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+asyncpg==0.29.0
+alembic==1.12.1
+
+# Redis & Caching
+redis==5.0.1
+aioredis==2.0.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Background Jobs
+celery==5.3.4
+flower==2.0.1
+
+# AI/ML for Sentiment Analysis
+transformers==4.35.2
+torch>=2.6.0
+numpy==1.24.3
+
+# Validation & Serialization
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Utilities
+loguru==0.7.2
+python-dotenv==1.0.0
+httpx==0.25.2
+
+# WebSockets
+websockets==12.0
+
+# Development
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+isort==5.12.0

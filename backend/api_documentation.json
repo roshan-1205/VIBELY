@@ -1,0 +1,11 @@
+{
+  "title": "Vibely API Documentation",
+  "version": "1.0.0",
+  "base_url": "http://localhost:8000",
+  "endpoints": {
+    "Authentication": [],
+    "Feed & Posts": [],
+    "Users": [],
+    "Vibe Engine": []
+  }
+}

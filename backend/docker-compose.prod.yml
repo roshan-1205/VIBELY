@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: vibely_db
+      POSTGRES_USER: vibely
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - vibely-network
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - vibely-network
+    command: redis-server --appendonly yes
+
+  app:
+    build: .
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - DATABASE_URL=postgresql+asyncpg://vibely:${POSTGRES_PASSWORD}@postgres:5432/vibely_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - vibely-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vibely-api.rule=Host(`api.vibely.com`)"
+      - "traefik.http.routers.vibely-api.tls=true"
+      - "traefik.http.routers.vibely-api.tls.certresolver=letsencrypt"
+
+  celery:
+    build: .
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://vibely:${POSTGRES_PASSWORD}@postgres:5432/vibely_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - vibely-network
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=4
+
+  celery-beat:
+    build: .
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://vibely:${POSTGRES_PASSWORD}@postgres:5432/vibely_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - vibely-network
+    command: celery -A app.workers.celery_app beat --loglevel=info
+
+  flower:
+    build: .
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - vibely-network
+    command: celery -A app.workers.celery_app flower --port=5555
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vibely-flower.rule=Host(`flower.vibely.com`)"
+      - "traefik.http.routers.vibely-flower.tls=true"
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  vibely-network:
+    driver: bridge

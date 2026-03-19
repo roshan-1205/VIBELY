@@ -1,0 +1,165 @@
+/**
+ * Theme System - Vibely Design System
+ * Premium CSS variables for light/dark themes with glassmorphism support
+ */
+
+/* Light Theme (Default) */
+:root,
+.theme-light {
+  /* Background Colors */
+  --bg-primary: #fafbfc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  
+  /* Accent Colors */
+  --accent: #0ea5e9;
+  --accent-soft: rgba(14, 165, 233, 0.1);
+  --accent-hover: #0284c7;
+  --accent-active: #0369a1;
+  
+  /* Text Colors */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+  
+  /* Glass System */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-bg-strong: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(31, 38, 135, 0.37);
+  
+  /* Vibe Colors */
+  --vibe-glow: rgba(14, 165, 233, 0.5);
+  --vibe-positive: #10b981;
+  --vibe-neutral: #f59e0b;
+  --vibe-negative: #ef4444;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* Border Colors */
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --border-focus: var(--accent);
+  
+  /* Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-tertiary: #f1f5f9;
+  
+  /* Interactive States */
+  --hover-overlay: rgba(0, 0, 0, 0.05);
+  --active-overlay: rgba(0, 0, 0, 0.1);
+  --focus-ring: rgba(14, 165, 233, 0.2);
+}
+
+/* Dark Theme */
+.theme-dark {
+  /* Background Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  
+  /* Accent Colors */
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.1);
+  --accent-hover: #0ea5e9;
+  --accent-active: #0284c7;
+  
+  /* Text Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #0f172a;
+  
+  /* Glass System */
+  --glass-bg: rgba(15, 23, 42, 0.1);
+  --glass-bg-strong: rgba(15, 23, 42, 0.2);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.5);
+  
+  /* Vibe Colors */
+  --vibe-glow: rgba(56, 189, 248, 0.5);
+  --vibe-positive: #34d399;
+  --vibe-neutral: #fbbf24;
+  --vibe-negative: #f87171;
+  
+  /* Status Colors */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+  
+  /* Border Colors */
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --border-focus: var(--accent);
+  
+  /* Surface Colors */
+  --surface-primary: #1e293b;
+  --surface-secondary: #334155;
+  --surface-tertiary: #475569;
+  
+  /* Interactive States */
+  --hover-overlay: rgba(255, 255, 255, 0.05);
+  --active-overlay: rgba(255, 255, 255, 0.1);
+  --focus-ring: rgba(56, 189, 248, 0.2);
+}
+
+/* Vibe Theme Variations */
+.vibe-positive {
+  --vibe-glow: rgba(16, 185, 129, 0.5);
+  --accent: var(--vibe-positive);
+  --accent-hover: #059669;
+}
+
+.vibe-neutral {
+  --vibe-glow: rgba(245, 158, 11, 0.5);
+  --accent: var(--vibe-neutral);
+  --accent-hover: #d97706;
+}
+
+.vibe-negative {
+  --vibe-glow: rgba(239, 68, 68, 0.5);
+  --accent: var(--vibe-negative);
+  --accent-hover: #dc2626;
+}
+
+/* High Contrast Theme */
+.theme-high-contrast {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --text-primary: #000000;
+  --text-secondary: #374151;
+  --accent: #1d4ed8;
+  --border-primary: #000000;
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.2);
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+/* Color Scheme Preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light):not(.theme-high-contrast) {
+    /* Inherit dark theme variables */
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --accent: #38bdf8;
+    --glass-bg: rgba(15, 23, 42, 0.1);
+    --glass-border: rgba(148, 163, 184, 0.1);
+  }
+}
