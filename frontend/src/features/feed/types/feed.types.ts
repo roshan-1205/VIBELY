@@ -4,11 +4,11 @@
  */
 
 export interface User {
-  id: string
+  id: number
   username: string
-  displayName: string
-  avatar?: string
-  isVerified?: boolean
+  full_name?: string
+  avatar_url?: string
+  is_verified?: boolean
 }
 
 export interface PostMedia {
@@ -21,47 +21,44 @@ export interface PostMedia {
   alt?: string
 }
 
-export interface PostStats {
-  likes: number
-  comments: number
-  shares: number
-  views?: number
-}
-
 export interface Post {
-  id: string
-  user: User
+  id: number
   content: string
-  media?: PostMedia[]
-  stats: PostStats
-  isLiked: boolean
-  isBookmarked: boolean
-  createdAt: string
-  updatedAt: string
-  
-  // Vibe sync integration
-  sentimentScore?: number
-  vibeIntensity?: number
+  author: User
+  image_url?: string
+  video_url?: string
+  vibe_score: number
+  likes_count: number
+  comments_count: number
+  shares_count?: number
+  created_at: string
+  updated_at?: string
+  is_liked?: boolean
+  is_bookmarked?: boolean
 }
 
 export interface FeedResponse {
   posts: Post[]
-  nextCursor: string | null
-  hasMore: boolean
-  totalCount?: number
+  next_offset?: number
+  has_more: boolean
+  total?: number
 }
 
 export interface FeedParams {
-  cursor?: string
+  offset?: number
   limit?: number
-  userId?: string
   type?: 'timeline' | 'explore' | 'trending'
 }
 
+export interface CreatePostRequest {
+  content: string
+  image_url?: string
+  video_url?: string
+}
+
 export interface LikeResponse {
-  success: boolean
-  isLiked: boolean
-  likesCount: number
+  liked: boolean
+  likes_count: number
 }
 
 export interface CommentResponse {
@@ -69,43 +66,43 @@ export interface CommentResponse {
   comment: {
     id: string
     content: string
-    user: User
-    createdAt: string
+    author: User
+    created_at: string
   }
 }
 
 // Optimistic update types
 export interface OptimisticLike {
-  postId: string
+  postId: number
   isLiked: boolean
   previousLikesCount: number
   newLikesCount: number
 }
 
 export interface OptimisticComment {
-  postId: string
+  postId: number
   tempId: string
   content: string
-  user: User
+  author: User
 }
 
 // Feed state types
 export interface FeedState {
-  selectedPostId: string | null
+  selectedPostId: number | null
   isRefreshing: boolean
   lastRefreshTime: number
 }
 
 // Error types
 export interface FeedError {
-  code: string
+  code?: string
   message: string
   details?: any
 }
 
 // Analytics types
 export interface PostInteraction {
-  postId: string
+  postId: number
   type: 'like' | 'comment' | 'share' | 'view' | 'click'
   timestamp: number
   metadata?: Record<string, any>

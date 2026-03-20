@@ -6,9 +6,21 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useIsAuthenticated, useAuthUser, useAuthLoading } from '../store/auth.store'
-import { AuthSpinner } from './AuthLayout'
+import { useIsAuthenticated, useUser, useAuthLoading } from '@/core/store/auth.store'
 import type { ProtectedRouteProps } from '../types/auth.types'
+
+// Simple loading spinner component
+const AuthSpinner = ({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) => {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6', 
+    lg: 'w-8 h-8'
+  }
+  
+  return (
+    <div className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-blue-600 border-t-transparent`} />
+  )
+}
 
 /**
  * Main auth guard component
@@ -21,7 +33,7 @@ export function AuthGuard({
 }: ProtectedRouteProps) {
   const location = useLocation()
   const isAuthenticated = useIsAuthenticated()
-  const user = useAuthUser()
+  const user = useUser()
   const isLoading = useAuthLoading()
 
   // Show loading spinner while checking auth state
@@ -53,7 +65,7 @@ export function AuthGuard({
   }
 
   // Check role requirement
-  if (requireRole && user && !requireRole.includes(user.role)) {
+  if (requireRole && user && !requireRole.includes(user.username)) { // Using username as role for now
     // Show access denied or redirect to unauthorized page
     return fallback || (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -123,9 +135,9 @@ export function RoleGuard({
   allowedRoles: string[]
   fallback?: React.ReactNode 
 }) {
-  const user = useAuthUser()
+  const user = useUser()
 
-  if (!user || !allowedRoles.includes(user.role)) {
+  if (!user || !allowedRoles.includes(user.username)) { // Using username as role for now
     return fallback || null
   }
 
@@ -170,15 +182,15 @@ export function ModeratorGuard({
  * Hook for checking permissions
  */
 export function usePermissions() {
-  const user = useAuthUser()
+  const user = useUser()
   const isAuthenticated = useIsAuthenticated()
 
   const hasRole = (role: string) => {
-    return user?.role === role
+    return user?.username === role // Using username as role for now
   }
 
   const hasAnyRole = (roles: string[]) => {
-    return user ? roles.includes(user.role) : false
+    return user ? roles.includes(user.username) : false
   }
 
   const isAdmin = () => hasRole('admin')

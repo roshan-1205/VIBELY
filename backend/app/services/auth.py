@@ -83,10 +83,10 @@ class AuthService:
         refresh_token = security.create_refresh_token(token_data)
         
         return TokenResponse(
+            user=UserResponse.model_validate(user),
             access_token=access_token,
             refresh_token=refresh_token,
-            token_type="bearer",
-            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            token_type="bearer"
         )
     
     async def refresh_token(self, refresh_token: str) -> TokenResponse:
@@ -111,10 +111,10 @@ class AuthService:
         new_refresh_token = security.create_refresh_token(token_data)
         
         return TokenResponse(
+            user=UserResponse.model_validate(user),
             access_token=access_token,
             refresh_token=new_refresh_token,
-            token_type="bearer",
-            expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            token_type="bearer"
         )
     
     async def get_current_user(self, token: str) -> UserResponse:

@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useUIStore } from '@/core/store/ui.store'
-import { useAuth, useIsAuthenticated, useAuthUser } from '@/features/auth'
+import { useAuth } from '@/features/auth'
+import { useIsAuthenticated, useUser } from '@/core/store/auth.store'
 import { buttonTap, hwAcceleration } from '@/core'
 
 const navigation = [
@@ -18,7 +19,7 @@ export function Sidebar() {
   const { openCreate } = useUIStore()
   const { logout } = useAuth()
   const isAuthenticated = useIsAuthenticated()
-  const user = useAuthUser()
+  const user = useUser()
 
   // Don't show sidebar on auth pages
   if (!isAuthenticated) {

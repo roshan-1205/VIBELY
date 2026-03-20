@@ -39,7 +39,7 @@ class Notification(Base):
     is_read: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     
     # Metadata
-    metadata: Mapped[str] = mapped_column(Text, nullable=True)  # JSON string for additional data
+    extra_data: Mapped[str] = mapped_column(Text, nullable=True)  # JSON string for additional data
     
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(

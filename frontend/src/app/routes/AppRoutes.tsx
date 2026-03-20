@@ -7,6 +7,8 @@ import { ErrorBoundary } from '@/core/components/ErrorBoundary'
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })))
 const SignupPage = lazy(() => import('@/pages/SignupPage').then(m => ({ default: m.SignupPage })))
+const HomePageComponent = lazy(() => import('@/pages/HomePage').then(m => ({ default: m.HomePage })))
+const FeedPage = lazy(() => import('@/pages/FeedPage').then(m => ({ default: m.FeedPage })))
 const DesignSystemDemo = lazy(() => import('./DesignSystemDemo').then(m => ({ default: m.DesignSystemDemo })))
 const VibeSyncDemo = lazy(() => import('@/components/shared/VibeSyncDemo').then(m => ({ default: m.VibeSyncDemo })))
 const CreatePostDemo = lazy(() => import('@/components/shared/CreatePostDemo').then(m => ({ default: m.CreatePostDemo })))
@@ -16,24 +18,18 @@ const AuthDemo = lazy(() => import('@/components/shared/AuthDemo').then(m => ({ 
 // Protected components - require authentication
 const HomePage = () => (
   <AuthGuard>
-    <div className="glass-card">
-      <h1 className="text-3xl font-bold text-gradient bg-gradient-to-r from-accent-600 to-purple-600 bg-clip-text text-transparent">
-        Welcome to Vibely
-      </h1>
-      <p className="text-slate-600 mt-4">
-        Your premium social media experience with AI-powered vibe analysis.
-      </p>
-    </div>
+    <Suspense fallback={<PageSkeleton />}>
+      <HomePageComponent />
+    </Suspense>
   </AuthGuard>
 )
 
 // Simple feed page fallback
-const FeedPage = () => (
+const FeedPageComponent = () => (
   <AuthGuard>
-    <div className="glass-card">
-      <h2 className="text-2xl font-semibold mb-4">Feed</h2>
-      <p className="text-slate-600">Infinite scroll feed coming soon...</p>
-    </div>
+    <Suspense fallback={<PageSkeleton />}>
+      <FeedPage />
+    </Suspense>
   </AuthGuard>
 )
 
@@ -71,7 +67,7 @@ export function AppRoutes() {
         
         {/* Protected Routes */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/feed" element={<FeedPage />} />
+        <Route path="/feed" element={<FeedPageComponent />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/create" element={<CreatePage />} />
         

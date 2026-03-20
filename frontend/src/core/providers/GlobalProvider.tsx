@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '../../lib/react-query'
 import { ENV, validateEnv } from '../config/env'
 import { logger } from '../utils/logger'
-import { socketManager } from '../socket/socket'
+import { socketManager } from '../socket/socketManager'
 import { useAuthStore } from '../store/auth.store'
 import { useUIStore } from '../store/ui.store'
 
@@ -30,6 +30,9 @@ function useAppInitialization() {
       logger.error('Environment validation failed:', error)
     }
 
+    // Set query client for WebSocket manager
+    socketManager.setQueryClient(queryClient)
+
     // Initialize theme
     const theme = useUIStore.getState().theme
     const vibeMode = useUIStore.getState().vibeMode
@@ -41,7 +44,7 @@ function useAppInitialization() {
 
     // Initialize socket connection if user is authenticated
     const isAuthenticated = useAuthStore.getState().isAuthenticated
-    if (isAuthenticated && ENV.ENABLE_WEBSOCKETS) {
+    if (isAuthenticated) {
       socketManager.connect()
     }
 
@@ -49,8 +52,8 @@ function useAppInitialization() {
       version: ENV.APP_VERSION,
       environment: ENV.IS_DEVELOPMENT ? 'development' : 'production',
       features: {
-        websockets: ENV.ENABLE_WEBSOCKETS,
-        analytics: ENV.ENABLE_ANALYTICS,
+        websockets: true,
+        notifications: true,
       },
     })
 

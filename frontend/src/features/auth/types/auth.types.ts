@@ -5,50 +5,44 @@
 
 export interface User {
   id: string
-  name: string
+  username: string
   email: string
-  username?: string
+  name: string
   avatar?: string
-  role: 'user' | 'admin' | 'moderator'
-  isVerified: boolean
-  createdAt: string
-  updatedAt: string
-  preferences?: {
-    theme: 'light' | 'dark' | 'system'
-    notifications: boolean
-    privacy: 'public' | 'private'
-  }
+  bio?: string
+  is_verified: boolean
+  is_active: boolean
+  created_at: string
+  last_login?: string
 }
 
 export interface AuthTokens {
-  accessToken: string
-  refreshToken: string
-  expiresAt: number
+  access_token: string
+  refresh_token: string
+  token_type: string
 }
 
 export interface LoginRequest {
   email: string
   password: string
-  rememberMe?: boolean
 }
 
-export interface SignupRequest {
-  name: string
+export interface RegisterRequest {
+  username: string
   email: string
   password: string
-  confirmPassword: string
-  acceptTerms: boolean
+  name?: string
 }
 
 export interface AuthResponse {
-  success: boolean
   user: User
-  tokens: AuthTokens
-  message?: string
+  access_token: string
+  refresh_token: string
+  token_type: string
 }
 
 export interface AuthError {
-  code: string
+  code?: string
   message: string
   field?: string
   details?: any
@@ -57,20 +51,21 @@ export interface AuthError {
 // Auth state interface
 export interface AuthState {
   user: User | null
-  tokens: AuthTokens | null
+  accessToken: string | null
+  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  error: AuthError | null
+  error: string | null
 }
 
 // Auth store actions
 export interface AuthActions {
-  setAuth: (user: User, tokens: AuthTokens) => void
-  clearAuth: () => void
+  login: (user: User, accessToken: string, refreshToken: string) => void
+  logout: () => void
+  refreshToken: () => Promise<void>
+  setUser: (user: User) => void
   setLoading: (loading: boolean) => void
-  setError: (error: AuthError | null) => void
-  updateUser: (updates: Partial<User>) => void
-  refreshTokens: (tokens: AuthTokens) => void
+  setError: (error: string | null) => void
 }
 
 // Form validation types
@@ -85,64 +80,11 @@ export interface FormState {
   touched: Record<string, boolean>
 }
 
-// Password reset types
-export interface ForgotPasswordRequest {
-  email: string
-}
-
-export interface ResetPasswordRequest {
-  token: string
-  password: string
-  confirmPassword: string
-}
-
-// OAuth types
-export interface OAuthProvider {
-  id: 'google' | 'github' | 'apple'
-  name: string
-  icon: string
-  color: string
-}
-
-export interface OAuthResponse {
-  success: boolean
-  user: User
-  tokens: AuthTokens
-  isNewUser: boolean
-}
-
-// Session management
-export interface SessionInfo {
-  id: string
-  deviceName: string
-  browser: string
-  os: string
-  location: string
-  lastActive: string
-  isCurrent: boolean
-}
-
-// Security types
-export interface SecuritySettings {
-  twoFactorEnabled: boolean
-  backupCodes: string[]
-  trustedDevices: string[]
-  loginNotifications: boolean
-}
-
-// Auth context types
-export interface AuthContextValue extends AuthState, AuthActions {
-  login: (credentials: LoginRequest) => Promise<void>
-  signup: (data: SignupRequest) => Promise<void>
-  logout: () => Promise<void>
-  refreshAuth: () => Promise<void>
-}
-
 // Route protection types
 export interface ProtectedRouteProps {
   children: React.ReactNode
   requireAuth?: boolean
-  requireRole?: User['role'][]
+  requireRole?: string[]
   fallback?: React.ReactNode
 }
 

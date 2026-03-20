@@ -10,11 +10,10 @@ from uuid import UUID
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from loguru import logger
 
-from app.core.security import security
 from app.core.database import get_db
 from app.services.auth import AuthService
 
-router = APIRouter()
+websocket_router = APIRouter()
 
 
 class ConnectionManager:
@@ -102,13 +101,17 @@ async def authenticate_websocket(token: str, db) -> str:
     """Authenticate WebSocket connection and return user ID"""
     try:
         auth_service = AuthService(db)
+        # Remove 'Bearer ' prefix if present
+        if token.startswith('Bearer '):
+            token = token[7:]
+        
         user = await auth_service.get_current_user(token)
         return str(user.id)
-    except Exception:
-        raise ValueError("Invalid authentication token")
+    except Exception as e:
+        raise ValueError(f"Invalid authentication token: {str(e)}")
 
 
-@router.websocket("/connect")
+@websocket_router.websocket("/connect")
 async def websocket_endpoint(
     websocket: WebSocket,
     token: str = Query(..., description="JWT access token"),

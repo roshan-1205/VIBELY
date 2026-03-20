@@ -15,7 +15,7 @@ from app.core.middlewares import (
     ErrorHandlingMiddleware,
     RateLimitMiddleware
 )
-from app.api.routes import auth, feed, user, vibe
+from app.api.routes import auth, feed, user, vibe, notifications
 from app.sockets.websocket_manager import websocket_router
 
 
@@ -44,12 +44,12 @@ def create_application() -> FastAPI:
     # Security Middlewares
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
     
-    # CORS Middleware
+    # CORS Middleware - Enable frontend connection
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.ALLOWED_ORIGINS,
+        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"] + settings.ALLOWED_ORIGINS,
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
 
@@ -63,6 +63,7 @@ def create_application() -> FastAPI:
     app.include_router(user.router, prefix="/api/v1/user", tags=["Users"])
     app.include_router(feed.router, prefix="/api/v1/feed", tags=["Feed"])
     app.include_router(vibe.router, prefix="/api/v1/vibe", tags=["Vibe Engine"])
+    app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
     
     # WebSocket Routes
     app.include_router(websocket_router, prefix="/ws")

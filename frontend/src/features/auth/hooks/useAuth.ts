@@ -3,34 +3,14 @@
  * React Query mutations with Zustand state management
  */
 
-import React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { 
-  loginUser, 
-  signupUser, 
-  logoutUser, 
-  getCurrentUser,
-  refreshTokens,
-  loginUserDev,
-  signupUserDev,
-  logoutUserDev,
-  handleAuthError
-} from '../services/auth.api'
-import { 
-  useAuthStore, 
-  useAuthActions, 
-  useIsAuthenticated,
-  useAuthLoading,
-  useAuthError,
-  isTokenExpired
-} from '../store/auth.store'
-import type { LoginRequest, SignupRequest } from '../types/auth.types'
-import { logger } from '@/core'
+import { authAPI, LoginRequest, RegisterRequest } from '../services/auth.api'
+import { useAuthStore } from '@/core/store/auth.store'
+import { logger } from '@/core/utils/logger'
 
 interface UseAuthOptions {
   redirectTo?: string
-  useMockData?: boolean
 }
 
 /**
@@ -38,33 +18,24 @@ interface UseAuthOptions {
  */
 export function useAuth(options: UseAuthOptions = {}) {
   const {
-    redirectTo = '/feed',
-    useMockData = process.env.NODE_ENV === 'development',
+    redirectTo = '/',  // Changed from '/feed' to '/' (home page)
   } = options
 
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   
-  // Auth state
-  const isAuthenticated = useIsAuthenticated()
-  const isLoading = useAuthLoading()
-  const error = useAuthError()
-  
-  // Auth actions
-  const { setAuth, clearAuth, setLoading, setError } = useAuthActions()
+  // Auth state from Zustand store
+  const { user, isAuthenticated, isLoading, login: setAuth, logout: clearAuth, setLoading, setError } = useAuthStore()
 
   // Login mutation
   const loginMutation = useMutation({
-    mutationFn: (credentials: LoginRequest) => {
-      const loginFn = useMockData ? loginUserDev : loginUser
-      return loginFn(credentials)
-    },
+    mutationFn: authAPI.login,
     onMutate: () => {
       setLoading(true)
       setError(null)
     },
     onSuccess: (response) => {
-      setAuth(response.user, response.tokens)
+      setAuth(response.data.user, response.data.access_token, response.data.refresh_token)
       
       // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: ['user'] })
@@ -72,33 +43,26 @@ export function useAuth(options: UseAuthOptions = {}) {
       // Navigate to redirect URL
       navigate(redirectTo, { replace: true })
       
-      logger.info('Login successful', { userId: response.user.id })
+      logger.info('Login successful', { userId: response.data.user.id })
     },
     onError: (error: any) => {
-      const authError = {
-        code: 'LOGIN_FAILED',
-        message: error.message || 'Login failed',
-      }
-      setError(authError)
-      logger.error('Login failed', authError)
+      setError(error.message || 'Login failed')
+      logger.error('Login failed', error)
     },
     onSettled: () => {
       setLoading(false)
     },
   })
 
-  // Signup mutation
-  const signupMutation = useMutation({
-    mutationFn: (data: SignupRequest) => {
-      const signupFn = useMockData ? signupUserDev : signupUser
-      return signupFn(data)
-    },
+  // Register mutation
+  const registerMutation = useMutation({
+    mutationFn: authAPI.register,
     onMutate: () => {
       setLoading(true)
       setError(null)
     },
     onSuccess: (response) => {
-      setAuth(response.user, response.tokens)
+      setAuth(response.data.user, response.data.access_token, response.data.refresh_token)
       
       // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: ['user'] })
@@ -106,15 +70,11 @@ export function useAuth(options: UseAuthOptions = {}) {
       // Navigate to redirect URL
       navigate(redirectTo, { replace: true })
       
-      logger.info('Signup successful', { userId: response.user.id })
+      logger.info('Register successful', { userId: response.data.user.id })
     },
     onError: (error: any) => {
-      const authError = {
-        code: 'SIGNUP_FAILED',
-        message: error.message || 'Signup failed',
-      }
-      setError(authError)
-      logger.error('Signup failed', authError)
+      setError(error.message || 'Registration failed')
+      logger.error('Register failed', error)
     },
     onSettled: () => {
       setLoading(false)
@@ -123,10 +83,7 @@ export function useAuth(options: UseAuthOptions = {}) {
 
   // Logout mutation
   const logoutMutation = useMutation({
-    mutationFn: () => {
-      const logoutFn = useMockData ? logoutUserDev : logoutUser
-      return logoutFn()
-    },
+    mutationFn: authAPI.logout,
     onMutate: () => {
       setLoading(true)
     },
@@ -156,8 +113,8 @@ export function useAuth(options: UseAuthOptions = {}) {
   // Current user query
   const userQuery = useQuery({
     queryKey: ['user', 'current'],
-    queryFn: getCurrentUser,
-    enabled: isAuthenticated && !isTokenExpired(),
+    queryFn: authAPI.me,
+    enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
   })
@@ -167,8 +124,8 @@ export function useAuth(options: UseAuthOptions = {}) {
     loginMutation.mutate(credentials)
   }
 
-  const signup = (data: SignupRequest) => {
-    signupMutation.mutate(data)
+  const register = (data: RegisterRequest) => {
+    registerMutation.mutate(data)
   }
 
   const logout = () => {
@@ -182,24 +139,23 @@ export function useAuth(options: UseAuthOptions = {}) {
   return {
     // State
     isAuthenticated,
-    isLoading: isLoading || loginMutation.isPending || signupMutation.isPending || logoutMutation.isPending,
-    error,
-    user: userQuery.data,
+    isLoading: isLoading || loginMutation.isPending || registerMutation.isPending || logoutMutation.isPending,
+    user: user || userQuery.data?.data,
     
     // Actions
     login,
-    signup,
+    register,
     logout,
     clearError,
     
     // Mutation states
     isLoginPending: loginMutation.isPending,
-    isSignupPending: signupMutation.isPending,
+    isRegisterPending: registerMutation.isPending,
     isLogoutPending: logoutMutation.isPending,
     
     // Raw mutations for advanced usage
     loginMutation,
-    signupMutation,
+    registerMutation,
     logoutMutation,
     userQuery,
   }
@@ -217,7 +173,7 @@ export function useAuthValidation() {
 
   const validatePassword = (password: string): string | null => {
     if (!password) return 'Password is required'
-    if (password.length < 6) return 'Password must be at least 6 characters'
+    if (password.length < 8) return 'Password must be at least 8 characters'
     return null
   }
 
@@ -227,9 +183,9 @@ export function useAuthValidation() {
     return null
   }
 
-  const validateConfirmPassword = (password: string, confirmPassword: string): string | null => {
-    if (!confirmPassword) return 'Please confirm your password'
-    if (password !== confirmPassword) return 'Passwords do not match'
+  const validateUsername = (username: string): string | null => {
+    if (!username) return 'Username is required'
+    if (username.length < 3) return 'Username must be at least 3 characters'
     return null
   }
 
@@ -248,24 +204,17 @@ export function useAuthValidation() {
     }
   }
 
-  const validateSignupForm = (data: SignupRequest) => {
+  const validateRegisterForm = (data: RegisterRequest) => {
     const errors: Record<string, string> = {}
     
-    const nameError = validateName(data.name)
-    if (nameError) errors.name = nameError
+    const usernameError = validateUsername(data.username)
+    if (usernameError) errors.username = usernameError
     
     const emailError = validateEmail(data.email)
     if (emailError) errors.email = emailError
     
     const passwordError = validatePassword(data.password)
     if (passwordError) errors.password = passwordError
-    
-    const confirmPasswordError = validateConfirmPassword(data.password, data.confirmPassword)
-    if (confirmPasswordError) errors.confirmPassword = confirmPasswordError
-    
-    if (!data.acceptTerms) {
-      errors.acceptTerms = 'You must accept the terms and conditions'
-    }
     
     return {
       isValid: Object.keys(errors).length === 0,
@@ -277,87 +226,8 @@ export function useAuthValidation() {
     validateEmail,
     validatePassword,
     validateName,
-    validateConfirmPassword,
+    validateUsername,
     validateLoginForm,
-    validateSignupForm,
-  }
-}
-
-/**
- * Hook for token management
- */
-export function useTokenManager() {
-  const { refreshTokens: updateTokens } = useAuthActions()
-  const authStore = useAuthStore()
-
-  const refreshMutation = useMutation({
-    mutationFn: (refreshToken: string) => refreshTokens(refreshToken),
-    onSuccess: (newTokens) => {
-      updateTokens(newTokens)
-      logger.debug('Tokens refreshed successfully')
-    },
-    onError: (error) => {
-      logger.error('Token refresh failed', error)
-      // Clear auth state on refresh failure
-      authStore.clearAuth()
-    },
-  })
-
-  const refreshAuthTokens = () => {
-    const tokens = authStore.tokens
-    if (tokens?.refreshToken) {
-      refreshMutation.mutate(tokens.refreshToken)
-    }
-  }
-
-  // Auto-refresh tokens when they're about to expire
-  React.useEffect(() => {
-    const tokens = authStore.tokens
-    if (!tokens || !authStore.isAuthenticated) return
-
-    const timeUntilExpiry = tokens.expiresAt - Date.now()
-    const refreshThreshold = 5 * 60 * 1000 // 5 minutes before expiry
-
-    if (timeUntilExpiry <= refreshThreshold && timeUntilExpiry > 0) {
-      refreshAuthTokens()
-    }
-
-    // Set up auto-refresh timer
-    const refreshTimer = setTimeout(() => {
-      if (authStore.isAuthenticated && !isTokenExpired()) {
-        refreshAuthTokens()
-      }
-    }, Math.max(timeUntilExpiry - refreshThreshold, 0))
-
-    return () => clearTimeout(refreshTimer)
-  }, [authStore.tokens, authStore.isAuthenticated])
-
-  return {
-    refreshAuthTokens,
-    isRefreshing: refreshMutation.isPending,
-    refreshError: refreshMutation.error,
-  }
-}
-
-/**
- * Hook for auth state persistence
- */
-export function useAuthPersistence() {
-  const authStore = useAuthStore()
-
-  // Check auth state on app load
-  React.useEffect(() => {
-    const checkAuthState = () => {
-      if (authStore.isAuthenticated && isTokenExpired()) {
-        logger.warn('Stored token expired, clearing auth state')
-        authStore.clearAuth()
-      }
-    }
-
-    checkAuthState()
-  }, [])
-
-  return {
-    isAuthReady: true, // Auth state is always ready with Zustand persistence
+    validateRegisterForm,
   }
 }

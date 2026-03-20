@@ -159,20 +159,65 @@ class PostRepository(BaseRepository[Post]):
         )
         return result.scalars().all()
     
-    async def get_trending_posts(self, hours: int = 24, limit: int = 20) -> List[Post]:
-        """Get trending posts based on engagement in the last N hours"""
-        from datetime import datetime, timedelta
-        
-        since = datetime.utcnow() - timedelta(hours=hours)
-        
-        result = await self.db.execute(
+    async def get_timeline_feed(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        user_id: Optional[UUID] = None
+    ) -> List[Post]:
+        """Get timeline feed with offset-based pagination"""
+        query = (
             select(Post)
             .options(joinedload(Post.author))
-            .where(Post.created_at >= since)
-            .order_by(
-                desc(Post.likes_count + Post.comments_count),
-                desc(Post.created_at)
-            )
+            .order_by(desc(Post.created_at))
+            .offset(offset)
             .limit(limit)
         )
+        
+        result = await self.db.execute(query)
         return result.scalars().all()
+    
+    async def get_explore_feed(
+        self,
+        offset: int = 0,
+        limit: int = 20
+    ) -> List[Post]:
+        """Get explore feed (random/popular posts)"""
+        query = (
+            select(Post)
+            .options(joinedload(Post.author))
+            .order_by(desc(Post.likes_count), desc(Post.created_at))
+            .offset(offset)
+            .limit(limit)
+        )
+        
+        result = await self.db.execute(query)
+        return result.scalars().all()
+    
+    async def get_trending_feed(
+        self,
+        offset: int = 0,
+        limit: int = 20
+    ) -> List[Post]:
+        """Get trending feed"""
+        return await self.get_trending_posts(limit=limit)
+    
+    async def increment_likes(self, post_id: UUID) -> None:
+        """Increment likes count for a post"""
+        from sqlalchemy import update
+        await self.db.execute(
+            update(Post)
+            .where(Post.id == post_id)
+            .values(likes_count=Post.likes_count + 1)
+        )
+        await self.db.commit()
+    
+    async def decrement_likes(self, post_id: UUID) -> None:
+        """Decrement likes count for a post"""
+        from sqlalchemy import update
+        await self.db.execute(
+            update(Post)
+            .where(Post.id == post_id)
+            .values(likes_count=func.greatest(Post.likes_count - 1, 0))
+        )
+        await self.db.commit()

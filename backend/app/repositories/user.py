@@ -34,10 +34,11 @@ class UserRepository(BaseRepository[User]):
     async def update_last_login(self, user_id: str) -> None:
         """Update user's last login timestamp"""
         from datetime import datetime
+        from uuid import UUID
         
         await self.db.execute(
             update(User)
-            .where(User.id == user_id)
+            .where(User.id == UUID(user_id))
             .values(last_login=datetime.utcnow())
         )
         await self.db.commit()

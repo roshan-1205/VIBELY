@@ -1,92 +1,128 @@
+/**
+ * Auth Store - Zustand State Management
+ * Production-ready authentication with React Query integration
+ */
+
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { User } from '@/features/auth/types/auth.types'
 
-export interface User {
-  id: string
-  email: string
-  username: string
-  avatar?: string
-  bio?: string
-  createdAt: string
-}
+// Re-export User type for convenience
+export type { User } from '@/features/auth/types/auth.types'
 
 interface AuthState {
-  // State
   user: User | null
-  token: string | null
+  accessToken: string | null
+  refreshToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  
-  // Actions
-  setAuth: (user: User, token: string) => void
+  error: string | null
+}
+
+interface AuthActions {
+  login: (user: User, accessToken: string, refreshToken: string) => void
   logout: () => void
   setUser: (user: User) => void
   setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
 }
 
-export const useAuthStore = create<AuthState>()(
+// Combined auth store interface
+interface AuthStore extends AuthState, AuthActions {}
+
+// Create auth store with persistence
+export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
-      // Initial state
+      // State
       user: null,
-      token: null,
+      accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
-      
+      error: null,
+
       // Actions
-      setAuth: (user: User, token: string) => {
+      login: (user: User, accessToken: string, refreshToken: string) => {
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+        
         set({
           user,
-          token,
+          accessToken,
+          refreshToken,
           isAuthenticated: true,
-          isLoading: false,
+          error: null
         })
+        
+        console.log('User logged in successfully', { userId: user.id })
       },
-      
+
       logout: () => {
+        // Clear tokens from localStorage
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        
         set({
           user: null,
-          token: null,
+          accessToken: null,
+          refreshToken: null,
           isAuthenticated: false,
-          isLoading: false,
+          error: null
         })
-        // Clear any additional cleanup here
-        localStorage.removeItem('auth_token')
+        
+        console.log('User logged out')
       },
-      
+
       setUser: (user: User) => {
         set({ user })
       },
-      
+
       setLoading: (loading: boolean) => {
         set({ isLoading: loading })
       },
+
+      setError: (error: string | null) => {
+        set({ error })
+      },
     }),
     {
-      name: 'vibely-auth',
+      name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        token: state.token,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     }
   )
 )
 
-// Selectors to prevent unnecessary re-renders
-export const useAuth = () => useAuthStore((state) => ({
+// Selector hooks for better performance
+export const useUser = () => useAuthStore(state => state.user)
+export const useIsAuthenticated = () => useAuthStore(state => state.isAuthenticated)
+export const useAuthLoading = () => useAuthStore(state => state.isLoading)
+export const useAuthError = () => useAuthStore(state => state.error)
+
+// Legacy compatibility hook - this is what the error is looking for
+export const useAuth = () => useAuthStore(state => ({
   user: state.user,
-  token: state.token,
+  token: state.accessToken,
   isAuthenticated: state.isAuthenticated,
   isLoading: state.isLoading,
-}))
-
-export const useAuthActions = () => useAuthStore((state) => ({
-  setAuth: state.setAuth,
+  login: state.login,
   logout: state.logout,
   setUser: state.setUser,
   setLoading: state.setLoading,
+  setError: state.setError,
 }))
 
-export const useUser = () => useAuthStore((state) => state.user)
-export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated)
+// Auth actions hook
+export const useAuthActions = () => useAuthStore(state => ({
+  login: state.login,
+  logout: state.logout,
+  setUser: state.setUser,
+  setLoading: state.setLoading,
+  setError: state.setError,
+}))

@@ -4,14 +4,15 @@ Authentication schemas for request/response validation
 
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
+from app.schemas.user import UserResponse
 
 
 class UserRegister(BaseModel):
     """User registration request schema"""
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
-    name: str = Field(..., min_length=1, max_length=100, description="User full name")
     username: str = Field(..., min_length=3, max_length=50, description="Unique username")
+    name: Optional[str] = Field(None, max_length=100, description="User full name")
 
 
 class UserLogin(BaseModel):
@@ -22,10 +23,10 @@ class UserLogin(BaseModel):
 
 class TokenResponse(BaseModel):
     """Token response schema"""
+    user: UserResponse
     access_token: str = Field(..., description="JWT access token")
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field(default="bearer", description="Token type")
-    expires_in: int = Field(..., description="Token expiration in seconds")
 
 
 class RefreshTokenRequest(BaseModel):

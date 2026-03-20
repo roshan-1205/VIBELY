@@ -4,71 +4,52 @@
  */
 
 // Components
-export { LoginForm } from './components/LoginForm'
-export { SignupForm } from './components/SignupForm'
-export { 
-  AuthLayout, 
-  CompactAuthLayout, 
-  AuthError, 
-  AuthSuccess, 
-  AuthSpinner 
-} from './components/AuthLayout'
-export { 
-  AuthGuard, 
-  GuestGuard, 
-  RoleGuard, 
-  AdminGuard, 
+export {
+  AuthGuard,
+  GuestGuard,
+  RoleGuard,
+  AdminGuard,
   ModeratorGuard,
   withAuthGuard,
-  withGuestGuard
+  withGuestGuard,
+  usePermissions
 } from './components/AuthGuard'
+
+export {
+  LoginForm
+} from './components/LoginForm'
+
+export {
+  SignupForm
+} from './components/SignupForm'
+
+export {
+  AuthLayout
+} from './components/AuthLayout'
 
 // Hooks
 export { 
   useAuth, 
-  useAuthValidation, 
-  useTokenManager, 
-  useAuthPersistence 
+  useAuthValidation
 } from './hooks/useAuth'
-export { usePermissions } from './components/AuthGuard'
 
-// Store
-export { 
-  useAuthStore,
-  useAuthUser,
-  useAuthTokens,
+// Re-export core auth hooks for convenience
+export {
+  useUser as useAuthUser,
   useIsAuthenticated,
   useAuthLoading,
   useAuthError,
-  useAuthActions,
-  useUserRole,
-  useIsAdmin,
-  useUserPreferences,
-  getAuthToken,
-  isTokenExpired,
-  getTokenExpiryTime,
-  getCurrentUser,
-  checkAuthState,
-  debugAuthState
+  useAuthActions
+} from '@/core/store/auth.store'
+
+// Store
+export { 
+  useAuthStore
 } from './store/auth.store'
 
 // Services
 export {
-  loginUser,
-  signupUser,
-  logoutUser,
-  refreshTokens,
-  getCurrentUser as fetchCurrentUser,
-  forgotPassword,
-  resetPassword,
-  oauthLogin,
-  getUserSessions,
-  revokeSession,
-  mockAuthResponse,
-  loginUserDev,
-  signupUserDev,
-  logoutUserDev,
-  handleAuthError
+  authAPI
 } from './services/auth.api'
 
 // Types
@@ -76,20 +57,13 @@ export type {
   User,
   AuthTokens,
   LoginRequest,
-  SignupRequest,
+  RegisterRequest,
   AuthResponse,
-  AuthError as AuthErrorType,
+  AuthError,
   AuthState,
   AuthActions,
   ValidationError,
   FormState,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-  OAuthProvider,
-  OAuthResponse,
-  SessionInfo,
-  SecuritySettings,
-  AuthContextValue,
   ProtectedRouteProps,
   AuthLayoutProps
 } from './types/auth.types'

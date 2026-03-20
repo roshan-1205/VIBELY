@@ -87,11 +87,11 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading })
       },
 
-      setError: (error: AuthError | null) => {
+      setError: (error: string | null) => {
         set({ error, isLoading: false })
         
         if (error) {
-          logger.error('Auth error', { code: error.code, message: error.message })
+          logger.error('Auth error', { message: error })
         }
       },
 
