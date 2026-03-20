@@ -3,7 +3,7 @@
  * Showcase the premium post creation system
  */
 
-import React from 'react'
+// Remove unused React import
 import { motion } from 'framer-motion'
 import { useUIStore } from '@/core/store/ui.store'
 import { CreatePostModal } from '@/features/create'

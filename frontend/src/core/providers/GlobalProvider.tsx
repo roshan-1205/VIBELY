@@ -69,10 +69,7 @@ export function GlobalProvider({ children }: GlobalProviderProps) {
       {children}
       {ENV.IS_DEVELOPMENT && (
         <React.Suspense fallback={null}>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            position="bottom-right"
-          />
+          <ReactQueryDevtools />
         </React.Suspense>
       )}
     </QueryClientProvider>

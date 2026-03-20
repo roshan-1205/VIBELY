@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+/**
+ * Debounce Hooks - Performance Optimization
+ * Prevents excessive re-renders and API calls
+ */
+
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 /**
- * Custom hook for debouncing values
- * Useful for search inputs, API calls, etc.
+ * Debounce a value - delays updating until after delay has passed
  */
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
@@ -21,34 +25,41 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 /**
- * Hook for debounced callbacks
- * Returns a debounced version of the callback function
+ * Debounce a callback function - prevents excessive calls
  */
 export function useDebouncedCallback<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout>()
+  const callbackRef = useRef(callback)
+  const timeoutRef = useRef<NodeJS.Timeout>()
 
-  const debouncedCallback = ((...args: Parameters<T>) => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer)
-    }
+  // Update callback ref when callback changes
+  useEffect(() => {
+    callbackRef.current = callback
+  }, [callback])
 
-    const timer = setTimeout(() => {
-      callback(...args)
-    }, delay)
+  const debouncedCallback = useCallback(
+    (...args: Parameters<T>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
 
-    setDebounceTimer(timer)
-  }) as T
+      timeoutRef.current = setTimeout(() => {
+        callbackRef.current(...args)
+      }, delay)
+    },
+    [delay]
+  ) as T
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
     }
-  }, [debounceTimer])
+  }, [])
 
   return debouncedCallback
 }

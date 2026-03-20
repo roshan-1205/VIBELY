@@ -15,6 +15,7 @@ export default defineConfig({
       '@/types': resolve(__dirname, './src/types'),
       '@/styles': resolve(__dirname, './src/styles'),
       '@/constants': resolve(__dirname, './src/constants'),
+      '@/pages': resolve(__dirname, './src/pages'),
     },
   },
   server: {
@@ -27,11 +28,33 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          // Vendor chunks for better caching
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           query: ['@tanstack/react-query'],
-          animation: ['framer-motion', 'gsap'],
+          animation: ['framer-motion'],
+          state: ['zustand'],
+          ui: ['clsx', 'tailwind-merge'],
         },
       },
     },
+    // Performance optimizations
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
+  // Performance optimizations
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'framer-motion',
+      'zustand',
+      '@tanstack/react-query',
+    ],
   },
 })

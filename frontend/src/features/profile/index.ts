@@ -48,7 +48,7 @@ export {
 // Types
 export type {
   User,
-  ProfileStats,
+  ProfileStats as ProfileStatsType,
   ProfileData,
   ProfilePost,
   ProfilePostsResponse,

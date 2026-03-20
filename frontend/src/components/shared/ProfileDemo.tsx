@@ -3,7 +3,7 @@
  * Demonstrates the premium profile features
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ProfilePage, CompactProfile } from '@/features/profile'
 import { hwAcceleration } from '@/core'

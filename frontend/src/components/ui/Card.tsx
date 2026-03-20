@@ -96,9 +96,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           ...getGlassStyles(),
           ...getGlowStyles(),
         }}
-        variants={fadeInUp}
-        {...motionProps}
-        {...props}
+        variants={fadeInUp as any}
+        {...(motionProps as any)}
       >
         {children}
       </motion.div>

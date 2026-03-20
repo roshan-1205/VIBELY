@@ -1,5 +1,4 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
-import { useAuthStore } from '../store/auth.store'
 import { logger } from '../utils/logger'
 import { ENV } from '../config/env'
 
@@ -18,8 +17,17 @@ export const apiClient = axios.create({
 // Request interceptor - attach auth token
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from Zustand auth store
-    const token = useAuthStore.getState().token
+    // Import auth store dynamically to avoid circular dependencies
+    const getAuthToken = () => {
+      try {
+        const authStore = require('../../features/auth/store/auth.store')
+        return authStore.getAuthToken()
+      } catch {
+        return null
+      }
+    }
+    
+    const token = getAuthToken()
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -48,7 +56,7 @@ apiClient.interceptors.response.use(
     })
     return response
   },
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     const status = error.response?.status
     const url = error.config?.url
     
@@ -59,25 +67,35 @@ apiClient.interceptors.response.use(
       data: error.response?.data,
     })
     
-    // Handle common error cases
+    // Handle 401 Unauthorized
     if (status === 401) {
-      // Unauthorized - logout user via Zustand store
-      logger.warn('Unauthorized access, logging out user')
-      useAuthStore.getState().logout()
-      window.location.href = '/login'
+      logger.warn('Unauthorized access, clearing auth state')
+      
+      // Import auth store dynamically to avoid circular dependencies
+      try {
+        const authStore = require('../../features/auth/store/auth.store')
+        authStore.useAuthStore.getState().clearAuth()
+        
+        // Redirect to login if not already there
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login'
+        }
+      } catch (error) {
+        logger.error('Failed to clear auth state:', error)
+      }
     }
     
+    // Handle 403 Forbidden
     if (status === 403) {
-      // Forbidden - show error message
       logger.error('Access forbidden:', error.response?.data)
     }
     
+    // Handle server errors
     if (status && status >= 500) {
-      // Server error - show generic error message
       logger.error('Server error:', error.response?.data)
     }
     
-    // Network error
+    // Handle network errors
     if (!error.response) {
       logger.error('Network error:', error.message)
     }

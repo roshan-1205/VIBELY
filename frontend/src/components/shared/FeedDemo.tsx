@@ -3,7 +3,7 @@
  * Demonstration of the complete feed system
  */
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FeedListWithHeader } from '@/features/feed'
 import { buttonTap, hwAcceleration, fadeInUp } from '@/core'

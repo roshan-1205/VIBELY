@@ -3,7 +3,7 @@
  * Quick test to verify all animations are working
  */
 
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   useScrollFadeInUp,

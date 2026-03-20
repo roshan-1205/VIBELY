@@ -3,7 +3,7 @@
  * Demonstrates GSAP stagger animations for lists
  */
 
-import React, { useRef, useEffect } from 'react'
+import React, { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useScrollStaggerReveal } from '@/core'
 import { staggerContainer, staggerItem, hwAcceleration } from '@/lib/motion'
