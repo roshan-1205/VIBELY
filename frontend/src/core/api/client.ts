@@ -1,7 +1,10 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
+import { useAuthStore } from '../store/auth.store'
+import { logger } from '../utils/logger'
+import { ENV } from '../config/env'
 
 // Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+const API_BASE_URL = ENV.API_URL
 
 // Create axios instance
 export const apiClient = axios.create({
@@ -15,16 +18,23 @@ export const apiClient = axios.create({
 // Request interceptor - attach auth token
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from localStorage or your auth store
-    const token = localStorage.getItem('auth_token')
+    // Get token from Zustand auth store
+    const token = useAuthStore.getState().token
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
     
+    logger.debug('API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      hasAuth: !!token,
+    })
+    
     return config
   },
   (error) => {
+    logger.error('API Request Error:', error)
     return Promise.reject(error)
   }
 )
@@ -32,29 +42,44 @@ apiClient.interceptors.request.use(
 // Response interceptor - handle errors globally
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    logger.debug('API Response:', {
+      status: response.status,
+      url: response.config.url,
+    })
     return response
   },
   (error: AxiosError) => {
+    const status = error.response?.status
+    const url = error.config?.url
+    
+    logger.error('API Error:', {
+      status,
+      url,
+      message: error.message,
+      data: error.response?.data,
+    })
+    
     // Handle common error cases
-    if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('auth_token')
+    if (status === 401) {
+      // Unauthorized - logout user via Zustand store
+      logger.warn('Unauthorized access, logging out user')
+      useAuthStore.getState().logout()
       window.location.href = '/login'
     }
     
-    if (error.response?.status === 403) {
+    if (status === 403) {
       // Forbidden - show error message
-      console.error('Access forbidden:', error.response.data)
+      logger.error('Access forbidden:', error.response?.data)
     }
     
-    if (error.response?.status && error.response.status >= 500) {
+    if (status && status >= 500) {
       // Server error - show generic error message
-      console.error('Server error:', error.response?.data)
+      logger.error('Server error:', error.response?.data)
     }
     
     // Network error
     if (!error.response) {
-      console.error('Network error:', error.message)
+      logger.error('Network error:', error.message)
     }
     
     return Promise.reject(error)

@@ -1,5 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { useUIStore } from '@/core/store/ui.store'
+import { buttonTap, hwAcceleration } from '@/core'
 
 const navigation = [
   { name: 'Home', href: '/', icon: '🏠' },
@@ -11,6 +13,8 @@ const navigation = [
 ]
 
 export function Sidebar() {
+  const { openCreate } = useUIStore()
+
   return (
     <motion.aside
       initial={{ x: -100, opacity: 0 }}
@@ -25,6 +29,22 @@ export function Sidebar() {
         </h1>
         <p className="text-sm text-slate-500 mt-1">Share your vibe</p>
       </div>
+
+      {/* Quick Create Button */}
+      <motion.button
+        {...buttonTap}
+        style={hwAcceleration}
+        onClick={openCreate}
+        className="w-full mb-6 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+        whileHover={{ scale: 1.02, y: -1 }}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create Post</span>
+        </div>
+      </motion.button>
       
       {/* Navigation */}
       <nav className="space-y-2">

@@ -4,3 +4,4 @@
  */
 
 export { useVibeSync, useBatchedVibeSync, globalVibeSync } from './useVibeSync'
+export { useKeyboardShortcuts, useComponentShortcuts, shortcuts } from './useKeyboardShortcuts'

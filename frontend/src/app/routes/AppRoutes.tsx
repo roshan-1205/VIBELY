@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import { DesignSystemDemo } from './DesignSystemDemo'
 import { VibeSyncDemo } from '@/components/shared/VibeSyncDemo'
+import { CreatePostDemo } from '@/components/shared/CreatePostDemo'
+import { ProfileDemo } from '@/components/shared/ProfileDemo'
 
 // Placeholder components - will be implemented in features
 const HomePage = () => (
@@ -21,19 +23,9 @@ const FeedPage = () => (
   </div>
 )
 
-const ProfilePage = () => (
-  <div className="glass-card">
-    <h2 className="text-2xl font-semibold mb-4">Profile</h2>
-    <p className="text-slate-600">User profile management coming soon...</p>
-  </div>
-)
+const ProfilePage = () => <ProfileDemo />
 
-const CreatePage = () => (
-  <div className="glass-card">
-    <h2 className="text-2xl font-semibold mb-4">Create Post</h2>
-    <p className="text-slate-600">Post creation with vibe analysis coming soon...</p>
-  </div>
-)
+const CreatePage = () => <CreatePostDemo />
 
 export function AppRoutes() {
   return (
