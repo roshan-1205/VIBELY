@@ -54,7 +54,47 @@ class ApiService {
         statusText: response.statusText,
         data
       });
-      throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+      
+      // Provide more specific error messages based on status codes
+      let errorMessage = data.message || 'An error occurred';
+      
+      switch (response.status) {
+        case 400:
+          // Bad request - usually validation errors or wrong credentials
+          if (data.message?.includes('Invalid email or password')) {
+            errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+          } else if (data.message?.includes('already exists')) {
+            errorMessage = 'An account with this email already exists. Please try signing in instead.';
+          } else if (data.message?.includes('deactivated')) {
+            errorMessage = 'Your account has been deactivated. Please contact support for assistance.';
+          } else if (data.errors && Array.isArray(data.errors)) {
+            // Handle validation errors
+            errorMessage = data.errors.map((err: any) => err.message).join(', ');
+          }
+          break;
+        case 401:
+          errorMessage = 'Your session has expired. Please sign in again.';
+          break;
+        case 403:
+          errorMessage = 'You do not have permission to perform this action.';
+          break;
+        case 404:
+          errorMessage = 'The requested resource was not found.';
+          break;
+        case 429:
+          errorMessage = 'Too many requests. Please wait a moment and try again.';
+          break;
+        case 500:
+          errorMessage = 'Server error. Please try again later.';
+          break;
+        case 503:
+          errorMessage = 'Service temporarily unavailable. Please try again later.';
+          break;
+        default:
+          errorMessage = data.message || `Error ${response.status}: ${response.statusText}`;
+      }
+      
+      throw new Error(errorMessage);
     }
     
     return data;

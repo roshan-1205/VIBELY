@@ -3,10 +3,53 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+
+// Icons for alerts
+const AlertCircle = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+)
+
+const CheckCircle = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22,4 12,14.01 9,11.01" />
+  </svg>
+)
+
+interface FormErrors {
+  email?: string
+  password?: string
+  general?: string
+}
 
 export default function SignInPage() {
   const { login, user, isLoading, error, clearError } = useAuth()
@@ -16,6 +59,9 @@ export default function SignInPage() {
     password: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
+  const [showPassword, setShowPassword] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   // Redirect if already logged in
   useEffect(() => {
@@ -27,17 +73,41 @@ export default function SignInPage() {
   // Clear errors when component mounts or form data changes
   useEffect(() => {
     clearError()
+    setFormErrors({})
+    setSuccessMessage('')
   }, [formData, clearError])
+
+  // Client-side validation
+  const validateForm = (): boolean => {
+    const errors: FormErrors = {}
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+
+    // Password validation
+    if (!formData.password.trim()) {
+      errors.password = 'Password is required'
+    } else if (formData.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters long'
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSuccessMessage('')
 
-    // Basic client-side validation
-    if (!formData.email.trim() || !formData.password.trim()) {
-      console.error('Form validation failed: Missing required fields');
-      setIsSubmitting(false);
-      return;
+    // Client-side validation
+    if (!validateForm()) {
+      setIsSubmitting(false)
+      return
     }
 
     try {
@@ -48,22 +118,39 @@ export default function SignInPage() {
       
       const success = await login(formData.email, formData.password)
       if (success) {
+        setSuccessMessage('Login successful! Redirecting...')
         console.log('Login successful, redirecting to hero page');
-        router.push('/hero')
+        setTimeout(() => {
+          router.push('/hero')
+        }, 1000)
       }
       // Error handling is now done in the AuthContext
     } catch (err) {
       console.error('Login error:', err)
+      setFormErrors({ general: 'An unexpected error occurred. Please try again.' })
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }))
+    
+    // Clear specific field error when user starts typing
+    if (formErrors[name as keyof FormErrors]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }))
+    }
+  }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
   }
 
   if (isLoading) {
@@ -150,10 +237,22 @@ export default function SignInPage() {
           
           <hr className="my-4 border-dashed" />
           
-          {error && (
-            <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-              {error}
-            </div>
+          {/* Success Message */}
+          {successMessage && (
+            <Alert variant="success" className="mb-4">
+              <CheckCircle />
+              <AlertDescription>{successMessage}</AlertDescription>
+            </Alert>
+          )}
+          
+          {/* General Error Message */}
+          {(error || formErrors.general) && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle />
+              <AlertDescription>
+                {error || formErrors.general}
+              </AlertDescription>
+            </Alert>
           )}
           
           <div className="space-y-5">
@@ -173,7 +272,11 @@ export default function SignInPage() {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={isSubmitting}
+                className={formErrors.email ? 'border-red-500 focus:border-red-500' : ''}
               />
+              {formErrors.email && (
+                <p className="text-sm text-red-600 mt-1">{formErrors.email}</p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -183,17 +286,61 @@ export default function SignInPage() {
               >
                 Password
               </Label>
-              <Input
-                type="password"
-                required
-                name="password"
-                id="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={isSubmitting}
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  name="password"
+                  id="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  minLength={6}
+                  className={formErrors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  disabled={isSubmitting}
+                >
+                  {showPassword ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {formErrors.password && (
+                <p className="text-sm text-red-600 mt-1">{formErrors.password}</p>
+              )}
             </div>
             
             <div className="flex items-center justify-between">
