@@ -138,15 +138,6 @@ export default function HeroPage() {
           <Button variant="ghost" asChild>
             <Link href="/">Home</Link>
           </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/robot-demo">Robot Demo</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/robot-customizer">Customize Robot</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/color-test">Color Test</Link>
-          </Button>
           <Button variant="outline" onClick={handleLogout}>
             Logout
           </Button>
@@ -289,7 +280,7 @@ export default function HeroPage() {
             <span className="font-semibold">Vibely</span>
           </div>
           <div className="text-sm text-muted-foreground">
-            © 2024 Vibely. All rights reserved.
+            © 2026 Vibely. All rights reserved.
           </div>
         </div>
       </footer>
