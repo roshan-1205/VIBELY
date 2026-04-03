@@ -1,380 +1,346 @@
-# 🌟 VIBELY - AI-Powered Social Media Platform
+# Vibely - Social Platform
 
-> **Next-generation social media platform with real-time sentiment analysis and glassmorphism design**
+A modern full-stack social platform built with Next.js, Node.js, and MongoDB featuring real-time authentication, animated components, and a beautiful UI.
 
-VIBELY is a modern, production-ready social media platform that combines cutting-edge AI sentiment analysis with premium glassmorphism UI design. Built for scale with FastAPI backend and React frontend.
+## 🚀 Features
 
-## ✨ Key Features
+### Frontend
+- ✅ **Next.js 14** with App Router and TypeScript
+- ✅ **shadcn/ui** component library with Tailwind CSS
+- ✅ **Framer Motion** animations (ShuffleHero component)
+- ✅ **Real-time Authentication** with JWT tokens
+- ✅ **Protected Routes** and automatic redirects
+- ✅ **Form Validation** with error handling
+- ✅ **Responsive Design** for all devices
+- ✅ **Dark Mode** support
 
-### 🧠 AI-Powered Vibe Engine
-- **Real-time sentiment analysis** using HuggingFace Transformers
-- **Vibe classification** (positive, neutral, negative) for all content
-- **Dynamic UI theming** that adapts to content sentiment
-- **Background processing** for seamless user experience
+### Backend
+- ✅ **Node.js/Express** REST API
+- ✅ **MongoDB** with Mongoose ODM
+- ✅ **JWT Authentication** with secure token handling
+- ✅ **Password Hashing** with bcryptjs
+- ✅ **Input Validation** with express-validator
+- ✅ **Rate Limiting** and security headers
+- ✅ **CORS** configuration
+- ✅ **Error Handling** and logging
 
-### 🎨 Premium Design System
-- **Glassmorphism UI** with backdrop blur effects
-- **Smooth 60fps animations** powered by Framer Motion
-- **Responsive design** optimized for all devices
-- **Accessibility-first** approach (WCAG compliant)
+## 📋 Prerequisites
 
-### ⚡ High-Performance Architecture
-- **Infinite scroll feed** with cursor-based pagination
-- **Real-time updates** via WebSocket connections
-- **Background job processing** with Celery
-- **Redis caching** for optimal performance
+Before you begin, ensure you have the following installed:
 
-### 🔐 Enterprise-Grade Security
-- **JWT authentication** with refresh token rotation
-- **Rate limiting** and request throttling
-- **Input validation** and SQL injection prevention
-- **CORS protection** and secure headers
+- **Node.js 16+** - [Download here](https://nodejs.org/)
+- **MongoDB** - [Download here](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/atlas)
+- **Git** - [Download here](https://git-scm.com/)
 
-## 🏗️ Architecture Overview
+## 🛠️ Quick Start
 
-```
-VIBELY/
-├── backend/          # FastAPI + PostgreSQL + Redis
-│   ├── app/
-│   │   ├── api/      # REST API endpoints
-│   │   ├── core/     # Configuration & security
-│   │   ├── models/   # Database models
-│   │   ├── services/ # Business logic
-│   │   └── workers/  # Background jobs
-│   └── main.py       # Application entry point
-│
-└── frontend/         # React + TypeScript + Tailwind
-    ├── src/
-    │   ├── components/ # UI component library
-    │   ├── features/   # Feature modules
-    │   ├── core/       # Hooks, utils, API client
-    │   └── app/        # App configuration
-    └── package.json
+### Option 1: Automated Setup (Recommended)
+
+**For macOS/Linux:**
+```bash
+# Make the script executable
+chmod +x start-dev.sh
+
+# Run the development environment
+./start-dev.sh
 ```
 
-## 🚀 Quick Start
-
-### Prerequisites
-- **Docker & Docker Compose** (recommended)
-- **Node.js 18+** and **Python 3.11+** (for manual setup)
-- **PostgreSQL 15+** and **Redis 7+**
-
-### Option 1: Docker Setup (Recommended)
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd VIBELY
-   ```
-
-2. **Start backend services**:
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Edit .env with your configuration
-   docker-compose up -d
-   ```
-
-3. **Start frontend**:
-   ```bash
-   cd ../frontend
-   npm install
-   npm run dev
-   ```
-
-4. **Access the application**:
-   - **Frontend**: http://localhost:3001
-   - **Backend API**: http://localhost:8000
-   - **API Documentation**: http://localhost:8000/docs
+**For Windows:**
+```batch
+# Run the batch file
+start-dev.bat
+```
 
 ### Option 2: Manual Setup
 
-#### Backend Setup
+1. **Clone the repository:**
+```bash
+git clone <repository-url>
+cd VIBELY
+```
+
+2. **Set up the Backend:**
 ```bash
 cd backend
 
 # Install dependencies
-pip install -r requirements.txt
+npm install
 
-# Setup environment
+# Copy environment file
 cp .env.example .env
-# Edit .env with your database and Redis URLs
 
-# Run database migrations
-alembic upgrade head
-
-# Start API server
-uvicorn main:app --reload --port 8000
-
-# Start Celery worker (separate terminal)
-celery -A app.workers.celery_app worker --loglevel=info
+# Edit .env with your configuration (optional for development)
+# Start the backend server
+npm run dev
 ```
 
-#### Frontend Setup
+3. **Set up the Frontend (in a new terminal):**
 ```bash
 cd frontend
 
 # Install dependencies
 npm install
 
-# Start development server
+# Copy environment file
+cp .env.example .env.local
+
+# Start the frontend server
 npm run dev
 ```
 
-## 🛠️ Tech Stack
+4. **Start MongoDB:**
+```bash
+# macOS with Homebrew
+brew services start mongodb-community
 
-### Backend
-- **Framework**: FastAPI 0.104+ with async/await
-- **Database**: PostgreSQL with SQLAlchemy (async)
-- **Cache**: Redis for sessions and rate limiting
-- **Background Jobs**: Celery with Redis broker
-- **AI/ML**: HuggingFace Transformers for sentiment analysis
-- **Authentication**: JWT with python-jose
-- **Validation**: Pydantic schemas
-- **Logging**: Structured logging with Loguru
+# Linux
+sudo systemctl start mongod
 
-### Frontend
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite for fast development
-- **Styling**: Tailwind CSS with CSS variables
-- **Animations**: Framer Motion + GSAP
-- **State Management**: Zustand + React Query
-- **Routing**: React Router v7
-- **HTTP Client**: Axios with interceptors
-- **Virtualization**: React Virtuoso for performance
+# Windows
+net start MongoDB
+```
 
-## 📡 API Endpoints
+## 🌐 Access the Application
+
+Once both servers are running:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **API Health Check**: http://localhost:5000/api/health
+
+## 📱 User Flow
+
+### New User Registration
+1. Visit http://localhost:3000
+2. Click "Get Started"
+3. Fill out the registration form:
+   - First Name (2+ characters, letters only)
+   - Last Name (2+ characters, letters only)
+   - Email (valid email format)
+   - Password (6+ characters with uppercase, lowercase, and number)
+4. Automatically redirected to dashboard after successful registration
+
+### Existing User Login
+1. Visit http://localhost:3000
+2. Click "Sign In"
+3. Enter your email and password
+4. Automatically redirected to dashboard after successful login
+
+### Protected Dashboard
+- Access the hero dashboard at `/hero` (requires authentication)
+- View animated ShuffleHero component
+- See personalized user information
+- Access profile management features
+
+## 🔧 API Endpoints
 
 ### Authentication
-```
-POST /api/v1/auth/register    # Register new user
-POST /api/v1/auth/login       # Login user  
-POST /api/v1/auth/refresh     # Refresh access token
-GET  /api/v1/auth/me          # Get current user
-```
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/verify-token` - Verify JWT token
 
-### Feed & Posts
+### User Management
+- `GET /api/user/profile` - Get user profile
+- `PUT /api/user/profile` - Update user profile
+- `PUT /api/user/password` - Update password
+- `GET /api/user/stats` - Get user statistics
+- `DELETE /api/user/account` - Deactivate account
+
+## 🗂️ Project Structure
+
 ```
-GET  /api/v1/feed/            # Get paginated feed
-POST /api/v1/feed/            # Create new post
-GET  /api/v1/feed/{post_id}   # Get specific post
-POST /api/v1/feed/{post_id}/like  # Like/unlike post
-```
-
-### Vibe Engine
-```
-POST /api/v1/vibe/analyze     # Analyze text sentiment
-POST /api/v1/vibe/analyze/batch   # Batch analysis
-GET  /api/v1/vibe/posts/by-sentiment  # Filter by sentiment
-```
-
-### Real-Time
-```
-WS   /ws/connect?token={jwt}  # WebSocket connection
-```
-
-## 🧠 Vibe Engine Deep Dive
-
-The AI-powered sentiment analysis system is the core innovation of VIBELY:
-
-### How It Works
-1. **Text Analysis**: Uses HuggingFace Transformers for sentiment scoring
-2. **Async Processing**: Background workers handle analysis without blocking API
-3. **Real-Time Updates**: WebSocket broadcasts sentiment results instantly
-4. **UI Adaptation**: Frontend dynamically themes based on sentiment
-
-### Example Usage
-```python
-# Analyze sentiment
-POST /api/v1/vibe/analyze
-{
-  "text": "Having an amazing day! 🌟"
-}
-
-# Response
-{
-  "sentiment_score": 0.89,
-  "sentiment_label": "positive", 
-  "confidence": 0.95,
-  "processing_time": 0.12
-}
+VIBELY/
+├── backend/                 # Node.js/Express API
+│   ├── middleware/         # Auth & validation middleware
+│   ├── models/            # MongoDB/Mongoose models
+│   ├── routes/            # API route handlers
+│   ├── .env               # Environment variables
+│   ├── server.js          # Main server file
+│   └── package.json       # Backend dependencies
+├── frontend/               # Next.js React app
+│   ├── app/               # Next.js App Router pages
+│   ├── components/        # React components
+│   ├── contexts/          # React Context providers
+│   ├── services/          # API service layer
+│   ├── .env.local         # Frontend environment variables
+│   └── package.json       # Frontend dependencies
+├── start-dev.sh           # Development startup script (Unix)
+├── start-dev.bat          # Development startup script (Windows)
+└── README.md              # This file
 ```
 
-### Frontend Integration
-```tsx
-// Dynamic theming based on sentiment
-<div className={`vibe-${sentiment}`}>
-  <Card variant="glass" glow>
-    Content adapts to vibe
-  </Card>
-</div>
-```
+## 🔐 Authentication System
 
-## 🎨 Design System
+### Security Features
+- **JWT Tokens**: Secure token-based authentication
+- **Password Hashing**: bcryptjs with 12 salt rounds
+- **Token Verification**: Automatic token validation
+- **Protected Routes**: Client-side route protection
+- **Rate Limiting**: 100 requests per 15 minutes per IP
+- **Input Validation**: Comprehensive server-side validation
+- **CORS Protection**: Configured for frontend domain
 
-VIBELY features a world-class design system with glassmorphism effects:
+### Password Requirements
+- Minimum 6 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
 
-### Core Components
-- **Button**: Multiple variants with loading states
-- **Card**: Glassmorphism cards with hover effects  
-- **Avatar**: User avatars with status indicators
-- **Input**: Premium form controls with focus animations
-- **Skeleton**: Shimmer loading states
+### Token Management
+- Tokens expire in 7 days (configurable)
+- Stored securely in localStorage
+- Automatic cleanup on logout
+- Server-side token verification
 
-### Usage Example
-```tsx
-import { Button, Card, Avatar, Input } from '@/components/ui'
+## 🎨 UI Components
 
-function PostCard() {
-  return (
-    <Card variant="glass" hover glow>
-      <div className="flex items-center gap-4">
-        <Avatar fallback="JD" status="online" />
-        <Input 
-          variant="glass" 
-          placeholder="What's your vibe?" 
-          glow 
-        />
-        <Button variant="primary">Share</Button>
-      </div>
-    </Card>
-  )
-}
-```
+### ShuffleHero Component
+- Animated 4x4 image grid
+- Images shuffle every 3 seconds
+- Smooth spring animations with Framer Motion
+- Responsive design
+- High-quality Unsplash stock images
 
-## 🔄 Real-Time Features
+### Authentication Forms
+- Real-time validation
+- Loading states with spinners
+- Error handling with user-friendly messages
+- Responsive design
+- Social login UI (Google/Microsoft)
 
-WebSocket integration provides live updates for:
-- **Post interactions** (likes, comments)
-- **Sentiment analysis results**
-- **User notifications**
-- **Online status indicators**
+## 🛠️ Development
 
-### WebSocket Events
-```javascript
-// Subscribe to post updates
-{
-  "type": "subscribe_post",
-  "post_id": "uuid-here"
-}
+### Available Scripts
 
-// Receive live updates
-{
-  "type": "post_like",
-  "post_id": "uuid-here", 
-  "user_id": "uuid-here",
-  "liked": true
-}
-```
+**Backend:**
+- `npm start` - Start production server
+- `npm run dev` - Start development server with nodemon
 
-## 📊 Performance Optimizations
+**Frontend:**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-### Backend
-- **Cursor-based pagination** for infinite scroll
-- **Database indexing** for optimized queries
-- **Redis caching** for session management
-- **Async operations** throughout the stack
-- **Background processing** for heavy operations
+### Environment Variables
 
-### Frontend  
-- **Code splitting** with React.lazy
-- **Virtual scrolling** for large lists
-- **Image optimization** with lazy loading
-- **Bundle optimization** with Vite
-- **Animation performance** using transform/opacity only
-
-## 🐳 Production Deployment
-
-### Docker Compose (Recommended)
+**Backend (.env):**
 ```bash
-# Production deployment
-docker-compose -f backend/docker-compose.prod.yml up -d
-
-# Frontend build
-cd frontend
-npm run build
-# Serve with nginx or your preferred static host
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/vibely
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRE=7d
+FRONTEND_URL=http://localhost:3000
 ```
 
-### Environment Configuration
-```env
-# Backend (.env)
-ENVIRONMENT=production
-DEBUG=false
-SECRET_KEY=your-super-secure-secret-key
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
-REDIS_URL=redis://host:6379/0
-
-# Frontend
-VITE_API_URL=https://api.yourdomain.com
-VITE_WS_URL=wss://api.yourdomain.com/ws
-```
-
-## 🧪 Testing & Quality
-
-### Backend Testing
+**Frontend (.env.local):**
 ```bash
-cd backend
-pytest                    # Run all tests
-pytest --cov=app         # With coverage
-pytest tests/test_auth.py # Specific tests
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### Frontend Testing  
+## 🧪 Testing the API
+
+You can test the API endpoints using tools like:
+
+- **Postman** - GUI testing
+- **curl** - Command line testing
+- **Thunder Client** - VS Code extension
+
+### Example API Calls
+
+**Register User:**
 ```bash
-cd frontend
-npm run lint              # ESLint
-npm run type-check        # TypeScript
-npm run build             # Production build test
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "password": "SecurePass123"
+  }'
 ```
 
-### Code Quality
+**Login User:**
 ```bash
-# Backend formatting
-black .
-isort .
-flake8 app/
-
-# Frontend formatting  
-npm run lint --fix
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "SecurePass123"
+  }'
 ```
 
-## 📈 Monitoring & Observability
+## 🚀 Production Deployment
 
-- **Structured logging** with request IDs
-- **Health check endpoints** for monitoring
-- **Error tracking** with global exception handlers
-- **Performance metrics** ready for Prometheus
-- **Database query optimization** with SQLAlchemy logging
+### Backend Deployment
+1. Set `NODE_ENV=production`
+2. Use a strong `JWT_SECRET`
+3. Configure MongoDB Atlas or production database
+4. Set up proper CORS origins
+5. Use PM2 or similar for process management
+6. Configure SSL/HTTPS
+7. Set up proper logging and monitoring
+
+### Frontend Deployment
+1. Build the application: `npm run build`
+2. Deploy to Vercel, Netlify, or similar platform
+3. Set production environment variables
+4. Configure custom domain (optional)
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **MongoDB Connection Error**
+   - Ensure MongoDB is running: `brew services start mongodb-community`
+   - Check connection string in backend `.env`
+   - Verify network connectivity
+
+2. **CORS Errors**
+   - Verify `FRONTEND_URL` in backend `.env`
+   - Check frontend is running on http://localhost:3000
+
+3. **JWT Token Issues**
+   - Check `JWT_SECRET` is set in backend `.env`
+   - Verify token format in API requests
+   - Clear localStorage if tokens are corrupted
+
+4. **Port Already in Use**
+   - Backend: Change `PORT` in `.env` or kill process on port 5000
+   - Frontend: Next.js will automatically use next available port
+
+5. **Dependencies Issues**
+   - Delete `node_modules` and `package-lock.json`
+   - Run `npm install` again
+   - Ensure Node.js version is 16+
+
+## 📚 Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Express.js Documentation](https://expressjs.com/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [shadcn/ui Documentation](https://ui.shadcn.com/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Framer Motion Documentation](https://www.framer.com/motion/)
 
 ## 🤝 Contributing
 
-1. **Fork the repository**
-2. **Create feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit changes**: `git commit -m 'Add amazing feature'`
-4. **Push to branch**: `git push origin feature/amazing-feature`
-5. **Open Pull Request**
-
-### Development Guidelines
-- Follow existing code style and patterns
-- Add tests for new features
-- Update documentation as needed
-- Ensure all checks pass before submitting PR
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -am 'Add feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🔗 Links
+## 🙏 Acknowledgments
 
-- **Live Demo**: [Coming Soon]
-- **API Documentation**: http://localhost:8000/docs
-- **Design System**: http://localhost:3001/design-system
-- **Backend README**: [backend/README.md](backend/README.md)
-- **Frontend README**: [frontend/README.md](frontend/README.md)
-
----
-
-**Built with ❤️ for the next generation of social media platforms.**
-
-*VIBELY combines cutting-edge AI technology with premium design to create social experiences that adapt to human emotions in real-time.*
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
+- [Unsplash](https://unsplash.com/) for the high-quality stock images
+- [Framer Motion](https://www.framer.com/motion/) for smooth animations
+- The open-source community for the amazing tools and libraries

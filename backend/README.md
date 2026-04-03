@@ -1,278 +1,291 @@
-# Vibely Backend
+# Vibely Backend API
 
-Production-grade, scalable backend system for a social media platform built with Python, FastAPI, PostgreSQL, and Redis.
+A robust Node.js/Express backend with JWT authentication, MongoDB integration, and comprehensive user management.
 
-## 🚀 Features
+## Features
 
-- **High-Performance API**: FastAPI with async/await support
-- **Infinite Feed System**: Cursor-based pagination for optimal performance
-- **AI-Powered Vibe Engine**: Sentiment analysis using HuggingFace Transformers
-- **Real-Time Updates**: WebSocket support for live likes, comments, and notifications
-- **Secure Authentication**: JWT with access/refresh token pattern
-- **Background Processing**: Celery for async sentiment analysis and notifications
-- **Production-Ready**: Docker, Redis caching, comprehensive logging
+- ✅ **JWT Authentication** - Secure token-based authentication
+- ✅ **Password Hashing** - bcryptjs with salt rounds
+- ✅ **Input Validation** - express-validator with custom rules
+- ✅ **Rate Limiting** - Protection against brute force attacks
+- ✅ **CORS Support** - Cross-origin resource sharing
+- ✅ **Security Headers** - Helmet.js for security
+- ✅ **MongoDB Integration** - Mongoose ODM with schemas
+- ✅ **Error Handling** - Comprehensive error management
+- ✅ **Environment Configuration** - dotenv support
 
-## 🏗️ Architecture
+## Quick Start
 
+### Prerequisites
+
+- Node.js 16+ installed
+- MongoDB running locally or MongoDB Atlas account
+
+### Installation
+
+1. **Navigate to backend directory:**
+```bash
+cd VIBELY/backend
 ```
-/app
-├── /api              # API routes (versioned: v1)
-├── /core             # Global systems (config, database, security)
-├── /models           # SQLAlchemy ORM models
-├── /schemas          # Pydantic request/response models
-├── /services         # Business logic layer
-├── /repositories     # Data access layer
-├── /workers          # Background jobs (Celery)
-├── /sockets          # WebSocket handlers
-└── main.py           # FastAPI entry point
+
+2. **Install dependencies:**
+```bash
+npm install
 ```
 
-## 🛠️ Tech Stack
+3. **Set up environment variables:**
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-- **Framework**: FastAPI 0.104+
-- **Database**: PostgreSQL with SQLAlchemy (async)
-- **Cache**: Redis
-- **Background Jobs**: Celery
-- **AI/ML**: HuggingFace Transformers
-- **Authentication**: JWT (python-jose)
-- **Validation**: Pydantic
-- **Logging**: Loguru
+4. **Start MongoDB** (if running locally):
+```bash
+# macOS with Homebrew
+brew services start mongodb-community
 
-## 🚀 Quick Start
+# Windows
+net start MongoDB
 
-### Using Docker (Recommended)
+# Linux
+sudo systemctl start mongod
+```
 
-1. **Clone and setup**:
-   ```bash
-   cd VIBELY/backend
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+5. **Start the server:**
+```bash
+# Development mode with auto-reload
+npm run dev
 
-2. **Start services**:
-   ```bash
-   docker-compose up -d
-   ```
+# Production mode
+npm start
+```
 
-3. **Access API**:
-   - API: http://localhost:8000
-   - Docs: http://localhost:8000/docs
-   - Health: http://localhost:8000/health
+The server will start on `http://localhost:5000`
 
-### Manual Setup
+## API Endpoints
 
-1. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Authentication Routes (`/api/auth`)
 
-2. **Setup PostgreSQL and Redis**:
-   ```bash
-   # PostgreSQL
-   createdb vibely_db
-   
-   # Redis (using Docker)
-   docker run -d -p 6379:6379 redis:7-alpine
-   ```
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|---------|
+| POST | `/register` | Register new user | Public |
+| POST | `/login` | User login | Public |
+| GET | `/me` | Get current user | Private |
+| POST | `/logout` | User logout | Private |
+| POST | `/verify-token` | Verify JWT token | Private |
 
-3. **Configure environment**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database and Redis URLs
-   ```
+### User Routes (`/api/user`)
 
-4. **Run migrations**:
-   ```bash
-   alembic upgrade head
-   ```
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|---------|
+| GET | `/profile` | Get user profile | Private |
+| PUT | `/profile` | Update user profile | Private |
+| PUT | `/password` | Update password | Private |
+| DELETE | `/account` | Deactivate account | Private |
+| GET | `/stats` | Get user statistics | Private |
 
-5. **Start services**:
-   ```bash
-   # API Server
-   uvicorn main:app --reload
-   
-   # Celery Worker (separate terminal)
-   celery -A app.workers.celery_app worker --loglevel=info
-   ```
+### Health Check
 
-## 📡 API Endpoints
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|---------|
+| GET | `/api/health` | Server health check | Public |
 
-### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/refresh` - Refresh access token
-- `GET /api/v1/auth/me` - Get current user
+## Request/Response Examples
 
-### Feed & Posts
-- `GET /api/v1/feed/` - Get paginated feed (cursor-based)
-- `POST /api/v1/feed/` - Create new post
-- `GET /api/v1/feed/{post_id}` - Get specific post
-- `POST /api/v1/feed/{post_id}/like` - Like/unlike post
-- `GET /api/v1/feed/user/{user_id}` - Get user's posts
+### Register User
+```bash
+POST /api/auth/register
+Content-Type: application/json
 
-### Vibe Engine
-- `POST /api/v1/vibe/analyze` - Analyze text sentiment
-- `POST /api/v1/vibe/analyze/batch` - Batch sentiment analysis
-- `GET /api/v1/vibe/posts/by-sentiment` - Filter posts by sentiment
-
-### Users
-- `GET /api/v1/user/profile/{user_id}` - Get user profile
-- `PUT /api/v1/user/update` - Update profile
-- `GET /api/v1/user/search` - Search users
-
-### WebSocket
-- `WS /ws/connect?token={jwt_token}` - Real-time connection
-
-## 🧠 Vibe Engine
-
-The core innovation of Vibely is the AI-powered sentiment analysis system:
-
-1. **Text Analysis**: Uses HuggingFace Transformers for sentiment scoring
-2. **Async Processing**: Background workers handle analysis without blocking API
-3. **Real-Time Updates**: WebSocket broadcasts sentiment results
-4. **Vibe Categories**: Classifies content into positive, neutral, negative vibes
-
-### Usage Example:
-```python
-# Analyze sentiment
-POST /api/v1/vibe/analyze
 {
-  "text": "Having an amazing day! 🌟"
-}
-
-# Response
-{
-  "sentiment_score": 0.89,
-  "sentiment_label": "positive",
-  "confidence": 0.95,
-  "processing_time": 0.12
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "SecurePass123"
 }
 ```
 
-## 🔄 Real-Time Features
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "_id": "...",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@example.com",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
 
-WebSocket connection provides live updates for:
-- Post likes/unlikes
-- New comments
-- Sentiment analysis results
-- User notifications
+### Login User
+```bash
+POST /api/auth/login
+Content-Type: application/json
 
-### WebSocket Message Types:
+{
+  "email": "john@example.com",
+  "password": "SecurePass123"
+}
+```
+
+### Protected Route Example
+```bash
+GET /api/user/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Validation Rules
+
+### Registration
+- **firstName**: 2-50 characters, letters and spaces only
+- **lastName**: 2-50 characters, letters and spaces only
+- **email**: Valid email format, unique
+- **password**: Minimum 6 characters, must contain uppercase, lowercase, and number
+
+### Login
+- **email**: Valid email format
+- **password**: Required
+
+## Security Features
+
+### Password Security
+- Passwords hashed with bcryptjs (12 salt rounds)
+- Passwords never returned in API responses
+- Current password verification for updates
+
+### JWT Security
+- Tokens expire in 7 days (configurable)
+- Secure token verification middleware
+- Token required for protected routes
+
+### Rate Limiting
+- 100 requests per 15 minutes per IP
+- Prevents brute force attacks
+
+### Input Validation
+- Comprehensive validation with express-validator
+- Sanitization and normalization
+- Custom error messages
+
+## Database Schema
+
+### User Model
 ```javascript
-// Subscribe to post updates
 {
-  "type": "subscribe_post",
-  "post_id": "uuid-here"
+  firstName: String (required, 2-50 chars)
+  lastName: String (required, 2-50 chars)
+  email: String (required, unique, valid email)
+  password: String (required, min 6 chars, hashed)
+  avatar: String (optional)
+  isEmailVerified: Boolean (default: false)
+  lastLogin: Date
+  isActive: Boolean (default: true)
+  createdAt: Date (auto)
+  updatedAt: Date (auto)
 }
+```
 
-// Receive live like update
+## Environment Variables
+
+```bash
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/vibely
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRE=7d
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:3000
+```
+
+## Error Handling
+
+The API returns consistent error responses:
+
+```json
 {
-  "type": "post_like",
-  "post_id": "uuid-here",
-  "user_id": "uuid-here",
-  "liked": true
+  "success": false,
+  "message": "Error description",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email is required"
+    }
+  ]
 }
 ```
 
-## 🔐 Security Features
+## Development
 
-- **JWT Authentication**: Access + refresh token pattern
-- **Password Hashing**: bcrypt with salt
-- **Rate Limiting**: Redis-based request throttling
-- **CORS Protection**: Configurable origins
-- **Input Validation**: Pydantic schemas
-- **SQL Injection Prevention**: SQLAlchemy ORM
+### Available Scripts
+- `npm start` - Start production server
+- `npm run dev` - Start development server with nodemon
 
-## 📊 Performance Optimizations
-
-- **Cursor Pagination**: Efficient infinite scrolling
-- **Database Indexing**: Optimized queries for feed performance
-- **Redis Caching**: Session storage and rate limiting
-- **Async Operations**: Non-blocking I/O throughout
-- **Background Processing**: Celery for heavy operations
-- **Connection Pooling**: SQLAlchemy async engine
-
-## 🐳 Production Deployment
-
-### Docker Compose (Recommended)
-```bash
-docker-compose -f docker-compose.prod.yml up -d
+### Project Structure
+```
+backend/
+├── middleware/
+│   ├── auth.js          # JWT authentication middleware
+│   └── validation.js    # Input validation rules
+├── models/
+│   └── User.js          # User database model
+├── routes/
+│   ├── auth.js          # Authentication routes
+│   └── user.js          # User management routes
+├── .env                 # Environment variables
+├── .env.example         # Environment template
+├── package.json         # Dependencies and scripts
+├── server.js            # Main server file
+└── README.md           # This file
 ```
 
-### Environment Variables
-Key production settings:
-```env
-ENVIRONMENT=production
-DEBUG=false
-SECRET_KEY=your-super-secure-secret-key
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db
-REDIS_URL=redis://host:6379/0
-```
+## Testing
 
-### Scaling Considerations
-- **Horizontal Scaling**: Stateless design supports multiple instances
-- **Database**: PostgreSQL with read replicas
-- **Cache**: Redis Cluster for high availability
-- **Background Jobs**: Multiple Celery workers
-- **Load Balancing**: Nginx or cloud load balancer
+Test the API endpoints using tools like:
+- **Postman** - GUI testing
+- **curl** - Command line testing
+- **Thunder Client** - VS Code extension
 
-## 🧪 Testing
+## Production Deployment
 
-```bash
-# Run tests
-pytest
+1. Set `NODE_ENV=production`
+2. Use a strong `JWT_SECRET`
+3. Configure MongoDB Atlas or production database
+4. Set up proper CORS origins
+5. Use PM2 or similar for process management
+6. Set up SSL/HTTPS
+7. Configure proper logging
 
-# With coverage
-pytest --cov=app
+## Troubleshooting
 
-# Specific test file
-pytest tests/test_auth.py
-```
+### Common Issues
 
-## 📝 Development
+1. **MongoDB Connection Error**
+   - Ensure MongoDB is running
+   - Check connection string in `.env`
+   - Verify network connectivity
 
-### Code Quality
-```bash
-# Format code
-black .
-isort .
+2. **JWT Token Issues**
+   - Check `JWT_SECRET` is set
+   - Verify token format in Authorization header
+   - Ensure token hasn't expired
 
-# Lint
-flake8 app/
-```
+3. **CORS Errors**
+   - Verify `FRONTEND_URL` in `.env`
+   - Check frontend is running on correct port
 
-### Database Migrations
-```bash
-# Create migration
-alembic revision --autogenerate -m "Add new table"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
-```
-
-## 🔧 Monitoring & Logging
-
-- **Structured Logging**: Loguru with JSON format
-- **Request Tracking**: Unique request IDs
-- **Error Handling**: Global exception middleware
-- **Health Checks**: `/health` endpoint
-- **Metrics**: Ready for Prometheus integration
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-Built with ❤️ for the next generation of social media platforms.
+4. **Validation Errors**
+   - Check request body format
+   - Verify all required fields are provided
+   - Ensure data meets validation rules
