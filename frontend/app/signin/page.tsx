@@ -101,11 +101,13 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Form submission started')
     setIsSubmitting(true)
     setSuccessMessage('')
 
     // Client-side validation
     if (!validateForm()) {
+      console.log('Form validation failed')
       setIsSubmitting(false)
       return
     }
@@ -117,16 +119,19 @@ export default function SignInPage() {
       });
       
       const success = await login(formData.email, formData.password)
+      console.log('Login function returned:', success)
+      
       if (success) {
         setSuccessMessage('Login successful! Redirecting...')
         console.log('Login successful, redirecting to hero page');
-        setTimeout(() => {
-          router.push('/hero')
-        }, 1000)
+        // Immediate redirect without delay for better UX
+        router.push('/hero')
+      } else {
+        console.log('Login failed, success was false')
       }
       // Error handling is now done in the AuthContext
     } catch (err) {
-      console.error('Login error:', err)
+      console.error('Login error in component:', err)
       setFormErrors({ general: 'An unexpected error occurred. Please try again.' })
     } finally {
       setIsSubmitting(false)

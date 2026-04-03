@@ -3,13 +3,23 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function HomePage() {
   const { user, logout, isLoading } = useAuth()
+  const router = useRouter()
 
   const handleLogout = () => {
     logout()
   }
+
+  // Redirect authenticated users to hero page
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push('/hero')
+    }
+  }, [user, isLoading, router])
 
   if (isLoading) {
     return (

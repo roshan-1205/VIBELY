@@ -1,181 +1,166 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { apiService } from '@/services/api'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useRouter } from 'next/navigation'
 
 export default function DebugPage() {
-  const { user, login, signup, logout, error, isLoading } = useAuth()
-  const [testResult, setTestResult] = useState<string>('')
-  const [testLoading, setTestLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    firstName: 'Test',
-    lastName: 'User',
-    email: `test${Date.now()}@example.com`,
-    password: 'password123'
-  })
+  const { user, login, signup, isLoading, error, clearError } = useAuth()
+  const router = useRouter()
+  const [debugInfo, setDebugInfo] = useState<any>({})
+  const [testResults, setTestResults] = useState<any[]>([])
 
-  const runTest = async (testName: string, testFn: () => Promise<any>) => {
-    setTestLoading(true)
-    try {
-      console.log(`Running test: ${testName}`)
-      const result = await testFn()
-      setTestResult(`✅ ${testName} SUCCESS:\n${JSON.stringify(result, null, 2)}`)
-      console.log(`Test ${testName} successful:`, result)
-    } catch (error: any) {
-      setTestResult(`❌ ${testName} FAILED:\n${error.message}`)
-      console.error(`Test ${testName} failed:`, error)
+  useEffect(() => {
+    // Collect debug information
+    const info = {
+      user: user,
+      isLoading: isLoading,
+      error: error,
+      localStorage: {
+        token: typeof window !== 'undefined' ? localStorage.getItem('vibely_token') : null,
+        user: typeof window !== 'undefined' ? localStorage.getItem('vibely_user') : null,
+      },
+      environment: {
+        apiUrl: process.env.NEXT_PUBLIC_API_URL,
+        currentUrl: typeof window !== 'undefined' ? window.location.href : null,
+      }
     }
-    setTestLoading(false)
+    setDebugInfo(info)
+  }, [user, isLoading, error])
+
+  const testLogin = async () => {
+    const result = { timestamp: new Date().toISOString(), action: 'login' }
+    try {
+      console.log('Starting login test...')
+      const success = await login('testuser@example.com', 'TestPass123')
+      setTestResults(prev => [...prev, { ...result, success, error: null }])
+      console.log('Login test result:', success)
+    } catch (err: any) {
+      console.error('Login test error:', err)
+      setTestResults(prev => [...prev, { ...result, success: false, error: err.message }])
+    }
   }
 
-  const testHealthCheck = () => runTest('Health Check', () => apiService.healthCheck())
-  
-  const testDirectRegister = () => runTest('Direct API Register', () => 
-    apiService.register({
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      password: formData.password
-    })
-  )
+  const testSignup = async () => {
+    const result = { timestamp: new Date().toISOString(), action: 'signup' }
+    try {
+      console.log('Starting signup test...')
+      const success = await signup(
+        `test${Date.now()}@example.com`, 
+        'TestPass123', 
+        'Test', 
+        'User'
+      )
+      setTestResults(prev => [...prev, { ...result, success, error: null }])
+      console.log('Signup test result:', success)
+    } catch (err: any) {
+      console.error('Signup test error:', err)
+      setTestResults(prev => [...prev, { ...result, success: false, error: err.message }])
+    }
+  }
 
-  const testAuthRegister = () => runTest('Auth Context Register', () =>
-    signup(formData.email, formData.password, formData.firstName, formData.lastName)
-  )
-
-  const testLogin = () => runTest('Login', () =>
-    login(formData.email, formData.password)
-  )
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
+  const clearStorage = () => {
+    localStorage.removeItem('vibely_token')
+    localStorage.removeItem('vibely_user')
+    window.location.reload()
   }
 
   return (
-    <div className="container mx-auto p-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">🔧 Authentication Debug Center</h1>
-      
-      {/* Current Status */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-blue-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">🔍 Current Status</h2>
-          <div className="space-y-2 text-sm">
-            <p><strong>API URL:</strong> {process.env.NEXT_PUBLIC_API_URL || 'Not set'}</p>
-            <p><strong>Loading:</strong> {isLoading ? '⏳ Yes' : '✅ No'}</p>
-            <p><strong>User:</strong> {user ? `✅ ${user.firstName} ${user.lastName}` : '❌ None'}</p>
-            <p><strong>Error:</strong> {error || '✅ None'}</p>
-            <p><strong>Token:</strong> {typeof window !== 'undefined' && localStorage.getItem('vibely_token') ? '✅ Present' : '❌ None'}</p>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <h1 className="text-3xl font-bold">Authentication Debug Page</h1>
+        
+        {/* Current State */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Current Authentication State</h2>
+          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto">
+            {JSON.stringify(debugInfo, null, 2)}
+          </pre>
+        </div>
+
+        {/* Test Controls */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Test Controls</h2>
+          <div className="flex gap-4 flex-wrap">
+            <button
+              onClick={testLogin}
+              disabled={isLoading}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              Test Login
+            </button>
+            <button
+              onClick={testSignup}
+              disabled={isLoading}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+            >
+              Test Signup
+            </button>
+            <button
+              onClick={clearStorage}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Clear Storage
+            </button>
+            <button
+              onClick={() => router.push('/signin')}
+              className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            >
+              Go to Sign In
+            </button>
+            <button
+              onClick={() => router.push('/hero')}
+              className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+            >
+              Go to Hero
+            </button>
           </div>
         </div>
 
-        <div className="bg-green-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">📝 Test Data</h2>
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
+        {/* Test Results */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold mb-4">Test Results</h2>
+          {testResults.length === 0 ? (
+            <p className="text-gray-500">No tests run yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {testResults.map((result, index) => (
+                <div key={index} className="border rounded p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium">{result.action}</span>
+                    <span className="text-sm text-gray-500">{result.timestamp}</span>
+                  </div>
+                  <div className={`p-3 rounded text-sm ${
+                    result.success 
+                      ? 'bg-green-50 text-green-800 border border-green-200' 
+                      : 'bg-red-50 text-red-800 border border-red-200'
+                  }`}>
+                    <div className="font-medium mb-1">
+                      {result.success ? '✅ Success' : '❌ Failed'}
+                    </div>
+                    {result.error && (
+                      <div className="text-xs">Error: {result.error}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
-            </div>
+          )}
+        </div>
+
+        {/* Current Error */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4 text-red-800">Current Error</h2>
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={clearError}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Clear Error
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Test Buttons */}
-      <div className="bg-white p-6 rounded-lg border mb-6">
-        <h2 className="text-xl font-semibold mb-4">🧪 Run Tests</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button onClick={testHealthCheck} disabled={testLoading} variant="outline">
-            🏥 Health Check
-          </Button>
-          <Button onClick={testDirectRegister} disabled={testLoading} variant="outline">
-            📝 Direct Register
-          </Button>
-          <Button onClick={testAuthRegister} disabled={testLoading} variant="outline">
-            🔐 Auth Register
-          </Button>
-          <Button onClick={testLogin} disabled={testLoading} variant="outline">
-            🔑 Login
-          </Button>
-        </div>
-      </div>
-
-      {/* User Actions */}
-      {user && (
-        <div className="bg-yellow-50 p-6 rounded-lg border mb-6">
-          <h2 className="text-xl font-semibold mb-4">👤 User Actions</h2>
-          <div className="flex gap-4">
-            <Button onClick={logout} variant="destructive">
-              🚪 Logout
-            </Button>
-            <Button asChild>
-              <a href="/hero">🏠 Go to Hero Page</a>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Test Results */}
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">📊 Test Results</h2>
-        <pre className="whitespace-pre-wrap text-sm bg-white p-4 rounded border overflow-auto max-h-96">
-          {testLoading ? '⏳ Running test...' : testResult || '🔄 No tests run yet. Click a test button above.'}
-        </pre>
-      </div>
-
-      {/* Quick Links */}
-      <div className="mt-8 flex flex-wrap gap-4">
-        <Button asChild variant="outline">
-          <a href="/">🏠 Home</a>
-        </Button>
-        <Button asChild variant="outline">
-          <a href="/signup">📝 Sign Up</a>
-        </Button>
-        <Button asChild variant="outline">
-          <a href="/signin">🔑 Sign In</a>
-        </Button>
-        <Button asChild variant="outline">
-          <a href="/test-auth">🧪 Test Auth</a>
-        </Button>
+        )}
       </div>
     </div>
   )

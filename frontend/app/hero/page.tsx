@@ -1,15 +1,62 @@
 "use client"
 
 import { ShuffleHero } from '@/components/ui/shuffle-grid'
+import { LimelightNav, NavItem } from '@/components/ui/limelight-nav'
+import { WelcomePopup } from '@/components/ui/welcome-popup'
+import { ProfilePopup } from '@/components/ui/profile-popup'
+import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Home, Search, PlusCircle, Heart, User, MessageCircle } from 'lucide-react'
 
 export default function HeroPage() {
   const { user, logout, isLoading } = useAuth()
   const router = useRouter()
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false)
+  const [showProfilePopup, setShowProfilePopup] = useState(false)
+
+  // Social media navigation items
+  const socialNavItems: NavItem[] = [
+    { 
+      id: 'home', 
+      icon: <Home />, 
+      label: 'Home', 
+      onClick: () => console.log('Home clicked') 
+    },
+    { 
+      id: 'search', 
+      icon: <Search />, 
+      label: 'Search', 
+      onClick: () => console.log('Search clicked') 
+    },
+    { 
+      id: 'create', 
+      icon: <PlusCircle />, 
+      label: 'Create', 
+      onClick: () => console.log('Create post clicked') 
+    },
+    { 
+      id: 'activity', 
+      icon: <Heart />, 
+      label: 'Activity', 
+      onClick: () => console.log('Activity clicked') 
+    },
+    { 
+      id: 'messages', 
+      icon: <MessageCircle />, 
+      label: 'Messages', 
+      onClick: () => console.log('Messages clicked') 
+    },
+    { 
+      id: 'profile', 
+      icon: <User />, 
+      label: 'Profile', 
+      onClick: () => setShowProfilePopup(true)
+    },
+  ]
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -17,6 +64,23 @@ export default function HeroPage() {
       router.push('/signin')
     }
   }, [user, isLoading, router])
+
+  // Show welcome popup only once when user logs in
+  useEffect(() => {
+    if (user && !isLoading) {
+      const hasSeenWelcome = localStorage.getItem(`vibely_welcome_${user._id}`)
+      if (!hasSeenWelcome) {
+        setShowWelcomePopup(true)
+      }
+    }
+  }, [user, isLoading])
+
+  const handleCloseWelcomePopup = () => {
+    setShowWelcomePopup(false)
+    if (user) {
+      localStorage.setItem(`vibely_welcome_${user._id}`, 'true')
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -37,6 +101,20 @@ export default function HeroPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Welcome Popup - Shows only once when user logs in */}
+      <WelcomePopup 
+        isOpen={showWelcomePopup}
+        onClose={handleCloseWelcomePopup}
+        userName={user?.firstName}
+        userEmail={user?.email}
+      />
+
+      {/* Profile Popup - Shows when user clicks profile icon */}
+      <ProfilePopup 
+        isOpen={showProfilePopup}
+        onClose={() => setShowProfilePopup(false)}
+      />
+
       {/* Navigation */}
       <nav className="flex items-center justify-between p-6 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center space-x-2">
@@ -47,11 +125,27 @@ export default function HeroPage() {
         </Link>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+            <ProfileAvatar 
+              userId={user._id}
+              firstName={user.firstName}
+              lastName={user.lastName}
+              size="sm"
+              onClick={() => setShowProfilePopup(true)}
+            />
             <span>Welcome, {user.firstName}!</span>
           </div>
           <Button variant="ghost" asChild>
             <Link href="/">Home</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/robot-demo">Robot Demo</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/robot-customizer">Customize Robot</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/color-test">Color Test</Link>
           </Button>
           <Button variant="outline" onClick={handleLogout}>
             Logout
@@ -62,9 +156,18 @@ export default function HeroPage() {
       {/* Welcome Message */}
       <div className="max-w-6xl mx-auto px-8 py-4">
         <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-8">
-          <h2 className="text-lg font-semibold text-primary mb-2">
-            🎉 Welcome to Vibely, {user.firstName} {user.lastName}!
-          </h2>
+          <div className="flex items-center gap-3 mb-2">
+            <ProfileAvatar 
+              userId={user._id}
+              firstName={user.firstName}
+              lastName={user.lastName}
+              size="md"
+              onClick={() => setShowProfilePopup(true)}
+            />
+            <h2 className="text-lg font-semibold text-primary">
+              🎉 Welcome to Vibely, {user.firstName} {user.lastName}!
+            </h2>
+          </div>
           <p className="text-sm text-muted-foreground">
             You've successfully signed in with {user.email}. Explore the amazing features below!
           </p>
@@ -72,7 +175,9 @@ export default function HeroPage() {
       </div>
 
       {/* Hero Section */}
-      <ShuffleHero />
+      <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20">
+        <ShuffleHero />
+      </div>
 
       {/* Additional Content */}
       <section className="py-16 px-8 max-w-6xl mx-auto">
@@ -188,6 +293,19 @@ export default function HeroPage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Social Media Navigation */}
+      <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
+        showProfilePopup ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 pointer-events-auto translate-y-0'
+      }`}>
+        <LimelightNav 
+          items={socialNavItems}
+          defaultActiveIndex={0}
+          className="bg-background/95 backdrop-blur-md border-2 shadow-2xl shadow-primary/20 rounded-2xl"
+          limelightClassName="bg-gradient-to-r from-purple-500 to-pink-500"
+          onTabChange={(index) => console.log(`Switched to tab ${index}`)}
+        />
+      </div>
     </main>
   )
 }

@@ -45,14 +45,24 @@ class ApiService {
       data = await response.json();
     } catch (error) {
       console.error('Failed to parse JSON response:', error);
+      console.error('Response status:', response.status);
+      console.error('Response headers:', response.headers);
       throw new Error('Invalid response from server');
     }
+    
+    console.log('API Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      data,
+      url: response.url
+    });
     
     if (!response.ok) {
       console.error('API Error:', {
         status: response.status,
         statusText: response.statusText,
-        data
+        data,
+        url: response.url
       });
       
       // Provide more specific error messages based on status codes
@@ -118,6 +128,8 @@ class ApiService {
       });
 
       console.log('Registration response status:', response.status);
+      console.log('Registration response headers:', Object.fromEntries(response.headers.entries()));
+      
       const result = await this.handleResponse<AuthResponse>(response);
       
       // Store token if registration successful
@@ -149,6 +161,8 @@ class ApiService {
       });
 
       console.log('Login response status:', response.status);
+      console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+      
       const result = await this.handleResponse<AuthResponse>(response);
       
       // Store token if login successful

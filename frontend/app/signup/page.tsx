@@ -125,11 +125,13 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Signup form submission started')
     setIsSubmitting(true)
     setSuccessMessage('')
 
     // Client-side validation
     if (!validateForm()) {
+      console.log('Signup form validation failed')
       setIsSubmitting(false)
       return
     }
@@ -146,16 +148,19 @@ export default function SignUpPage() {
         formData.firstName, 
         formData.lastName
       )
+      console.log('Signup function returned:', success)
+      
       if (success) {
         setSuccessMessage('Account created successfully! Redirecting...')
         console.log('Signup successful, redirecting to hero page');
-        setTimeout(() => {
-          router.push('/hero')
-        }, 1000)
+        // Immediate redirect without delay for better UX
+        router.push('/hero')
+      } else {
+        console.log('Signup failed, success was false')
       }
       // Error handling is now done in the AuthContext
     } catch (err) {
-      console.error('Signup error:', err)
+      console.error('Signup error in component:', err)
       setFormErrors({ general: 'An unexpected error occurred. Please try again.' })
     } finally {
       setIsSubmitting(false)
