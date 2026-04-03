@@ -35,7 +35,25 @@ export default function SignUpPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
+    // Basic client-side validation
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.password.trim()) {
+      console.error('Form validation failed: Missing required fields');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      console.error('Form validation failed: Password too short');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      console.log('Form submission started with data:', {
+        ...formData,
+        password: '[HIDDEN]'
+      });
+      
       const success = await signup(
         formData.email, 
         formData.password, 
@@ -43,6 +61,7 @@ export default function SignUpPage() {
         formData.lastName
       )
       if (success) {
+        console.log('Signup successful, redirecting to hero page');
         router.push('/hero')
       }
       // Error handling is now done in the AuthContext

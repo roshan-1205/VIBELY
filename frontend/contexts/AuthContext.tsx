@@ -90,22 +90,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true)
       setError(null)
       
+      console.log('AuthContext: Starting signup process');
       const response = await apiService.register({
         firstName,
         lastName,
         email,
         password
       })
+      console.log('AuthContext: Signup response:', response);
       
       if (response.success && response.data?.user) {
         setUser(response.data.user)
+        console.log('AuthContext: Signup successful, user set');
         return true
       } else {
-        setError(response.message || 'Registration failed')
+        const errorMsg = response.message || 'Registration failed'
+        console.log('AuthContext: Signup failed:', errorMsg);
+        setError(errorMsg)
         return false
       }
     } catch (error: any) {
-      console.error('Signup error:', error)
+      console.error('AuthContext: Signup error:', error)
       setError(error.message || 'Registration failed. Please try again.')
       return false
     } finally {

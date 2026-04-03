@@ -142,6 +142,7 @@ export default function HeroPage() {
                 <p><span className="font-medium">Member since:</span> {new Date(user.createdAt).toLocaleDateString()}</p>
                 <p><span className="font-medium">Email Verified:</span> {user.isEmailVerified ? '✅ Yes' : '❌ No'}</p>
                 <p><span className="font-medium">Last Login:</span> {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'N/A'}</p>
+                <p><span className="font-medium">Account Status:</span> {user.isActive ? '✅ Active' : '❌ Inactive'}</p>
               </div>
             </div>
             

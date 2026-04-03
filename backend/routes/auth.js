@@ -24,11 +24,13 @@ const generateToken = (userId) => {
 // @access  Public
 router.post('/register', validateRegister, handleValidationErrors, async (req, res) => {
   try {
+    console.log('Registration attempt:', { ...req.body, password: '[HIDDEN]' });
     const { firstName, lastName, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
+      console.log('Registration failed: User already exists for email:', email);
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
@@ -44,6 +46,7 @@ router.post('/register', validateRegister, handleValidationErrors, async (req, r
     });
 
     await user.save();
+    console.log('User created successfully:', user._id);
 
     // Generate token
     const token = generateToken(user._id);
@@ -52,6 +55,7 @@ router.post('/register', validateRegister, handleValidationErrors, async (req, r
     user.lastLogin = new Date();
     await user.save();
 
+    console.log('Registration successful for user:', user._id);
     res.status(201).json({
       success: true,
       message: 'User registered successfully',

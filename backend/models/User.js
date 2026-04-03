@@ -51,8 +51,8 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for faster queries
-userSchema.index({ email: 1 });
+// Index for faster queries (remove duplicate)
+// userSchema.index({ email: 1 }); // Removed - already handled by unique: true
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {

@@ -1,5 +1,10 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+// Add logging for debugging
+if (typeof window !== 'undefined') {
+  console.log('API_BASE_URL:', API_BASE_URL);
+}
+
 interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -232,12 +237,18 @@ class ApiService {
 
   // Health check
   async healthCheck(): Promise<ApiResponse> {
-    const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    try {
+      console.log('Health check URL:', `${API_BASE_URL}/health`);
+      const response = await fetch(`${API_BASE_URL}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-    return this.handleResponse(response);
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Health check error:', error);
+      throw error;
+    }
   }
 }
 

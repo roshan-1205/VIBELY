@@ -33,9 +33,22 @@ export default function SignInPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
+    // Basic client-side validation
+    if (!formData.email.trim() || !formData.password.trim()) {
+      console.error('Form validation failed: Missing required fields');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      console.log('Login form submission started with data:', {
+        ...formData,
+        password: '[HIDDEN]'
+      });
+      
       const success = await login(formData.email, formData.password)
       if (success) {
+        console.log('Login successful, redirecting to hero page');
         router.push('/hero')
       }
       // Error handling is now done in the AuthContext
