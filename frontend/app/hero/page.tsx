@@ -5,6 +5,9 @@ import { LimelightNav, NavItem } from '@/components/ui/limelight-nav'
 import { WelcomePopup } from '@/components/ui/welcome-popup'
 import { ProfilePopup } from '@/components/ui/profile-popup'
 import { ProfileAvatar } from '@/components/ui/profile-avatar'
+import { VoiceWelcomeCompact } from '@/components/ui/voice-welcome'
+import AvatarNotifications from '@/components/ui/avatar-notifications'
+import { PostsFeed } from '@/components/ui/posts-feed'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -126,6 +129,7 @@ export default function HeroPage() {
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-3 text-sm text-muted-foreground">
+            <AvatarNotifications />
             <ProfileAvatar 
               userId={user._id}
               firstName={user.firstName}
@@ -138,6 +142,9 @@ export default function HeroPage() {
           <Button variant="ghost" asChild>
             <Link href="/">Home</Link>
           </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/search">Search Users</Link>
+          </Button>
           <Button variant="outline" onClick={handleLogout}>
             Logout
           </Button>
@@ -146,7 +153,7 @@ export default function HeroPage() {
 
       {/* Welcome Message */}
       <div className="max-w-6xl mx-auto px-8 py-4">
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-8">
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-8 relative">
           <div className="flex items-center gap-3 mb-2">
             <ProfileAvatar 
               userId={user._id}
@@ -158,6 +165,15 @@ export default function HeroPage() {
             <h2 className="text-lg font-semibold text-primary">
               🎉 Welcome to Vibely, {user.firstName} {user.lastName}!
             </h2>
+            {/* Voice Welcome */}
+            <div className="ml-auto">
+              <VoiceWelcomeCompact
+                profileOwnerName={`${user.firstName} ${user.lastName}`}
+                visitorName={user.firstName}
+                customMessage={`Welcome to Vibely, ${user.firstName}!`}
+                className="ml-2"
+              />
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
             You've successfully signed in with {user.email}. Explore the amazing features below!
@@ -169,6 +185,12 @@ export default function HeroPage() {
       <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-blue-950/20">
         <ShuffleHero />
       </div>
+
+      {/* Posts Feed Section */}
+      <section className="py-8 px-8 max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold text-foreground mb-6">Your Feed</h2>
+        <PostsFeed />
+      </section>
 
       {/* Additional Content */}
       <section className="py-16 px-8 max-w-6xl mx-auto">

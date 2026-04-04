@@ -1,5 +1,8 @@
 const express = require('express');
 const User = require('../models/User');
+const Follow = require('../models/Follow');
+const Post = require('../models/Post');
+const Activity = require('../models/Activity');
 const auth = require('../middleware/auth');
 const { 
   validateProfileUpdate, 
@@ -14,11 +17,25 @@ const router = express.Router();
 // @access  Private
 router.get('/profile', auth, async (req, res) => {
   try {
+    // Get user with social stats
+    const [followerCount, followingCount, postCount] = await Promise.all([
+      Follow.getFollowerCount(req.user._id),
+      Follow.getFollowingCount(req.user._id),
+      Post.countDocuments({ author: req.user._id, isActive: true })
+    ]);
+
+    const userProfile = {
+      ...req.user.getPublicProfile(),
+      stats: {
+        followers: followerCount,
+        following: followingCount,
+        posts: postCount
+      }
+    };
+
     res.json({
       success: true,
-      data: {
-        user: req.user.getPublicProfile()
-      }
+      data: { user: userProfile }
     });
   } catch (error) {
     console.error('Get profile error:', error);
@@ -29,12 +46,57 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/user/profile/:userId
+// @desc    Get another user's profile
+// @access  Private
+router.get('/profile/:userId', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Get user stats and follow status
+    const [followerCount, followingCount, postCount, isFollowing] = await Promise.all([
+      Follow.getFollowerCount(user._id),
+      Follow.getFollowingCount(user._id),
+      Post.countDocuments({ author: user._id, isActive: true }),
+      Follow.isFollowing(req.user._id, user._id)
+    ]);
+
+    const userProfile = {
+      ...user.toObject(),
+      stats: {
+        followers: followerCount,
+        following: followingCount,
+        posts: postCount
+      },
+      isFollowing: user._id.toString() === req.user._id.toString() ? null : isFollowing
+    };
+
+    res.json({
+      success: true,
+      data: { user: userProfile }
+    });
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error getting user profile'
+    });
+  }
+});
+
 // @route   PUT /api/user/profile
 // @desc    Update user profile
 // @access  Private
 router.put('/profile', auth, validateProfileUpdate, handleValidationErrors, async (req, res) => {
   try {
-    const { firstName, lastName, email } = req.body;
+    const { firstName, lastName, email, bio, location, website } = req.body;
     const userId = req.user._id;
 
     // Check if email is being changed and if it's already taken
@@ -53,12 +115,21 @@ router.put('/profile', auth, validateProfileUpdate, handleValidationErrors, asyn
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
     if (email) updateData.email = email;
+    if (bio !== undefined) updateData.bio = bio;
+    if (location !== undefined) updateData.location = location;
+    if (website !== undefined) updateData.website = website;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       updateData,
       { new: true, runValidators: true }
     );
+
+    // Create activity for profile update
+    await Activity.createActivity({
+      user: userId,
+      type: 'profile_updated'
+    });
 
     res.json({
       success: true,

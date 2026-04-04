@@ -10,6 +10,7 @@ import { Card } from './card'
 import { Spotlight } from './spotlight'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProfileImage } from '@/hooks/useProfileImage'
+import { VoiceWelcome } from './voice-welcome'
 
 interface ProfilePopupProps {
   isOpen: boolean
@@ -196,6 +197,18 @@ export const ProfilePopup = ({ isOpen, onClose }: ProfilePopupProps) => {
                         </div>
                       </div>
                     )}
+                    
+                    {/* Voice Welcome Control */}
+                    <div className="absolute top-4 right-4 z-20">
+                      <VoiceWelcome
+                        profileOwnerName={user ? `${user.firstName} ${user.lastName}` : 'User'}
+                        visitorName={user ? `${user.firstName}` : undefined}
+                        customMessage={`Welcome to ${user?.firstName}'s profile!`}
+                        size="md"
+                        showControls={true}
+                        className="drop-shadow-lg"
+                      />
+                    </div>
                   </div>
                 </motion.div>
 

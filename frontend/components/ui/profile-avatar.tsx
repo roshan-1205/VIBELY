@@ -4,6 +4,7 @@ import { useProfileImage } from '@/hooks/useProfileImage'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface ProfileAvatarProps {
   userId?: string
@@ -14,6 +15,7 @@ interface ProfileAvatarProps {
   showInitials?: boolean
   onClick?: () => void
   showTooltip?: boolean
+  linkToProfile?: boolean // New prop to enable profile linking
 }
 
 const sizeClasses = {
@@ -31,7 +33,8 @@ export const ProfileAvatar = ({
   className,
   showInitials = true,
   onClick,
-  showTooltip = true
+  showTooltip = true,
+  linkToProfile = false
 }: ProfileAvatarProps) => {
   const { profileImage } = useProfileImage(userId)
   const [showTooltipState, setShowTooltipState] = useState(false)
@@ -56,41 +59,53 @@ export const ProfileAvatar = ({
     }
   }
 
+  const avatarContent = (
+    <motion.div 
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onMouseEnter={() => setShowTooltipState(true)}
+      onMouseLeave={() => setShowTooltipState(false)}
+      onClick={linkToProfile ? undefined : handleClick}
+      className={cn(
+        'bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg overflow-hidden transition-all duration-200 relative group',
+        (onClick || linkToProfile) ? 'cursor-pointer hover:shadow-xl hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-600' : '',
+        sizeClasses[size],
+        className
+      )}
+    >
+      {profileImage ? (
+        <img 
+          src={profileImage} 
+          alt={`${firstName} ${lastName}`}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <span>{getInitials()}</span>
+      )}
+      
+      {/* Hover overlay */}
+      {(onClick || linkToProfile) && (
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <div className="text-white text-xs font-medium">
+            {linkToProfile ? 'Visit Profile' : 'Profile'}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  )
+
   return (
     <div className="relative">
-      <motion.div 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onMouseEnter={() => setShowTooltipState(true)}
-        onMouseLeave={() => setShowTooltipState(false)}
-        onClick={handleClick}
-        className={cn(
-          'bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg overflow-hidden transition-all duration-200 relative group',
-          onClick ? 'cursor-pointer hover:shadow-xl hover:ring-2 hover:ring-purple-300 dark:hover:ring-purple-600' : '',
-          sizeClasses[size],
-          className
-        )}
-      >
-        {profileImage ? (
-          <img 
-            src={profileImage} 
-            alt={`${firstName} ${lastName}`}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span>{getInitials()}</span>
-        )}
-        
-        {/* Hover overlay */}
-        {onClick && (
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-            <div className="text-white text-xs font-medium">Profile</div>
-          </div>
-        )}
-      </motion.div>
+      {linkToProfile && userId ? (
+        <Link href={`/profile/${userId}`}>
+          {avatarContent}
+        </Link>
+      ) : (
+        avatarContent
+      )}
 
       {/* Tooltip */}
-      {showTooltip && onClick && (
+      {showTooltip && (onClick || linkToProfile) && (
         <AnimatePresence>
           {showTooltipState && (
             <motion.div
@@ -101,7 +116,7 @@ export const ProfileAvatar = ({
               className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50"
             >
               <div className="bg-gray-900 dark:bg-gray-700 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
-                Go to Profile
+                {linkToProfile ? 'Visit Profile' : 'Go to Profile'}
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
               </div>
             </motion.div>

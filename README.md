@@ -1,28 +1,49 @@
-# Vibely - Social Platform
+# VIBELY - Modern Social Platform
 
-A modern full-stack social platform built with Next.js, Node.js, and MongoDB featuring real-time authentication, animated components, and a beautiful UI.
+A comprehensive full-stack social platform built with Next.js, Node.js, and MongoDB featuring real-time authentication, social interactions, Google OAuth, email services, and a beautiful responsive UI.
 
 ## 🚀 Features
 
-### Frontend
+### 🎯 **Core Features**
+- ✅ **Real-time Social Platform** with posts, follows, and activities
+- ✅ **Multi-Authentication System** (Email/Password + Google OAuth)
+- ✅ **Email Services** (Verification, Password Reset, Welcome emails)
+- ✅ **Real-time Notifications** with Socket.IO
+- ✅ **Voice Welcome System** with Web Speech API
+- ✅ **Profile Management** with avatar and bio support
+- ✅ **Search & Discovery** of users and content
+
+### 🎨 **Frontend (Next.js 14)**
 - ✅ **Next.js 14** with App Router and TypeScript
 - ✅ **shadcn/ui** component library with Tailwind CSS
-- ✅ **Framer Motion** animations (ShuffleHero component)
+- ✅ **Framer Motion** animations and transitions
 - ✅ **Real-time Authentication** with JWT tokens
-- ✅ **Protected Routes** and automatic redirects
-- ✅ **Form Validation** with error handling
-- ✅ **Responsive Design** for all devices
-- ✅ **Dark Mode** support
+- ✅ **Protected Routes** with automatic redirects
+- ✅ **Form Validation** with comprehensive error handling
+- ✅ **Responsive Design** optimized for all devices
+- ✅ **Socket.IO Client** for real-time features
+- ✅ **Voice Integration** for user welcome messages
 
-### Backend
-- ✅ **Node.js/Express** REST API
-- ✅ **MongoDB** with Mongoose ODM
+### 🔧 **Backend (Node.js/Express)**
+- ✅ **RESTful API** with Express.js
+- ✅ **MongoDB** with Mongoose ODM and optimized indexes
 - ✅ **JWT Authentication** with secure token handling
-- ✅ **Password Hashing** with bcryptjs
-- ✅ **Input Validation** with express-validator
+- ✅ **Google OAuth 2.0** integration with Passport.js
+- ✅ **Email Services** with Nodemailer and professional templates
+- ✅ **Socket.IO Server** for real-time communications
+- ✅ **Password Security** with bcryptjs hashing
+- ✅ **Input Validation** and sanitization
 - ✅ **Rate Limiting** and security headers
-- ✅ **CORS** configuration
-- ✅ **Error Handling** and logging
+- ✅ **CORS** configuration for cross-origin requests
+
+### 📱 **Social Features**
+- ✅ **User Profiles** with customizable information
+- ✅ **Posts & Content** creation and sharing
+- ✅ **Follow System** to connect with other users
+- ✅ **Activity Feed** tracking user interactions
+- ✅ **Real-time Notifications** for social events
+- ✅ **Online Status** tracking and display
+- ✅ **Search Functionality** for users and content
 
 ## 📋 Prerequisites
 
@@ -69,9 +90,9 @@ npm install
 # Copy environment file
 cp .env.example .env
 
-# Edit .env with your configuration (optional for development)
+# Edit .env with your configuration
 # Start the backend server
-npm run dev
+npm start
 ```
 
 3. **Set up the Frontend (in a new terminal):**
@@ -105,114 +126,185 @@ net start MongoDB
 Once both servers are running:
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **API Health Check**: http://localhost:5000/api/health
+- **Backend API**: http://localhost:5001
+- **API Health Check**: http://localhost:5001/api/health
 
-## 📱 User Flow
+## 🔐 Authentication System
 
-### New User Registration
-1. Visit http://localhost:3000
-2. Click "Get Started"
-3. Fill out the registration form:
-   - First Name (2+ characters, letters only)
-   - Last Name (2+ characters, letters only)
-   - Email (valid email format)
-   - Password (6+ characters with uppercase, lowercase, and number)
-4. Automatically redirected to dashboard after successful registration
+### **Multiple Sign-in Options:**
+1. **Email/Password Registration & Login**
+2. **Google OAuth** (One-click sign-in)
+3. **Password Reset** via email
+4. **Email Verification** for new accounts
 
-### Existing User Login
-1. Visit http://localhost:3000
-2. Click "Sign In"
-3. Enter your email and password
-4. Automatically redirected to dashboard after successful login
+### **User Flow:**
+1. **Sign Up** → Account created → Email verification sent → Redirect to hero page
+2. **Sign In** → Authentication → Redirect to hero page
+3. **Google OAuth** → One-click authentication → Redirect to hero page
+4. **Forgot Password** → Email sent → Reset password → Auto-login
 
-### Protected Dashboard
-- Access the hero dashboard at `/hero` (requires authentication)
-- View animated ShuffleHero component
-- See personalized user information
-- Access profile management features
+### **Security Features:**
+- **JWT Tokens** with 7-day expiration
+- **Password Hashing** with bcryptjs (12 salt rounds)
+- **Token Verification** and automatic refresh
+- **Protected Routes** with authentication guards
+- **Rate Limiting** (100 requests per 15 minutes)
+- **Input Validation** and sanitization
+- **CORS Protection** for secure cross-origin requests
 
-## 🔧 API Endpoints
+## 📧 Email System
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/verify-token` - Verify JWT token
+### **Professional Email Templates:**
+- ✅ **Welcome Email** after registration
+- ✅ **Email Verification** with secure tokens
+- ✅ **Password Reset** with time-limited links
+- ✅ **Account Notifications** for important events
 
-### User Management
-- `GET /api/user/profile` - Get user profile
-- `PUT /api/user/profile` - Update user profile
-- `PUT /api/user/password` - Update password
-- `GET /api/user/stats` - Get user statistics
-- `DELETE /api/user/account` - Deactivate account
+### **Email Configuration:**
+- **Development**: Uses Ethereal Email (fake SMTP for testing)
+- **Production**: Configurable with Gmail, SendGrid, AWS SES, etc.
+
+## 🔄 Real-time Features
+
+### **Socket.IO Integration:**
+- ✅ **Real-time Notifications** for social interactions
+- ✅ **Online Status** tracking and updates
+- ✅ **Live Activity Feed** with instant updates
+- ✅ **User Presence** indicators
+- ✅ **Authenticated Connections** with JWT tokens
+
+### **Voice Features:**
+- ✅ **Voice Welcome** system using Web Speech API
+- ✅ **Profile Name Pronunciation** when visiting user profiles
+- ✅ **Customizable Voice Settings** for users
 
 ## 🗂️ Project Structure
 
 ```
 VIBELY/
-├── backend/                 # Node.js/Express API
-│   ├── middleware/         # Auth & validation middleware
-│   ├── models/            # MongoDB/Mongoose models
-│   ├── routes/            # API route handlers
+├── backend/                    # Node.js/Express API Server
+│   ├── config/                # Configuration files
+│   │   └── passport.js        # OAuth configuration
+│   ├── middleware/            # Custom middleware
+│   │   ├── auth.js           # JWT authentication
+│   │   └── validation.js     # Input validation
+│   ├── models/               # MongoDB/Mongoose models
+│   │   ├── User.js          # User model with OAuth support
+│   │   ├── Post.js          # Post model
+│   │   ├── Follow.js        # Follow relationship model
+│   │   ├── Activity.js      # Activity tracking model
+│   │   └── Notification.js  # Notification model
+│   ├── routes/              # API route handlers
+│   │   ├── auth.js         # Authentication routes
+│   │   ├── user.js         # User management routes
+│   │   ├── posts.js        # Post management routes
+│   │   ├── social.js       # Social features routes
+│   │   ├── notifications.js # Notification routes
+│   │   └── activities.js   # Activity routes
+│   ├── services/           # Business logic services
+│   │   ├── emailService.js # Email service with templates
+│   │   └── socketService.js # Socket.IO service
 │   ├── .env               # Environment variables
 │   ├── server.js          # Main server file
 │   └── package.json       # Backend dependencies
-├── frontend/               # Next.js React app
-│   ├── app/               # Next.js App Router pages
-│   ├── components/        # React components
-│   ├── contexts/          # React Context providers
-│   ├── services/          # API service layer
-│   ├── .env.local         # Frontend environment variables
-│   └── package.json       # Frontend dependencies
-├── start-dev.sh           # Development startup script (Unix)
-├── start-dev.bat          # Development startup script (Windows)
-└── README.md              # This file
+├── frontend/              # Next.js React Application
+│   ├── app/              # Next.js App Router pages
+│   │   ├── auth/         # OAuth callback pages
+│   │   ├── hero/         # Main dashboard page
+│   │   ├── profile/      # User profile pages
+│   │   ├── signin/       # Sign-in page
+│   │   ├── signup/       # Sign-up page
+│   │   ├── forgot-password/ # Password reset page
+│   │   ├── reset-password/  # Password reset form
+│   │   └── search/       # User search page
+│   ├── components/       # React components
+│   │   ├── ui/          # shadcn/ui components
+│   │   └── ProtectedRoute.tsx # Route protection
+│   ├── contexts/        # React Context providers
+│   │   ├── AuthContext.tsx   # Authentication state
+│   │   └── SocketContext.tsx # Socket.IO connection
+│   ├── hooks/           # Custom React hooks
+│   │   ├── useProfileImage.ts # Profile image handling
+│   │   └── useVoiceWelcome.ts # Voice welcome system
+│   ├── lib/             # Utility libraries
+│   │   └── voiceService.ts   # Voice synthesis service
+│   ├── services/        # API service layer
+│   │   └── api.ts       # API client with all endpoints
+│   ├── .env.local       # Frontend environment variables
+│   └── package.json     # Frontend dependencies
+├── start-dev.sh         # Development startup script (Unix)
+├── start-dev.bat        # Development startup script (Windows)
+├── setup.bat           # Windows setup script
+└── README.md           # This documentation
 ```
 
-## 🔐 Authentication System
+## 🔧 API Endpoints
 
-### Security Features
-- **JWT Tokens**: Secure token-based authentication
-- **Password Hashing**: bcryptjs with 12 salt rounds
-- **Token Verification**: Automatic token validation
-- **Protected Routes**: Client-side route protection
-- **Rate Limiting**: 100 requests per 15 minutes per IP
-- **Input Validation**: Comprehensive server-side validation
-- **CORS Protection**: Configured for frontend domain
+### **Authentication**
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/verify-token` - Verify JWT token
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password` - Reset password with token
+- `POST /api/auth/verify-email` - Verify email address
+- `GET /api/auth/google` - Start Google OAuth
+- `GET /api/auth/google/callback` - Google OAuth callback
 
-### Password Requirements
-- Minimum 6 characters
-- At least one uppercase letter
-- At least one lowercase letter
-- At least one number
+### **User Management**
+- `GET /api/user/profile` - Get user profile
+- `PUT /api/user/profile` - Update user profile
+- `GET /api/user/profile/:userId` - Get specific user profile
+- `PUT /api/user/password` - Update password
+- `GET /api/user/stats` - Get user statistics
+- `DELETE /api/user/account` - Deactivate account
 
-### Token Management
-- Tokens expire in 7 days (configurable)
-- Stored securely in localStorage
-- Automatic cleanup on logout
-- Server-side token verification
+### **Social Features**
+- `POST /api/posts` - Create new post
+- `GET /api/posts` - Get posts feed
+- `GET /api/posts/user/:userId` - Get user's posts
+- `POST /api/posts/:postId/like` - Like/unlike post
+- `POST /api/posts/:postId/comment` - Comment on post
+- `POST /api/social/follow/:userId` - Follow/unfollow user
+- `GET /api/social/followers/:userId` - Get user followers
+- `GET /api/social/following/:userId` - Get user following
+- `GET /api/social/search` - Search users
+- `GET /api/social/discover` - Discover new users
+- `GET /api/social/online` - Get online users
 
-## 🎨 UI Components
+### **Notifications & Activities**
+- `GET /api/notifications` - Get user notifications
+- `GET /api/notifications/unread-count` - Get unread count
+- `PUT /api/notifications/mark-read` - Mark notifications as read
+- `GET /api/activities/feed` - Get activity feed
+- `GET /api/activities/user/:userId` - Get user activities
 
-### ShuffleHero Component
-- Animated 4x4 image grid
-- Images shuffle every 3 seconds
-- Smooth spring animations with Framer Motion
-- Responsive design
-- High-quality Unsplash stock images
+## 🎨 UI Components & Features
 
-### Authentication Forms
-- Real-time validation
-- Loading states with spinners
-- Error handling with user-friendly messages
-- Responsive design
-- Social login UI (Google/Microsoft)
+### **Authentication Components**
+- **Sign-up/Sign-in Forms** with real-time validation
+- **OAuth Buttons** for Google authentication
+- **Password Reset Flow** with email integration
+- **Loading States** with smooth animations
+- **Error Handling** with user-friendly messages
+
+### **Social Components**
+- **Posts Feed** with real-time updates
+- **User Profiles** with avatar and bio
+- **Follow System** with instant updates
+- **Activity Feed** showing user interactions
+- **Notification System** with real-time alerts
+- **Search Interface** for discovering users
+
+### **Voice Features**
+- **Voice Welcome** when visiting profiles
+- **Customizable Voice Settings** for users
+- **Speech Synthesis** with multiple voice options
 
 ## 🛠️ Development
 
-### Available Scripts
+### **Available Scripts**
 
 **Backend:**
 - `npm start` - Start production server
@@ -224,36 +316,69 @@ VIBELY/
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
-### Environment Variables
+### **Environment Variables**
 
 **Backend (.env):**
 ```bash
-PORT=5000
+# Server Configuration
+PORT=5001
 NODE_ENV=development
+
+# Database Configuration
 MONGODB_URI=mongodb://localhost:27017/vibely
-JWT_SECRET=your-super-secret-jwt-key
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-2024
 JWT_EXPIRE=7d
+
+# Session Configuration
+SESSION_SECRET=your-session-secret
+
+# CORS Configuration
 FRONTEND_URL=http://localhost:3000
+
+# Email Configuration
+EMAIL_FROM="Vibely <noreply@vibely.com>"
+
+# OAuth Configuration (Optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 **Frontend (.env.local):**
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:5001/api
 ```
 
-## 🧪 Testing the API
+## 🔧 Google OAuth Setup (Optional)
 
-You can test the API endpoints using tools like:
+To enable Google OAuth authentication:
 
-- **Postman** - GUI testing
-- **curl** - Command line testing
-- **Thunder Client** - VS Code extension
+1. **Go to [Google Cloud Console](https://console.cloud.google.com/)**
+2. **Create a new project** or select existing one
+3. **Enable Google+ API** in APIs & Services → Library
+4. **Create OAuth 2.0 credentials** in APIs & Services → Credentials
+5. **Add authorized redirect URI**: `http://localhost:5001/api/auth/google/callback`
+6. **Copy Client ID and Secret** to your backend `.env` file
+7. **Restart the backend server**
 
-### Example API Calls
+## 🧪 Testing the Application
 
-**Register User:**
+### **Manual Testing:**
+1. **Visit** http://localhost:3000
+2. **Create Account** using email/password or Google OAuth
+3. **Test Authentication** flows (login, logout, password reset)
+4. **Explore Social Features** (posts, follows, notifications)
+5. **Test Real-time Features** (notifications, online status)
+6. **Try Voice Features** when visiting user profiles
+
+### **API Testing:**
+Use Postman, curl, or Thunder Client to test API endpoints.
+
+**Example - Register User:**
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:5001/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -263,68 +388,56 @@ curl -X POST http://localhost:5000/api/auth/register \
   }'
 ```
 
-**Login User:**
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "SecurePass123"
-  }'
-```
-
 ## 🚀 Production Deployment
 
-### Backend Deployment
+### **Backend Deployment:**
 1. Set `NODE_ENV=production`
-2. Use a strong `JWT_SECRET`
+2. Use strong `JWT_SECRET` and `SESSION_SECRET`
 3. Configure MongoDB Atlas or production database
-4. Set up proper CORS origins
-5. Use PM2 or similar for process management
-6. Configure SSL/HTTPS
-7. Set up proper logging and monitoring
+4. Set up real email service (Gmail, SendGrid, AWS SES)
+5. Configure Google OAuth with production URLs
+6. Use PM2 or similar for process management
+7. Set up SSL/HTTPS and proper logging
 
-### Frontend Deployment
+### **Frontend Deployment:**
 1. Build the application: `npm run build`
 2. Deploy to Vercel, Netlify, or similar platform
 3. Set production environment variables
-4. Configure custom domain (optional)
+4. Update OAuth redirect URLs for production domain
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### **Common Issues:**
 
 1. **MongoDB Connection Error**
-   - Ensure MongoDB is running: `brew services start mongodb-community`
-   - Check connection string in backend `.env`
+   - Ensure MongoDB is running
+   - Check connection string in `.env`
    - Verify network connectivity
 
-2. **CORS Errors**
-   - Verify `FRONTEND_URL` in backend `.env`
-   - Check frontend is running on http://localhost:3000
+2. **OAuth Not Working**
+   - Check Google OAuth credentials in `.env`
+   - Verify redirect URIs in Google Console
+   - Ensure backend server is restarted after config changes
 
-3. **JWT Token Issues**
-   - Check `JWT_SECRET` is set in backend `.env`
-   - Verify token format in API requests
-   - Clear localStorage if tokens are corrupted
+3. **Real-time Features Not Working**
+   - Check Socket.IO connection in browser console
+   - Verify JWT token is valid
+   - Ensure both frontend and backend are running
 
-4. **Port Already in Use**
-   - Backend: Change `PORT` in `.env` or kill process on port 5000
-   - Frontend: Next.js will automatically use next available port
+4. **Email Services Not Working**
+   - Check email configuration in `.env`
+   - Verify SMTP settings for production
+   - Check spam folder for test emails
 
-5. **Dependencies Issues**
-   - Delete `node_modules` and `package-lock.json`
-   - Run `npm install` again
-   - Ensure Node.js version is 16+
+## 📚 Technologies Used
 
-## 📚 Additional Resources
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Express.js Documentation](https://expressjs.com/)
-- [MongoDB Documentation](https://docs.mongodb.com/)
-- [shadcn/ui Documentation](https://ui.shadcn.com/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Framer Motion Documentation](https://www.framer.com/motion/)
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion
+- **Backend**: Node.js, Express.js, MongoDB, Mongoose, Socket.IO
+- **Authentication**: JWT, Passport.js, Google OAuth 2.0
+- **Email**: Nodemailer with HTML templates
+- **Real-time**: Socket.IO for live features
+- **Voice**: Web Speech API for voice synthesis
+- **Development**: ESLint, Prettier, nodemon
 
 ## 🤝 Contributing
 
@@ -336,11 +449,12 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
 - [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
-- [Unsplash](https://unsplash.com/) for the high-quality stock images
-- [Framer Motion](https://www.framer.com/motion/) for smooth animations
-- The open-source community for the amazing tools and libraries
+- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Socket.IO](https://socket.io/) for real-time communication
+- [MongoDB](https://www.mongodb.com/) for the flexible database
+- The open-source community for the incredible tools and libraries

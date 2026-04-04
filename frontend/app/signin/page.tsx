@@ -192,6 +192,7 @@ export default function SignInPage() {
               variant="outline"
               className="flex items-center justify-center gap-2"
               disabled={isSubmitting}
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -224,6 +225,7 @@ export default function SignInPage() {
               variant="outline"
               className="flex items-center justify-center gap-2"
               disabled={isSubmitting}
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/microsoft`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

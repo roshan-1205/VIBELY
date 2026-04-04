@@ -115,8 +115,6 @@ export default function SignUpPage() {
       errors.password = 'Password is required'
     } else if (formData.password.length < 6) {
       errors.password = 'Password must be at least 6 characters long'
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      errors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
     }
 
     setFormErrors(errors)
@@ -221,6 +219,7 @@ export default function SignUpPage() {
               variant="outline"
               className="flex items-center justify-center gap-2"
               disabled={isSubmitting}
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -253,6 +252,7 @@ export default function SignUpPage() {
               variant="outline"
               className="flex items-center justify-center gap-2"
               disabled={isSubmitting}
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/microsoft`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -424,7 +424,7 @@ export default function SignUpPage() {
               )}
               {!formErrors.password && (
                 <p className="text-xs text-muted-foreground">
-                  Password must be at least 6 characters with uppercase, lowercase, and number
+                  Password must be at least 6 characters long
                 </p>
               )}
             </div>

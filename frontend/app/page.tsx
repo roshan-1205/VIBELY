@@ -73,6 +73,9 @@ export default function HomePage() {
               <Link href="/signin">Sign In</Link>
             </Button>
             <Button asChild variant="secondary" size="lg">
+              <Link href="/simple-login">Quick Test Login</Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
               <Link href="/hero">View Hero Demo</Link>
             </Button>
           </div>

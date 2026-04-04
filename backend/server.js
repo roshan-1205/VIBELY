@@ -3,23 +3,34 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const http = require('http');
+require('dotenv').config(); // Load environment variables FIRST
+
+const socketService = require('./services/socketService');
+const passport = require('./config/passport');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const postRoutes = require('./routes/posts');
+const socialRoutes = require('./routes/social');
+const notificationRoutes = require('./routes/notifications');
+const activityRoutes = require('./routes/activities');
 
 const app = express();
+const server = http.createServer(app);
 
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-});
-app.use(limiter);
+// Rate limiting (disabled for testing)
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limit each IP to 100 requests per windowMs
+//   message: 'Too many requests from this IP, please try again later.'
+// });
+// app.use(limiter);
 
 // CORS configuration
 app.use(cors({
@@ -37,14 +48,57 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Session configuration for OAuth (temporarily disabled)
+// app.use(session({
+//   secret: process.env.SESSION_SECRET || 'vibely-session-secret-change-in-production',
+//   resave: false,
+//   saveUninitialized: false,
+//   store: MongoStore.create({
+//     mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/vibely'
+//   }),
+//   cookie: {
+//     secure: process.env.NODE_ENV === 'production',
+//     maxAge: 24 * 60 * 60 * 1000 // 24 hours
+//   }
+// }));
+
+// Simple session for OAuth (fallback)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'vibely-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vibely')
-.then(() => console.log('✅ Connected to MongoDB'))
+.then(() => {
+  console.log('✅ Connected to MongoDB');
+  // Initialize Socket.IO after database connection
+  socketService.initialize(server);
+})
 .catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// Make socketService available to routes
+app.use((req, res, next) => {
+  req.socketService = socketService;
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/social', socialRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/activities', activityRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -75,8 +129,10 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🔌 WebSocket server ready`);
+  console.log(`🔐 Enhanced authentication with OAuth support`);
 });

@@ -31,8 +31,6 @@ const validateRegister = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ];
 
 // Validation rules for user login
@@ -61,8 +59,6 @@ const validatePasswordUpdate = [
   body('newPassword')
     .isLength({ min: 6 })
     .withMessage('New password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one uppercase letter, one lowercase letter, and one number')
 ];
 
 // Validation rules for profile update
@@ -88,7 +84,59 @@ const validateProfileUpdate = [
     .trim()
     .isEmail()
     .withMessage('Please enter a valid email address')
-    .normalizeEmail()
+    .normalizeEmail(),
+
+  body('bio')
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('Bio cannot exceed 200 characters'),
+
+  body('location')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Location cannot exceed 100 characters'),
+
+  body('website')
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage('Please provide a valid website URL')
+    .isLength({ max: 200 })
+    .withMessage('Website URL cannot exceed 200 characters')
+];
+
+// Validation rules for posts
+const validatePost = [
+  body('content')
+    .trim()
+    .isLength({ min: 1, max: 500 })
+    .withMessage('Post content must be between 1 and 500 characters'),
+
+  body('images')
+    .optional()
+    .isArray()
+    .withMessage('Images must be an array'),
+
+  body('images.*.url')
+    .optional()
+    .isURL()
+    .withMessage('Each image must have a valid URL'),
+
+  body('images.*.alt')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Image alt text cannot exceed 100 characters')
+];
+
+// Validation rules for comments
+const validateComment = [
+  body('content')
+    .trim()
+    .isLength({ min: 1, max: 200 })
+    .withMessage('Comment must be between 1 and 200 characters')
 ];
 
 // Middleware to handle validation errors
@@ -153,5 +201,7 @@ module.exports = {
   validateLogin,
   validatePasswordUpdate,
   validateProfileUpdate,
+  validatePost,
+  validateComment,
   handleValidationErrors
 };
