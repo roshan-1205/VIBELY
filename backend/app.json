@@ -1,0 +1,40 @@
+{
+  "name": "vibely-backend",
+  "description": "Backend API for Vibely social platform",
+  "repository": "https://github.com/roshan-1205/VIBELY",
+  "logo": "",
+  "keywords": ["node", "express", "mongodb", "socket.io", "authentication"],
+  "image": "heroku/nodejs",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "JWT_SECRET": {
+      "description": "Secret key for JWT token signing",
+      "generator": "secret"
+    },
+    "SESSION_SECRET": {
+      "description": "Secret key for session management",
+      "generator": "secret"
+    }
+  },
+  "scripts": {
+    "postdeploy": "echo 'Deployment completed successfully!'"
+  }
+}

@@ -53,18 +53,98 @@
 
 ## Backend Deployment
 
-### Recommended Platforms:
-- **Railway** - Easy Node.js deployment
-- **Render** - Free tier available
-- **Heroku** - Popular choice
-- **DigitalOcean App Platform**
+### Option 1: Railway (Recommended - Easy & Fast)
+
+1. **Sign up for Railway**
+   - Go to [railway.app](https://railway.app)
+   - Sign up with GitHub
+
+2. **Deploy from GitHub**
+   - Click "New Project"
+   - Select "Deploy from GitHub repo"
+   - Choose `roshan-1205/VIBELY`
+   - Select the `backend` folder
+
+3. **Environment Variables**
+   ```
+   NODE_ENV=production
+   PORT=5000
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/vibely
+   JWT_SECRET=your-super-secure-jwt-secret
+   SESSION_SECRET=your-session-secret
+   FRONTEND_URL=https://your-frontend.vercel.app
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   ```
+
+4. **Database Setup**
+   - Add MongoDB plugin in Railway
+   - Or use MongoDB Atlas (recommended)
+
+### Option 2: Render (Free Tier Available)
+
+1. **Sign up for Render**
+   - Go to [render.com](https://render.com)
+   - Sign up with GitHub
+
+2. **Create Web Service**
+   - Click "New +" → "Web Service"
+   - Connect GitHub repo: `roshan-1205/VIBELY`
+   - Root Directory: `backend`
+
+3. **Build Settings**
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+
+4. **Environment Variables** (same as Railway)
+
+### Option 3: Heroku
+
+1. **Install Heroku CLI**
+   ```bash
+   # Windows (using chocolatey)
+   choco install heroku-cli
+   ```
+
+2. **Deploy via CLI**
+   ```bash
+   cd VIBELY/backend
+   heroku login
+   heroku create vibely-backend-app
+   git subtree push --prefix=backend heroku main
+   ```
+
+3. **Add MongoDB**
+   ```bash
+   heroku addons:create mongolab:sandbox
+   ```
+
+### Database Setup (MongoDB Atlas)
+
+1. **Create MongoDB Atlas Account**
+   - Go to [mongodb.com/atlas](https://mongodb.com/atlas)
+   - Create free cluster
+
+2. **Get Connection String**
+   - Click "Connect" → "Connect your application"
+   - Copy connection string
+   - Replace `<password>` with your database password
+
+3. **Whitelist IP Addresses**
+   - Go to Network Access
+   - Add IP Address: `0.0.0.0/0` (allow all - for production, be more specific)
 
 ### Environment Variables Needed:
+- `NODE_ENV=production`
+- `PORT=5000` (or platform default)
 - `MONGODB_URI` - Your MongoDB connection string
-- `JWT_SECRET` - JWT signing secret
-- `SESSION_SECRET` - Session secret
+- `JWT_SECRET` - JWT signing secret (generate random string)
+- `SESSION_SECRET` - Session secret (generate random string)
 - `FRONTEND_URL` - Your deployed frontend URL
-- OAuth credentials (Google, Microsoft)
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
+- `MICROSOFT_CLIENT_ID` - Microsoft OAuth client ID (optional)
+- `MICROSOFT_CLIENT_SECRET` - Microsoft OAuth client secret (optional)
 
 ## Post-Deployment Checklist
 
