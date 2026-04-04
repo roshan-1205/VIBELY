@@ -61,21 +61,29 @@ router.post('/follow/:userId', auth, async (req, res) => {
         if (notification && req.socketService) {
           req.socketService.sendNotification(targetUserId, notification);
         }
+      }
 
-        // Broadcast user update for follower count
-        if (req.socketService) {
-          req.socketService.broadcastUserUpdate(targetUserId, {
-            followerCount: await Follow.getFollowerCount(targetUserId)
-          });
-        }
+      // Get updated counts
+      const followerCount = await Follow.getFollowerCount(targetUserId);
+      const followingCount = await Follow.getFollowingCount(currentUserId);
+
+      // Broadcast real-time stats updates
+      if (req.socketService) {
+        req.socketService.broadcastFollowUpdate(
+          currentUserId.toString(),
+          targetUserId,
+          existingFollow.isActive,
+          followerCount,
+          followingCount
+        );
       }
 
       res.json({
         success: true,
         data: { 
           isFollowing: existingFollow.isActive,
-          followerCount: await Follow.getFollowerCount(targetUserId),
-          followingCount: await Follow.getFollowingCount(currentUserId)
+          followerCount,
+          followingCount
         },
         message: `User ${action} successfully`
       });
@@ -106,19 +114,27 @@ router.post('/follow/:userId', auth, async (req, res) => {
         req.socketService.sendNotification(targetUserId, notification);
       }
 
-      // Broadcast user update for follower count
+      // Get updated counts
+      const followerCount = await Follow.getFollowerCount(targetUserId);
+      const followingCount = await Follow.getFollowingCount(currentUserId);
+
+      // Broadcast real-time stats updates
       if (req.socketService) {
-        req.socketService.broadcastUserUpdate(targetUserId, {
-          followerCount: await Follow.getFollowerCount(targetUserId)
-        });
+        req.socketService.broadcastFollowUpdate(
+          currentUserId.toString(),
+          targetUserId,
+          true,
+          followerCount,
+          followingCount
+        );
       }
 
       res.json({
         success: true,
         data: { 
           isFollowing: true,
-          followerCount: await Follow.getFollowerCount(targetUserId),
-          followingCount: await Follow.getFollowingCount(currentUserId)
+          followerCount,
+          followingCount
         },
         message: 'User followed successfully'
       });

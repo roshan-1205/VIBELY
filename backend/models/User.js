@@ -49,6 +49,27 @@ const userSchema = new mongoose.Schema({
     maxlength: [100, 'Location cannot exceed 100 characters'],
     default: ''
   },
+  coordinates: {
+    latitude: {
+      type: Number,
+      min: [-90, 'Latitude must be between -90 and 90'],
+      max: [90, 'Latitude must be between -90 and 90'],
+      default: null
+    },
+    longitude: {
+      type: Number,
+      min: [-180, 'Longitude must be between -180 and 180'],
+      max: [180, 'Longitude must be between -180 and 180'],
+      default: null
+    }
+  },
+  phone: {
+    type: String,
+    trim: true,
+    match: [/^\+?[\d\s\-\(\)]+$/, 'Please enter a valid phone number'],
+    maxlength: [20, 'Phone number cannot exceed 20 characters'],
+    default: ''
+  },
   website: {
     type: String,
     maxlength: [200, 'Website URL cannot exceed 200 characters'],

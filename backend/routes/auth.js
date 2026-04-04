@@ -30,7 +30,7 @@ const generateToken = (userId) => {
 router.post('/register', validateRegister, handleValidationErrors, async (req, res) => {
   try {
     console.log('Registration attempt:', { ...req.body, password: '[HIDDEN]' });
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, phone, location, coordinates } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -48,6 +48,9 @@ router.post('/register', validateRegister, handleValidationErrors, async (req, r
       lastName,
       email,
       password,
+      phone: phone || '',
+      location: location || '',
+      coordinates: coordinates || undefined,
       authProvider: 'local'
     });
 

@@ -44,6 +44,10 @@ A comprehensive full-stack social platform built with Next.js, Node.js, and Mong
 - ✅ **Real-time Notifications** for social events
 - ✅ **Online Status** tracking and display
 - ✅ **Search Functionality** for users and content
+- ✅ **Real-time Messaging** with popup interface
+- ✅ **Private Conversations** between mutual followers
+- ✅ **Typing Indicators** and read receipts
+- ✅ **Message History** with conversation management
 
 ## 📋 Prerequisites
 
@@ -280,6 +284,15 @@ VIBELY/
 - `GET /api/activities/feed` - Get activity feed
 - `GET /api/activities/user/:userId` - Get user activities
 
+### **Messaging System**
+- `GET /api/messages/conversations` - Get user's conversations
+- `GET /api/messages/conversation/:userId` - Get conversation with specific user
+- `POST /api/messages/send` - Send a message
+- `PUT /api/messages/mark-read/:userId` - Mark messages as read
+- `DELETE /api/messages/:messageId` - Delete a message
+- `GET /api/messages/unread-count` - Get unread message count
+- `GET /api/messages/messageable-users` - Get users you can message (mutual followers)
+
 ## 🎨 UI Components & Features
 
 ### **Authentication Components**
@@ -296,6 +309,10 @@ VIBELY/
 - **Activity Feed** showing user interactions
 - **Notification System** with real-time alerts
 - **Search Interface** for discovering users
+- **Messaging Popup** with real-time chat interface
+- **Conversation Management** with message history
+- **Typing Indicators** and read receipts
+- **Message Buttons** throughout the platform
 
 ### **Voice Features**
 - **Voice Welcome** when visiting profiles

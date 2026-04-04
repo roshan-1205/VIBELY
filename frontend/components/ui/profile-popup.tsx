@@ -10,6 +10,8 @@ import { Card } from './card'
 import { Spotlight } from './spotlight'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProfileImage } from '@/hooks/useProfileImage'
+import { useUserStats } from '@/hooks/useUserStats'
+import { formatNumber } from '@/lib/formatNumber'
 import { VoiceWelcome } from './voice-welcome'
 
 interface ProfilePopupProps {
@@ -28,6 +30,9 @@ export const ProfilePopup = ({ isOpen, onClose }: ProfilePopupProps) => {
   
   // Use the custom profile image hook
   const { profileImage, saveProfileImage, removeProfileImage: removeImage, clearProfileImage } = useProfileImage(user?._id)
+  
+  // Use the real-time stats hook
+  const { stats, loading: statsLoading, error: statsError, refreshStats } = useUserStats(user?._id)
 
   // Load robot customization
   useEffect(() => {
@@ -339,11 +344,48 @@ export const ProfilePopup = ({ isOpen, onClose }: ProfilePopupProps) => {
                           className="space-y-6"
                         >
                           {/* Stats Grid */}
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Statistics</h3>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={refreshStats}
+                                disabled={statsLoading}
+                                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50"
+                                title="Refresh stats"
+                              >
+                                <motion.div
+                                  animate={statsLoading ? { rotate: 360 } : { rotate: 0 }}
+                                  transition={{ duration: 1, repeat: statsLoading ? Infinity : 0, ease: "linear" }}
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                </motion.div>
+                              </motion.button>
+                            </div>
+                            
+                            <div className="grid grid-cols-3 gap-4">
                             {[
-                              { label: 'Posts', value: '127', color: 'purple', icon: <MessageSquare className="w-4 h-4" /> },
-                              { label: 'Followers', value: '1.2K', color: 'pink', icon: <Heart className="w-4 h-4" /> },
-                              { label: 'Following', value: '892', color: 'blue', icon: <Share2 className="w-4 h-4" /> }
+                              { 
+                                label: 'Posts', 
+                                value: statsLoading ? '...' : formatNumber(stats?.posts || 0), 
+                                color: 'purple', 
+                                icon: <MessageSquare className="w-4 h-4" /> 
+                              },
+                              { 
+                                label: 'Followers', 
+                                value: statsLoading ? '...' : formatNumber(stats?.followers || 0), 
+                                color: 'pink', 
+                                icon: <Heart className="w-4 h-4" /> 
+                              },
+                              { 
+                                label: 'Following', 
+                                value: statsLoading ? '...' : formatNumber(stats?.following || 0), 
+                                color: 'blue', 
+                                icon: <Share2 className="w-4 h-4" /> 
+                              }
                             ].map((stat, index) => (
                               <motion.div
                                 key={stat.label}
@@ -373,6 +415,22 @@ export const ProfilePopup = ({ isOpen, onClose }: ProfilePopupProps) => {
                               </motion.div>
                             ))}
                           </div>
+                          </div>
+
+                          {/* Stats Error Display */}
+                          {statsError && (
+                            <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                              <p className="text-sm text-red-600 dark:text-red-400">
+                                Failed to load stats
+                              </p>
+                              <button 
+                                onClick={refreshStats}
+                                className="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 mt-1"
+                              >
+                                Try again
+                              </button>
+                            </div>
+                          )}
 
                           {/* Profile Information */}
                           <div>
@@ -381,8 +439,8 @@ export const ProfilePopup = ({ isOpen, onClose }: ProfilePopupProps) => {
                               {[
                                 { icon: <Mail className="w-4 h-4" />, label: 'Email', value: user?.email, editable: false },
                                 { icon: <Calendar className="w-4 h-4" />, label: 'Member since', value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently', editable: false },
-                                { icon: <MapPin className="w-4 h-4" />, label: 'Location', value: 'New York, USA', editable: true },
-                                { icon: <Phone className="w-4 h-4" />, label: 'Phone', value: '+1 (555) 123-4567', editable: true }
+                                { icon: <Phone className="w-4 h-4" />, label: 'Phone', value: user?.phone || 'Not provided', editable: true },
+                                { icon: <MapPin className="w-4 h-4" />, label: 'Location', value: user?.location || 'Not provided', editable: true }
                               ].map((item, index) => (
                                 <motion.div
                                   key={item.label}

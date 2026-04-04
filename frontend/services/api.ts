@@ -20,6 +20,11 @@ interface User {
   avatar?: string;
   bio?: string;
   location?: string;
+  phone?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
   website?: string;
   isEmailVerified: boolean;
   isOnline?: boolean;
@@ -40,10 +45,26 @@ interface Post {
   _id: string;
   author: User;
   content: string;
+  postType: 'text' | 'image' | 'video' | 'quote';
+  quoteAuthor?: string;
   images?: Array<{
     url: string;
     alt?: string;
+    thumbnail?: string;
   }>;
+  videos?: Array<{
+    url: string;
+    thumbnail?: string;
+    duration?: number;
+    size?: number;
+  }>;
+  location?: string;
+  tags?: string[];
+  mentions?: string[];
+  visibility: 'public' | 'followers' | 'private';
+  scheduledDate?: string;
+  isScheduled: boolean;
+  isPublished: boolean;
   likes: Array<{
     user: User;
     createdAt: string;
@@ -54,8 +75,15 @@ interface Post {
     content: string;
     createdAt: string;
   }>;
+  shares: Array<{
+    user: User;
+    createdAt: string;
+  }>;
+  views: number;
   likeCount: number;
   commentCount: number;
+  shareCount: number;
+  engagementCount: number;
   isLikedBy?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -81,6 +109,30 @@ interface Activity {
   targetPost?: Post;
   message: string;
   createdAt: string;
+}
+
+interface Message {
+  _id: string;
+  sender: User;
+  recipient: User;
+  content: string;
+  messageType: 'text' | 'image' | 'file';
+  attachments?: Array<{
+    url: string;
+    type: string;
+    name: string;
+    size: number;
+  }>;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Conversation {
+  user: User;
+  lastMessage: Message;
+  unreadCount: number;
 }
 
 interface AuthResponse {
@@ -174,6 +226,9 @@ class ApiService {
     lastName: string;
     email: string;
     password: string;
+    phone?: string;
+    location?: string;
+    coordinates?: { latitude: number; longitude: number };
   }): Promise<ApiResponse<AuthResponse>> {
     console.log('Attempting registration with:', { ...userData, password: '[HIDDEN]' });
     console.log('API URL:', `${API_BASE_URL}/auth/register`);
@@ -396,7 +451,15 @@ class ApiService {
 
   async createPost(postData: {
     content: string;
+    postType?: 'text' | 'image' | 'video' | 'quote';
+    quoteAuthor?: string;
     images?: Array<{ url: string; alt?: string }>;
+    videos?: Array<{ url: string; thumbnail?: string; duration?: number }>;
+    location?: string;
+    tags?: string[];
+    mentions?: string[];
+    visibility?: 'public' | 'followers' | 'private';
+    scheduledDate?: string;
   }): Promise<ApiResponse<{ post: Post }>> {
     const response = await fetch(`${API_BASE_URL}/posts`, {
       method: 'POST',
@@ -424,6 +487,15 @@ class ApiService {
     });
 
     return this.handleResponse<{ post: Post; commentCount: number }>(response);
+  }
+
+  async sharePost(postId: string): Promise<ApiResponse<{ post: Post; isShared: boolean; shareCount: number }>> {
+    const response = await fetch(`${API_BASE_URL}/posts/${postId}/share`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ post: Post; isShared: boolean; shareCount: number }>(response);
   }
 
   async deletePost(postId: string): Promise<ApiResponse> {
@@ -555,7 +627,77 @@ class ApiService {
 
     return this.handleResponse<{ activities: Activity[] }>(response);
   }
+
+  // Messages endpoints
+  async getConversations(page = 1, limit = 20): Promise<ApiResponse<{ conversations: Conversation[] }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/conversations?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ conversations: Conversation[] }>(response);
+  }
+
+  async getConversation(userId: string, page = 1, limit = 50): Promise<ApiResponse<{ messages: Message[]; otherUser: User }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/conversation/${userId}?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ messages: Message[]; otherUser: User }>(response);
+  }
+
+  async sendMessage(recipientId: string, content: string, messageType: 'text' | 'image' | 'file' = 'text', attachments: any[] = []): Promise<ApiResponse<{ message: Message }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/send`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        recipientId,
+        content,
+        messageType,
+        attachments
+      })
+    });
+
+    return this.handleResponse<{ message: Message }>(response);
+  }
+
+  async markMessagesAsRead(userId: string): Promise<ApiResponse<{ markedCount: number }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/mark-read/${userId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ markedCount: number }>(response);
+  }
+
+  async deleteMessage(messageId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/messages/${messageId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse(response);
+  }
+
+  async getUnreadMessageCount(): Promise<ApiResponse<{ count: number }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/unread-count`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ count: number }>(response);
+  }
+
+  async getMessageableUsers(search = '', page = 1, limit = 20): Promise<ApiResponse<{ users: User[] }>> {
+    const response = await fetch(`${API_BASE_URL}/messages/messageable-users?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+
+    return this.handleResponse<{ users: User[] }>(response);
+  }
 }
 
 export const apiService = new ApiService();
-export type { User, Post, NotificationItem, Activity, ApiResponse, AuthResponse };
+export type { User, Post, NotificationItem, Activity, Message, Conversation, ApiResponse, AuthResponse };

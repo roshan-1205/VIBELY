@@ -8,6 +8,8 @@ import { ProfileAvatar } from '@/components/ui/profile-avatar'
 import { VoiceWelcomeCompact } from '@/components/ui/voice-welcome'
 import AvatarNotifications from '@/components/ui/avatar-notifications'
 import { PostsFeed } from '@/components/ui/posts-feed'
+import { MessagingPopup } from '@/components/ui/messaging-popup-fixed'
+import { CreatePostPopup } from '@/components/ui/create-post-popup'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -20,6 +22,8 @@ export default function HeroPage() {
   const router = useRouter()
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [showProfilePopup, setShowProfilePopup] = useState(false)
+  const [showMessagingPopup, setShowMessagingPopup] = useState(false)
+  const [showCreatePostPopup, setShowCreatePostPopup] = useState(false)
 
   // Social media navigation items
   const socialNavItems: NavItem[] = [
@@ -33,25 +37,25 @@ export default function HeroPage() {
       id: 'search', 
       icon: <Search />, 
       label: 'Search', 
-      onClick: () => console.log('Search clicked') 
+      onClick: () => router.push('/search') 
     },
     { 
       id: 'create', 
       icon: <PlusCircle />, 
       label: 'Create', 
-      onClick: () => console.log('Create post clicked') 
+      onClick: () => setShowCreatePostPopup(true) 
     },
     { 
       id: 'activity', 
       icon: <Heart />, 
       label: 'Activity', 
-      onClick: () => console.log('Activity clicked') 
+      onClick: () => router.push('/posts-showcase') 
     },
     { 
       id: 'messages', 
       icon: <MessageCircle />, 
       label: 'Messages', 
-      onClick: () => console.log('Messages clicked') 
+      onClick: () => setShowMessagingPopup(true) 
     },
     { 
       id: 'profile', 
@@ -118,6 +122,18 @@ export default function HeroPage() {
         onClose={() => setShowProfilePopup(false)}
       />
 
+      {/* Messaging Popup - Shows when user clicks messages icon */}
+      <MessagingPopup 
+        isOpen={showMessagingPopup}
+        onClose={() => setShowMessagingPopup(false)}
+      />
+
+      {/* Create Post Popup - Shows when user clicks create icon */}
+      <CreatePostPopup 
+        isOpen={showCreatePostPopup}
+        onClose={() => setShowCreatePostPopup(false)}
+      />
+
       {/* Navigation */}
       <nav className="flex items-center justify-between p-6 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center space-x-2">
@@ -139,12 +155,6 @@ export default function HeroPage() {
             />
             <span>Welcome, {user.firstName}!</span>
           </div>
-          <Button variant="ghost" asChild>
-            <Link href="/">Home</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/search">Search Users</Link>
-          </Button>
           <Button variant="outline" onClick={handleLogout}>
             Logout
           </Button>
@@ -273,18 +283,19 @@ export default function HeroPage() {
                   </svg>
                   Edit Profile
                 </Button>
+                <Button className="w-full justify-start" variant="outline" onClick={() => router.push('/posts-showcase')}>
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Posts Showcase
+                </Button>
                 <Button className="w-full justify-start" variant="outline">
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   Settings
-                </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Help & Support
                 </Button>
               </div>
             </div>
@@ -309,7 +320,7 @@ export default function HeroPage() {
 
       {/* Floating Social Media Navigation */}
       <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
-        showProfilePopup ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 pointer-events-auto translate-y-0'
+        showProfilePopup || showMessagingPopup || showCreatePostPopup ? 'opacity-0 pointer-events-none translate-y-4' : 'opacity-100 pointer-events-auto translate-y-0'
       }`}>
         <LimelightNav 
           items={socialNavItems}

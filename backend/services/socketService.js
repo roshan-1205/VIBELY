@@ -134,6 +134,140 @@ class SocketService {
       });
     });
 
+    // Handle messaging events
+    socket.on('message:typing:start', async (data) => {
+      try {
+        // Verify users can message each other
+        const canMessage = await this.canUsersMessage(userId, data.recipientId);
+        if (!canMessage) return;
+
+        const targetSocketId = this.connectedUsers.get(data.recipientId);
+        if (targetSocketId) {
+          this.io.to(targetSocketId).emit('message:typing:start', {
+            senderId: userId,
+            sender: socket.user
+          });
+        }
+      } catch (error) {
+        console.error('Error handling typing start:', error);
+      }
+    });
+
+    socket.on('message:typing:stop', async (data) => {
+      try {
+        // Verify users can message each other
+        const canMessage = await this.canUsersMessage(userId, data.recipientId);
+        if (!canMessage) return;
+
+        const targetSocketId = this.connectedUsers.get(data.recipientId);
+        if (targetSocketId) {
+          this.io.to(targetSocketId).emit('message:typing:stop', {
+            senderId: userId
+          });
+        }
+      } catch (error) {
+        console.error('Error handling typing stop:', error);
+      }
+    });
+
+    // Handle message read receipts
+    socket.on('message:read', async (data) => {
+      try {
+        // Verify users can message each other
+        const canMessage = await this.canUsersMessage(userId, data.senderId);
+        if (!canMessage) return;
+
+        const targetSocketId = this.connectedUsers.get(data.senderId);
+        if (targetSocketId) {
+          this.io.to(targetSocketId).emit('message:read', {
+            readBy: userId,
+            messageId: data.messageId,
+            conversationId: data.conversationId
+          });
+        }
+      } catch (error) {
+        console.error('Error handling message read:', error);
+      }
+    });
+
+    // Handle joining conversation rooms
+    socket.on('conversation:join', async (data) => {
+      try {
+        const { otherUserId } = data;
+        // Verify users can message each other
+        const canMessage = await this.canUsersMessage(userId, otherUserId);
+        if (!canMessage) {
+          socket.emit('conversation:error', { message: 'You can only message mutual followers' });
+          return;
+        }
+
+        // Create conversation room ID (consistent for both users)
+        const conversationId = [userId, otherUserId].sort().join('_');
+        socket.join(`conversation:${conversationId}`);
+        
+        socket.emit('conversation:joined', { conversationId, otherUserId });
+      } catch (error) {
+        console.error('Error joining conversation:', error);
+        socket.emit('conversation:error', { message: 'Failed to join conversation' });
+      }
+    });
+
+    // Handle leaving conversation rooms
+    socket.on('conversation:leave', (data) => {
+      const { otherUserId } = data;
+      const conversationId = [userId, otherUserId].sort().join('_');
+      socket.leave(`conversation:${conversationId}`);
+    });
+
+    // Handle real-time message sending
+    socket.on('message:send', async (data) => {
+      try {
+        const { recipientId, content, messageType = 'text', messageId } = data;
+        
+        console.log('Socket message:send received:', { recipientId, content, messageId });
+        
+        // Verify users can message each other
+        const canMessage = await this.canUsersMessage(userId, recipientId);
+        if (!canMessage) {
+          socket.emit('message:error', { message: 'You can only message mutual followers' });
+          return;
+        }
+
+        // Create conversation room ID
+        const conversationId = [userId, recipientId].sort().join('_');
+        
+        // Emit to conversation room (both users if online)
+        this.io.to(`conversation:${conversationId}`).emit('message:received', {
+          senderId: userId,
+          recipientId: recipientId,
+          content: content,
+          messageType: messageType,
+          sender: socket.user,
+          timestamp: new Date().toISOString(),
+          conversationId: conversationId,
+          messageId: messageId
+        });
+
+        // Also send direct notification to recipient if they're online
+        const targetSocketId = this.connectedUsers.get(recipientId);
+        if (targetSocketId) {
+          this.io.to(targetSocketId).emit('message:notification', {
+            senderId: userId,
+            sender: socket.user,
+            content: content,
+            conversationId: conversationId,
+            messageId: messageId
+          });
+        }
+
+        console.log(`Message sent from ${userId} to ${recipientId} via socket`);
+
+      } catch (error) {
+        console.error('Error handling real-time message:', error);
+        socket.emit('message:error', { message: 'Failed to send message' });
+      }
+    });
+
     // Handle live reactions
     socket.on('reaction:add', (data) => {
       this.io.emit('reaction:added', {
@@ -204,6 +338,79 @@ class SocketService {
     this.io.emit('user:updated', { userId, update });
   }
 
+  // Broadcast stats updates
+  broadcastStatsUpdate(userId, stats) {
+    // Send to the user themselves
+    const userSocketId = this.connectedUsers.get(userId);
+    if (userSocketId) {
+      this.io.to(userSocketId).emit('user:stats_updated', {
+        userId,
+        ...stats
+      });
+    }
+
+    // Also broadcast to followers for their feeds
+    this.notifyFollowersStatsUpdate(userId, stats);
+  }
+
+  async notifyFollowersStatsUpdate(userId, stats) {
+    try {
+      const Follow = require('../models/Follow');
+      const followers = await Follow.find({
+        following: userId,
+        isActive: true
+      }).populate('follower', '_id');
+
+      followers.forEach(follow => {
+        const followerSocketId = this.connectedUsers.get(follow.follower._id.toString());
+        if (followerSocketId) {
+          this.io.to(followerSocketId).emit('user:stats_updated', {
+            userId,
+            ...stats
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error notifying followers of stats update:', error);
+    }
+  }
+
+  // Broadcast follow updates with stats
+  broadcastFollowUpdate(followerId, targetUserId, isFollowing, followerCount, followingCount) {
+    // Notify the target user about their follower count change
+    const targetSocketId = this.connectedUsers.get(targetUserId);
+    if (targetSocketId) {
+      this.io.to(targetSocketId).emit('follow:updated', {
+        followerId,
+        targetUserId,
+        isFollowing,
+        followerCount
+      });
+    }
+
+    // Notify the follower about their following count change
+    const followerSocketId = this.connectedUsers.get(followerId);
+    if (followerSocketId) {
+      this.io.to(followerSocketId).emit('follow:updated', {
+        followerId,
+        targetUserId,
+        isFollowing,
+        followingCount
+      });
+    }
+  }
+
+  // Broadcast post stats updates
+  broadcastPostStatsUpdate(authorId, postCount) {
+    const authorSocketId = this.connectedUsers.get(authorId);
+    if (authorSocketId) {
+      this.io.to(authorSocketId).emit('post:stats_updated', {
+        authorId,
+        postCount
+      });
+    }
+  }
+
   // Get online users
   getOnlineUsers() {
     return Array.from(this.connectedUsers.keys());
@@ -225,6 +432,42 @@ class SocketService {
   // Broadcast to all users
   broadcast(event, data) {
     this.io.emit(event, data);
+  }
+
+  // Helper method to check if users can message each other
+  async canUsersMessage(user1Id, user2Id) {
+    try {
+      const Follow = require('../models/Follow');
+      
+      // Check if both users follow each other (mutual follow)
+      const follow1 = await Follow.findOne({
+        follower: user1Id,
+        following: user2Id,
+        isActive: true
+      });
+
+      const follow2 = await Follow.findOne({
+        follower: user2Id,
+        following: user1Id,
+        isActive: true
+      });
+
+      return follow1 && follow2;
+    } catch (error) {
+      console.error('Error checking message permissions:', error);
+      return false;
+    }
+  }
+
+  // Send real-time message notification
+  async sendMessageNotification(recipientId, message) {
+    const socketId = this.connectedUsers.get(recipientId);
+    if (socketId) {
+      this.io.to(socketId).emit('message:new', {
+        message,
+        sender: message.sender
+      });
+    }
   }
 }
 

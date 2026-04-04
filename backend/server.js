@@ -17,6 +17,7 @@ const postRoutes = require('./routes/posts');
 const socialRoutes = require('./routes/social');
 const notificationRoutes = require('./routes/notifications');
 const activityRoutes = require('./routes/activities');
+const messageRoutes = require('./routes/messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -99,6 +100,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

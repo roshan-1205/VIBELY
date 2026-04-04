@@ -17,7 +17,7 @@ const router = express.Router();
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, postType, visibility } = req.query;
     const skip = (page - 1) * limit;
 
     // Get users that current user follows
@@ -29,16 +29,34 @@ router.get('/', auth, async (req, res) => {
     const followingIds = following.map(f => f.following);
     followingIds.push(req.user._id); // Include own posts
 
-    const posts = await Post.find({ 
+    // Build query
+    const query = { 
       author: { $in: followingIds },
-      isActive: true 
-    })
-    .populate('author', 'firstName lastName email avatar')
-    .populate('likes.user', 'firstName lastName')
-    .populate('comments.user', 'firstName lastName avatar')
-    .sort({ createdAt: -1 })
-    .limit(parseInt(limit))
-    .skip(skip);
+      isActive: true,
+      isPublished: true,
+      $or: [
+        { visibility: 'public' },
+        { visibility: 'followers', author: { $in: followingIds } },
+        { visibility: 'private', author: req.user._id }
+      ]
+    };
+
+    // Add filters
+    if (postType && postType !== 'all') {
+      query.postType = postType;
+    }
+
+    if (visibility && visibility !== 'all') {
+      query.visibility = visibility;
+    }
+
+    const posts = await Post.find(query)
+      .populate('author', 'firstName lastName email avatar')
+      .populate('likes.user', 'firstName lastName')
+      .populate('comments.user', 'firstName lastName avatar')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .skip(skip);
 
     res.json({
       success: true,
@@ -100,33 +118,65 @@ router.get('/user/:userId', auth, async (req, res) => {
 // @access  Private
 router.post('/', auth, validatePost, handleValidationErrors, async (req, res) => {
   try {
-    const { content, images = [] } = req.body;
+    const { 
+      content, 
+      postType = 'text',
+      quoteAuthor,
+      images = [], 
+      videos = [],
+      location,
+      tags = [],
+      mentions = [],
+      visibility = 'public',
+      scheduledDate
+    } = req.body;
 
+    // Check if post should be scheduled
+    const isScheduled = scheduledDate && new Date(scheduledDate) > new Date();
+    
     const post = new Post({
       author: req.user._id,
       content,
-      images
+      postType,
+      quoteAuthor: postType === 'quote' ? quoteAuthor : undefined,
+      images,
+      videos,
+      location,
+      tags: tags.filter(tag => tag && tag.trim()),
+      mentions: mentions.filter(mention => mention && mention.trim()),
+      visibility,
+      scheduledDate: isScheduled ? new Date(scheduledDate) : undefined,
+      isScheduled,
+      isPublished: !isScheduled
     });
 
     await post.save();
     await post.populate('author', 'firstName lastName email avatar');
 
-    // Create activity
-    await Activity.createActivity({
-      user: req.user._id,
-      type: 'post_created',
-      targetPost: post._id
-    });
+    // Only create activity and broadcast if not scheduled
+    if (!isScheduled) {
+      // Create activity
+      await Activity.createActivity({
+        user: req.user._id,
+        type: 'post_created',
+        targetPost: post._id
+      });
 
-    // Broadcast new post to all connected users
-    if (req.socketService) {
-      req.socketService.broadcastNewPost(post);
+      // Get updated post count
+      const postCount = await Post.countDocuments({ author: req.user._id, isActive: true, isPublished: true });
+
+      // Broadcast new post to all connected users
+      if (req.socketService) {
+        req.socketService.broadcastNewPost(post);
+        // Broadcast post count update to the author
+        req.socketService.broadcastPostStatsUpdate(req.user._id.toString(), postCount);
+      }
     }
 
     res.status(201).json({
       success: true,
       data: { post },
-      message: 'Post created successfully'
+      message: isScheduled ? 'Post scheduled successfully' : 'Post created successfully'
     });
   } catch (error) {
     console.error('Create post error:', error);
@@ -272,6 +322,75 @@ router.post('/:postId/comment', auth, validateComment, handleValidationErrors, a
   }
 });
 
+// @route   POST /api/posts/:postId/share
+// @desc    Share a post
+// @access  Private
+router.post('/:postId/share', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    const isShared = post.isSharedBy(req.user._id);
+    
+    if (!isShared) {
+      await post.addShare(req.user._id);
+      
+      // Create activity and notification
+      await Activity.createActivity({
+        user: req.user._id,
+        type: 'post_shared',
+        targetPost: post._id,
+        targetUser: post.author
+      });
+
+      const notification = await Notification.createNotification({
+        recipient: post.author,
+        sender: req.user._id,
+        type: 'share',
+        message: `${req.user.firstName} ${req.user.lastName} shared your post`,
+        targetPost: post._id
+      });
+
+      // Send real-time notification
+      if (notification && req.socketService) {
+        req.socketService.sendNotification(post.author.toString(), notification);
+      }
+
+      // Broadcast post update for real-time share count
+      if (req.socketService) {
+        req.socketService.broadcastPostUpdate(post._id, {
+          shareCount: post.shareCount,
+          shares: post.shares
+        });
+      }
+    }
+
+    await post.populate('author', 'firstName lastName email avatar');
+    await post.populate('shares.user', 'firstName lastName');
+
+    res.json({
+      success: true,
+      data: { 
+        post,
+        isShared: !isShared,
+        shareCount: post.shareCount
+      },
+      message: isShared ? 'Post unshared' : 'Post shared'
+    });
+  } catch (error) {
+    console.error('Share post error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error sharing post'
+    });
+  }
+});
+
 // @route   DELETE /api/posts/:postId
 // @desc    Delete a post
 // @access  Private
@@ -296,6 +415,14 @@ router.delete('/:postId', auth, async (req, res) => {
 
     post.isActive = false;
     await post.save();
+
+    // Get updated post count
+    const postCount = await Post.countDocuments({ author: req.user._id, isActive: true });
+
+    // Broadcast post count update to the author
+    if (req.socketService) {
+      req.socketService.broadcastPostStatsUpdate(req.user._id.toString(), postCount);
+    }
 
     res.json({
       success: true,

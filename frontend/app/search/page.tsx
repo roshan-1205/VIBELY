@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { MessageButton } from '@/components/ui/message-button'
 import Link from 'next/link'
 
 export default function SearchPage() {
@@ -141,9 +142,7 @@ export default function SearchPage() {
                 <Heart className={`w-4 h-4 mr-1 ${user.isFollowing ? 'fill-current' : ''}`} />
                 {user.isFollowing ? 'Following' : 'Follow'}
               </Button>
-              <Button variant="ghost" size="sm">
-                <MessageSquare className="w-4 h-4" />
-              </Button>
+              <MessageButton userId={user._id} />
             </>
           )}
         </div>
@@ -278,13 +277,7 @@ export default function SearchPage() {
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
                       </div>
                       {user._id !== currentUser?._id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleFollowToggle(user._id, user.isFollowing || false)}
-                        >
-                          <UserPlus className="w-3 h-3" />
-                        </Button>
+                        <MessageButton userId={user._id} />
                       )}
                     </div>
                   ))}

@@ -6,9 +6,9 @@ import { apiService, type User } from '@/services/api'
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
-  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>
+  signup: (email: string, password: string, firstName: string, lastName: string, phone?: string, location?: string, coordinates?: { latitude: number; longitude: number }) => Promise<boolean>
   logout: () => Promise<void>
-  updateProfile: (profileData: { firstName?: string; lastName?: string; email?: string }) => Promise<boolean>
+  updateProfile: (profileData: { firstName?: string; lastName?: string; email?: string; phone?: string; location?: string; coordinates?: { latitude: number; longitude: number } }) => Promise<boolean>
   isLoading: boolean
   error: string | null
   clearError: () => void
@@ -97,7 +97,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signup = async (email: string, password: string, firstName: string, lastName: string): Promise<boolean> => {
+  const signup = async (
+    email: string, 
+    password: string, 
+    firstName: string, 
+    lastName: string, 
+    phone?: string, 
+    location?: string, 
+    coordinates?: { latitude: number; longitude: number }
+  ): Promise<boolean> => {
     try {
       setIsLoading(true)
       setError(null)
@@ -107,7 +115,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         firstName,
         lastName,
         email,
-        password
+        password,
+        phone,
+        location,
+        coordinates
       })
       console.log('AuthContext: Signup response:', response);
       

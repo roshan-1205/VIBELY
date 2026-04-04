@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLocation } from '@/hooks/useLocation'
+import { locationService } from '@/lib/locationService'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
-// Icons for alerts
+// Icons for alerts and location
 const AlertCircle = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -45,27 +47,66 @@ const CheckCircle = () => (
   </svg>
 )
 
+const MapPin = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+)
+
+const Phone = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+)
+
 interface FormErrors {
   firstName?: string
   lastName?: string
   email?: string
   password?: string
+  phone?: string
+  location?: string
   general?: string
 }
 
 export default function SignUpPage() {
   const { signup, user, isLoading, error, clearError } = useAuth()
+  const { location, loading: locationLoading, error: locationError, requestLocation } = useLocation()
   const router = useRouter()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    password: ''
+    password: '',
+    phone: '',
+    location: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [showPassword, setShowPassword] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [locationRequested, setLocationRequested] = useState(false)
 
   // Redirect if already logged in
   useEffect(() => {
@@ -73,6 +114,28 @@ export default function SignUpPage() {
       router.push('/hero')
     }
   }, [user, router])
+
+  // Update location in form when location is detected
+  useEffect(() => {
+    if (location && !formData.location) {
+      const locationString = locationService.formatLocation(location)
+      setFormData(prev => ({
+        ...prev,
+        location: locationString
+      }))
+    }
+  }, [location, formData.location])
+
+  // Auto-request location on component mount
+  useEffect(() => {
+    if (!locationRequested) {
+      setLocationRequested(true)
+      requestLocation().catch(() => {
+        // Silently handle location request failure
+        console.log('Location request failed or denied')
+      })
+    }
+  }, [locationRequested, requestLocation])
 
   // Clear errors when component mounts or form data changes
   useEffect(() => {
@@ -117,6 +180,21 @@ export default function SignUpPage() {
       errors.password = 'Password must be at least 6 characters long'
     }
 
+    // Phone validation (optional but if provided, must be valid)
+    if (formData.phone.trim()) {
+      const phoneRegex = /^\+?[\d\s\-\(\)]+$/
+      if (!phoneRegex.test(formData.phone.trim())) {
+        errors.phone = 'Please enter a valid phone number'
+      } else if (formData.phone.trim().length < 10) {
+        errors.phone = 'Phone number must be at least 10 digits'
+      }
+    }
+
+    // Location validation (optional)
+    if (formData.location.trim() && formData.location.trim().length > 100) {
+      errors.location = 'Location cannot exceed 100 characters'
+    }
+
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
@@ -144,7 +222,10 @@ export default function SignUpPage() {
         formData.email, 
         formData.password, 
         formData.firstName, 
-        formData.lastName
+        formData.lastName,
+        formData.phone || undefined,
+        formData.location || undefined,
+        location ? { latitude: location.latitude, longitude: location.longitude } : undefined
       )
       console.log('Signup function returned:', success)
       
@@ -427,6 +508,92 @@ export default function SignUpPage() {
                   Password must be at least 6 characters long
                 </p>
               )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label
+                htmlFor="phone"
+                className="block text-sm"
+              >
+                Phone Number (Optional)
+              </Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <Input
+                  type="tel"
+                  name="phone"
+                  id="phone"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                  className={`pl-10 ${formErrors.phone ? 'border-red-500 focus:border-red-500' : ''}`}
+                />
+              </div>
+              {formErrors.phone && (
+                <p className="text-sm text-red-600 mt-1">{formErrors.phone}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Optional: Add your phone number for better account security
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label
+                htmlFor="location"
+                className="block text-sm"
+              >
+                Location (Optional)
+              </Label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <Input
+                  type="text"
+                  name="location"
+                  id="location"
+                  placeholder={locationLoading ? "Detecting location..." : "Enter your location"}
+                  value={formData.location}
+                  onChange={handleChange}
+                  disabled={isSubmitting || locationLoading}
+                  className={`pl-10 pr-10 ${formErrors.location ? 'border-red-500 focus:border-red-500' : ''}`}
+                />
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  disabled={locationLoading || isSubmitting}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                  title="Use current location"
+                >
+                  {locationLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {formErrors.location && (
+                <p className="text-sm text-red-600 mt-1">{formErrors.location}</p>
+              )}
+              {locationError && (
+                <p className="text-sm text-orange-600 mt-1">
+                  Location access denied. You can enter your location manually.
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Optional: Help others find you by sharing your location
+              </p>
             </div>
             
             <Button 
