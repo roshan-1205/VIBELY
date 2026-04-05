@@ -101,7 +101,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Database connection
-const DATABASE_TYPE = process.env.DATABASE_TYPE || 'supabase'; // 'mongodb' or 'supabase'
+const DATABASE_TYPE = process.env.DATABASE_TYPE || 'mongodb'; // 'mongodb' or 'supabase'
 
 if (DATABASE_TYPE === 'supabase') {
   // Supabase PostgreSQL connection
