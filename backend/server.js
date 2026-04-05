@@ -106,19 +106,27 @@ const DATABASE_TYPE = process.env.DATABASE_TYPE || 'supabase'; // 'mongodb' or '
 if (DATABASE_TYPE === 'supabase') {
   // Supabase PostgreSQL connection
   const { Pool } = require('pg');
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgresql://postgres.xmziootltbhwxmigvqhv:Rs%409826348254@aws-0-ap-south-1.pooler.supabase.com:6543/postgres',
+  
+  // Parse connection string or use individual parameters
+  const connectionConfig = process.env.DATABASE_URL ? {
+    connectionString: process.env.DATABASE_URL,
     ssl: { 
       rejectUnauthorized: false,
       require: true
-    },
-    // Force IPv4 to avoid IPv6 issues
+    }
+  } : {
     host: 'aws-0-ap-south-1.pooler.supabase.com',
     port: 6543,
     database: 'postgres',
-    user: 'postgres.xmziootltbhwxmigvqhv',
-    password: 'Rs@9826348254'
-  });
+    user: 'postgres',
+    password: 'Rs@9826348254',
+    ssl: { 
+      rejectUnauthorized: false,
+      require: true
+    }
+  };
+  
+  const pool = new Pool(connectionConfig);
   
   pool.connect()
     .then(() => {
