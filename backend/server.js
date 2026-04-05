@@ -108,7 +108,16 @@ if (DATABASE_TYPE === 'supabase') {
   const { Pool } = require('pg');
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgresql://postgres.xmziootltbhwxmigvqhv:Rs%409826348254@aws-0-ap-south-1.pooler.supabase.com:6543/postgres',
-    ssl: { rejectUnauthorized: false }
+    ssl: { 
+      rejectUnauthorized: false,
+      require: true
+    },
+    // Force IPv4 to avoid IPv6 issues
+    host: 'aws-0-ap-south-1.pooler.supabase.com',
+    port: 6543,
+    database: 'postgres',
+    user: 'postgres.xmziootltbhwxmigvqhv',
+    password: 'Rs@9826348254'
   });
   
   pool.connect()
