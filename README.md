@@ -22,7 +22,7 @@ This automated script will:
 cd backend && npm install && npm run dev
 
 # Frontend (new terminal)
-cd frontend && npm install && npm run dev
+cd frontend && npm install --legacy-peer-deps && npm run dev
 ```
 
 **Access the Application:**
