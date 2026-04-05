@@ -1,13 +1,15 @@
 'use client'
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, Heart, MessageSquare, Share2, MoreHorizontal, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, MessageSquare, Share2, MoreHorizontal, Play, Pause, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { type Post } from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 // --- TYPES ---
 interface PostsCarouselProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -15,15 +17,31 @@ interface PostsCarouselProps extends React.HTMLAttributes<HTMLDivElement> {
   onLike?: (postId: string) => void;
   onComment?: (postId: string) => void;
   onShare?: (postId: string) => void;
+  onDelete?: (postId: string) => void;
   title?: React.ReactNode;
   subtitle?: string;
 }
 
 // --- POSTS CAROUSEL COMPONENT ---
 export const PostsCarousel = React.forwardRef<HTMLDivElement, PostsCarouselProps>(
-  ({ posts, onLike, onComment, onShare, title, subtitle, className, ...props }, ref) => {
+  ({ posts, onLike, onComment, onShare, onDelete, title, subtitle, className, ...props }, ref) => {
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [isPlaying, setIsPlaying] = React.useState<{ [key: string]: boolean }>({});
+    const [deletingPostId, setDeletingPostId] = React.useState<string | null>(null);
+    const { user } = useAuth();
+
+    const handleDeletePost = async (postId: string) => {
+      if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        return
+      }
+
+      try {
+        setDeletingPostId(postId)
+        await onDelete?.(postId)
+      } finally {
+        setDeletingPostId(null)
+      }
+    }
 
     const handleNext = React.useCallback(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % posts.length);
@@ -82,9 +100,29 @@ export const PostsCarousel = React.forwardRef<HTMLDivElement, PostsCarouselProps
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
+              
+              {/* Post Menu - Only show for post author */}
+              {user && user._id === post.author._id && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2" align="end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeletePost(post._id)}
+                      disabled={deletingPostId === post._id}
+                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      {deletingPostId === post._id ? 'Deleting...' : 'Delete Post'}
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
           </div>
 

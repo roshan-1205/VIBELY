@@ -244,6 +244,23 @@ export default function PostsShowcasePage() {
     }
   };
 
+  const handleDelete = async (postId: string) => {
+    try {
+      const response = await apiService.deletePost(postId);
+      
+      if (response.success) {
+        // Remove the post from the local state
+        setPosts(prevPosts => prevPosts.filter(post => post._id !== postId));
+      } else {
+        console.error('Failed to delete post:', response.message);
+        alert('Failed to delete post. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -304,6 +321,7 @@ export default function PostsShowcasePage() {
           onLike={handleLike}
           onComment={handleComment}
           onShare={handleShare}
+          onDelete={handleDelete}
           title={
             <>
               Discover Amazing{' '}

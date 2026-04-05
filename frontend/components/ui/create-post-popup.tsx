@@ -45,6 +45,17 @@ interface MediaFile {
   url: string
   type: 'image' | 'video'
   thumbnail?: string
+  uploaded?: boolean
+  uploading?: boolean
+  uploadProgress?: number
+  uploadedData?: {
+    url: string
+    thumbnail?: string
+    size: number
+    filename: string
+    originalName: string
+    duration?: number
+  }
 }
 
 export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
@@ -59,6 +70,8 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
   const [mentions, setMentions] = useState<string[]>([])
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [scheduledDate, setScheduledDate] = useState('')
   const [currentTag, setCurrentTag] = useState('')
   const [currentMention, setCurrentMention] = useState('')
@@ -71,6 +84,13 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
   const commonEmojis = ['😊', '😍', '🤔', '😂', '❤️', '👍', '🎉', '🔥', '💯', '✨', '🌟', '💪', '🙌', '👏', '🎯', '💡']
 
   const handleClose = useCallback(() => {
+    // Clean up object URLs
+    mediaFiles.forEach(file => {
+      if (file.url.startsWith('blob:')) {
+        URL.revokeObjectURL(file.url)
+      }
+    })
+    
     // Reset all form data
     setPostType('text')
     setContent('')
@@ -84,33 +104,65 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
     setCurrentTag('')
     setCurrentMention('')
     setShowEmojiPicker(false)
+    setIsUploading(false)
+    setUploadProgress(0)
     onClose()
-  }, [onClose])
+  }, [onClose, mediaFiles])
 
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
     
-    files.forEach(file => {
+    if (files.length === 0) return
+
+    // Validate files first
+    const validFiles = files.filter(file => {
       if (file.size > 50 * 1024 * 1024) { // 50MB limit
         alert(`File ${file.name} is too large. Maximum size is 50MB.`)
-        return
+        return false
       }
+      
+      const isValidType = file.type.startsWith('image/') || file.type.startsWith('video/')
+      if (!isValidType) {
+        alert(`File ${file.name} is not a valid image or video file.`)
+        return false
+      }
+      
+      return true
+    })
 
+    if (validFiles.length === 0) {
+      // Reset input
+      if (event.target) {
+        event.target.value = ''
+      }
+      return
+    }
+
+    // Create media file objects with preview URLs
+    const newMediaFiles: MediaFile[] = validFiles.map(file => {
       const fileType = file.type.startsWith('image/') ? 'image' : 'video'
       const fileId = Math.random().toString(36).substr(2, 9)
       const url = URL.createObjectURL(file)
 
-      const mediaFile: MediaFile = {
+      return {
         id: fileId,
         file,
         url,
-        type: fileType
+        type: fileType,
+        uploaded: false,
+        uploading: false,
+        uploadProgress: 0
       }
+    })
 
-      // Generate thumbnail for videos
-      if (fileType === 'video') {
+    // Add files to state immediately for preview
+    setMediaFiles(prev => [...prev, ...newMediaFiles])
+
+    // Generate thumbnails for videos
+    newMediaFiles.forEach(mediaFile => {
+      if (mediaFile.type === 'video') {
         const video = document.createElement('video')
-        video.src = url
+        video.src = mediaFile.url
         video.currentTime = 1
         video.onloadeddata = () => {
           const canvas = document.createElement('canvas')
@@ -118,13 +170,65 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
           canvas.height = video.videoHeight
           const ctx = canvas.getContext('2d')
           ctx?.drawImage(video, 0, 0)
-          mediaFile.thumbnail = canvas.toDataURL()
-          setMediaFiles(prev => prev.map(f => f.id === fileId ? mediaFile : f))
+          const thumbnail = canvas.toDataURL()
+          
+          setMediaFiles(prev => prev.map(f => 
+            f.id === mediaFile.id ? { ...f, thumbnail } : f
+          ))
         }
       }
-
-      setMediaFiles(prev => [...prev, mediaFile])
     })
+
+    // Start uploading files immediately
+    try {
+      setIsUploading(true)
+      
+      // Upload files in batches to avoid overwhelming the server
+      const batchSize = 3
+      for (let i = 0; i < validFiles.length; i += batchSize) {
+        const batch = validFiles.slice(i, i + batchSize)
+        const batchIds = newMediaFiles.slice(i, i + batchSize).map(f => f.id)
+        
+        // Mark batch as uploading
+        setMediaFiles(prev => prev.map(f => 
+          batchIds.includes(f.id) ? { ...f, uploading: true } : f
+        ))
+
+        try {
+          const response = await apiService.uploadMedia(batch)
+          
+          if (response.success && response.data) {
+            // Update media files with uploaded data
+            setMediaFiles(prev => prev.map(f => {
+              const batchIndex = batchIds.indexOf(f.id)
+              if (batchIndex === -1) return f
+
+              const uploadedImage = response.data!.images[batchIndex]
+              const uploadedVideo = response.data!.videos[batchIndex - response.data!.images.length]
+              const uploadedData = uploadedImage || uploadedVideo
+
+              return {
+                ...f,
+                uploaded: true,
+                uploading: false,
+                uploadProgress: 100,
+                uploadedData
+              }
+            }))
+          }
+        } catch (error) {
+          console.error('Upload error for batch:', error)
+          // Mark batch as failed
+          setMediaFiles(prev => prev.map(f => 
+            batchIds.includes(f.id) ? { ...f, uploading: false, uploadProgress: 0 } : f
+          ))
+        }
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+    } finally {
+      setIsUploading(false)
+    }
 
     // Reset input
     if (event.target) {
@@ -135,7 +239,7 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
   const removeMediaFile = useCallback((fileId: string) => {
     setMediaFiles(prev => {
       const file = prev.find(f => f.id === fileId)
-      if (file) {
+      if (file && file.url.startsWith('blob:')) {
         URL.revokeObjectURL(file.url)
       }
       return prev.filter(f => f.id !== fileId)
@@ -175,34 +279,104 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
       return
     }
 
+    // Check if any files are still uploading
+    const stillUploading = mediaFiles.some(f => f.uploading)
+    if (stillUploading) {
+      alert('Please wait for all files to finish uploading.')
+      return
+    }
+
+    // Check if any files failed to upload
+    const failedUploads = mediaFiles.filter(f => !f.uploaded && !f.uploading)
+    if (failedUploads.length > 0) {
+      const retry = confirm(`${failedUploads.length} file(s) failed to upload. Do you want to retry uploading them?`)
+      if (retry) {
+        // Retry failed uploads
+        try {
+          setIsUploading(true)
+          const failedFiles = failedUploads.map(f => f.file)
+          const response = await apiService.uploadMedia(failedFiles)
+          
+          if (response.success && response.data) {
+            // Update failed files with uploaded data
+            setMediaFiles(prev => prev.map(f => {
+              const failedIndex = failedUploads.findIndex(failed => failed.id === f.id)
+              if (failedIndex === -1) return f
+
+              const uploadedImage = response.data!.images[failedIndex]
+              const uploadedVideo = response.data!.videos[failedIndex - response.data!.images.length]
+              const uploadedData = uploadedImage || uploadedVideo
+
+              return {
+                ...f,
+                uploaded: true,
+                uploading: false,
+                uploadProgress: 100,
+                uploadedData
+              }
+            }))
+          }
+        } catch (error) {
+          console.error('Retry upload error:', error)
+          alert('Failed to retry uploads. Please try again.')
+          return
+        } finally {
+          setIsUploading(false)
+        }
+      } else {
+        return
+      }
+    }
+
     setIsSubmitting(true)
 
     try {
+      // Prepare uploaded media data
+      const uploadedImages = mediaFiles
+        .filter(f => f.type === 'image' && f.uploaded && f.uploadedData)
+        .map(f => ({
+          url: f.uploadedData!.url,
+          alt: f.uploadedData!.originalName,
+          thumbnail: f.uploadedData!.thumbnail,
+          size: f.uploadedData!.size,
+          filename: f.uploadedData!.filename,
+          originalName: f.uploadedData!.originalName
+        }))
+
+      const uploadedVideos = mediaFiles
+        .filter(f => f.type === 'video' && f.uploaded && f.uploadedData)
+        .map(f => ({
+          url: f.uploadedData!.url,
+          thumbnail: f.uploadedData!.thumbnail,
+          duration: f.uploadedData!.duration || 0,
+          size: f.uploadedData!.size,
+          filename: f.uploadedData!.filename,
+          originalName: f.uploadedData!.originalName
+        }))
+
+      // Determine post type based on media
+      let finalPostType = postType
+      if (finalPostType === 'text' && uploadedImages.length > 0) {
+        finalPostType = 'image'
+      } else if (finalPostType === 'text' && uploadedVideos.length > 0) {
+        finalPostType = 'video'
+      }
+
       // Prepare post data
       const postData = {
         content: content.trim(),
-        postType,
+        postType: finalPostType,
         visibility,
         location: location.trim() || undefined,
         tags: tags.length > 0 ? tags : undefined,
         mentions: mentions.length > 0 ? mentions : undefined,
         quoteAuthor: postType === 'quote' ? quoteAuthor.trim() : undefined,
         scheduledDate: scheduledDate || undefined,
-        mediaFiles: mediaFiles.length > 0 ? mediaFiles.map(f => ({
-          type: f.type,
-          name: f.file.name,
-          size: f.file.size
-        })) : undefined
+        images: uploadedImages.length > 0 ? uploadedImages : undefined,
+        videos: uploadedVideos.length > 0 ? uploadedVideos : undefined
       }
 
-      // For now, we'll create a simple text post
-      // In a real implementation, you'd upload media files first
-      const response = await apiService.createPost({
-        content: postType === 'quote' 
-          ? `"${content.trim()}" ${quoteAuthor ? `- ${quoteAuthor}` : ''}`
-          : content.trim(),
-        images: [] // TODO: Implement image upload
-      })
+      const response = await apiService.createPost(postData)
 
       if (response.success) {
         // Emit real-time event
@@ -431,6 +605,33 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
                                   </div>
                                 </div>
                               )}
+                              
+                              {/* Upload Status Overlay */}
+                              {(file.uploading || !file.uploaded) && (
+                                <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                                  {file.uploading ? (
+                                    <div className="text-white text-center">
+                                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-2"></div>
+                                      <div className="text-xs">Uploading...</div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-white text-center">
+                                      <div className="text-red-400 mb-1">⚠</div>
+                                      <div className="text-xs">Upload failed</div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Success indicator */}
+                              {file.uploaded && (
+                                <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-1">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              )}
+                              
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -601,14 +802,27 @@ export const CreatePostPopup = ({ isOpen, onClose }: CreatePostPopupProps) => {
                   )}
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+                  <Button variant="outline" onClick={handleClose} disabled={isSubmitting || isUploading}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSubmit} disabled={isSubmitting || (!content.trim() && mediaFiles.length === 0)}>
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={
+                      isSubmitting || 
+                      isUploading || 
+                      (!content.trim() && mediaFiles.length === 0) ||
+                      mediaFiles.some(f => f.uploading)
+                    }
+                  >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         {scheduledDate ? 'Scheduling...' : 'Posting...'}
+                      </div>
+                    ) : isUploading || mediaFiles.some(f => f.uploading) ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Uploading...
                       </div>
                     ) : (
                       scheduledDate ? 'Schedule Post' : 'Post Now'

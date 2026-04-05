@@ -51,12 +51,17 @@ interface Post {
     url: string;
     alt?: string;
     thumbnail?: string;
+    size?: number;
+    filename?: string;
+    originalName?: string;
   }>;
   videos?: Array<{
     url: string;
     thumbnail?: string;
     duration?: number;
     size?: number;
+    filename?: string;
+    originalName?: string;
   }>;
   location?: string;
   tags?: string[];
@@ -449,12 +454,38 @@ class ApiService {
     return this.handleResponse<{ posts: Post[] }>(response);
   }
 
+  async uploadMedia(files: File[]): Promise<ApiResponse<{ 
+    images: Array<{ url: string; alt: string; thumbnail: string; size: number; filename: string; originalName: string }>;
+    videos: Array<{ url: string; thumbnail: string; duration: number; size: number; filename: string; originalName: string }>;
+    totalFiles: number;
+  }>> {
+    const formData = new FormData();
+    
+    files.forEach(file => {
+      formData.append('media', file);
+    });
+
+    const response = await fetch(`${API_BASE_URL}/posts/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('vibely_token')}`
+      },
+      body: formData
+    });
+
+    return this.handleResponse<{ 
+      images: Array<{ url: string; alt: string; thumbnail: string; size: number; filename: string; originalName: string }>;
+      videos: Array<{ url: string; thumbnail: string; duration: number; size: number; filename: string; originalName: string }>;
+      totalFiles: number;
+    }>(response);
+  }
+
   async createPost(postData: {
     content: string;
     postType?: 'text' | 'image' | 'video' | 'quote';
     quoteAuthor?: string;
-    images?: Array<{ url: string; alt?: string }>;
-    videos?: Array<{ url: string; thumbnail?: string; duration?: number }>;
+    images?: Array<{ url: string; alt?: string; thumbnail?: string; size?: number; filename?: string; originalName?: string }>;
+    videos?: Array<{ url: string; thumbnail?: string; duration?: number; size?: number; filename?: string; originalName?: string }>;
     location?: string;
     tags?: string[];
     mentions?: string[];
@@ -465,6 +496,25 @@ class ApiService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(postData)
+    });
+
+    return this.handleResponse<{ post: Post }>(response);
+  }
+
+  async createTestPost(content: string): Promise<ApiResponse<{ post: Post }>> {
+    const response = await fetch(`${API_BASE_URL}/posts/test`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ content })
+    });
+
+    return this.handleResponse<{ post: Post }>(response);
+  }
+
+  async createTestPostWithImages(): Promise<ApiResponse<{ post: Post }>> {
+    const response = await fetch(`${API_BASE_URL}/posts/create-test-post`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
     });
 
     return this.handleResponse<{ post: Post }>(response);
@@ -700,4 +750,10 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
+
+// Make apiService available globally for debugging
+if (typeof window !== 'undefined') {
+  (window as any).apiService = apiService;
+}
+
 export type { User, Post, NotificationItem, Activity, Message, Conversation, ApiResponse, AuthResponse };

@@ -1,17 +1,66 @@
 # VIBELY - Modern Social Platform
 
-A comprehensive full-stack social platform built with Next.js, Node.js, and MongoDB featuring real-time authentication, social interactions, Google OAuth, email services, and a beautiful responsive UI.
+A comprehensive full-stack social platform built with Next.js, Node.js, and MongoDB featuring real-time media uploads, social interactions, authentication, and a beautiful responsive UI.
 
-## 🚀 Features
+## 🚀 Quick Start
+
+**One-Click Setup (Windows):**
+```batch
+setup.bat
+```
+
+This automated script will:
+- ✅ Install all dependencies (backend & frontend)
+- ✅ Set up real-time media upload system
+- ✅ Create necessary directories
+- ✅ Start both servers automatically
+- ✅ Open the application in your browser
+
+**Manual Setup:**
+```bash
+# Backend
+cd backend && npm install && npm run dev
+
+# Frontend (new terminal)
+cd frontend && npm install && npm run dev
+```
+
+**Access the Application:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+
+## 🎯 Features
 
 ### 🎯 **Core Features**
-- ✅ **Real-time Social Platform** with posts, follows, and activities
+- ✅ **Real-time Media Upload System** with drag & drop support
+- ✅ **Post Management** with create, view, and delete functionality
 - ✅ **Multi-Authentication System** (Email/Password + Google OAuth)
+- ✅ **Real-time Social Platform** with posts, follows, and activities
 - ✅ **Email Services** (Verification, Password Reset, Welcome emails)
 - ✅ **Real-time Notifications** with Socket.IO
 - ✅ **Voice Welcome System** with Web Speech API
 - ✅ **Profile Management** with avatar and bio support
 - ✅ **Search & Discovery** of users and content
+
+### 📸 **Media Upload System**
+- ✅ **Real-time Upload** with progress tracking
+- ✅ **Multiple File Support** (images and videos)
+- ✅ **Drag & Drop Interface** for easy file selection
+- ✅ **File Validation** (type, size, format checking)
+- ✅ **Direct Media Display** in post cards
+- ✅ **Click to Enlarge** for images
+- ✅ **Video Player** with full controls
+- ✅ **Error Handling** with retry functionality
+- ✅ **Batch Processing** up to 10 files per upload
+- ✅ **Supported Formats**: JPEG, PNG, GIF, WebP, MP4, MPEG, MOV, WebM (max 50MB each)
+
+### 🗑️ **Post Management**
+- ✅ **Create Posts** with rich media content
+- ✅ **Delete Posts** with confirmation dialogs (author-only)
+- ✅ **Real-time Updates** across all connected users
+- ✅ **Authorization Controls** ensuring users can only delete their own posts
+- ✅ **Dropdown Menus** with intuitive post actions
+- ✅ **Confirmation Dialogs** preventing accidental deletions
 
 ### 🎨 **Frontend (Next.js 14)**
 - ✅ **Next.js 14** with App Router and TypeScript
@@ -35,6 +84,9 @@ A comprehensive full-stack social platform built with Next.js, Node.js, and Mong
 - ✅ **Input Validation** and sanitization
 - ✅ **Rate Limiting** and security headers
 - ✅ **CORS** configuration for cross-origin requests
+- ✅ **File Upload System** with Multer middleware
+- ✅ **Static File Serving** for uploaded media
+- ✅ **Media Processing** with thumbnail generation
 
 ### 📱 **Social Features**
 - ✅ **User Profiles** with customizable information
@@ -57,26 +109,24 @@ Before you begin, ensure you have the following installed:
 - **MongoDB** - [Download here](https://www.mongodb.com/try/download/community) or use [MongoDB Atlas](https://www.mongodb.com/atlas)
 - **Git** - [Download here](https://git-scm.com/)
 
-## 🛠️ Quick Start
+## 🛠️ Installation & Setup
 
-### Option 1: Automated Setup (Recommended)
+### Option 1: Automated Setup (Recommended - Windows)
 
-**For macOS/Linux:**
-```bash
-# Make the script executable
-chmod +x start-dev.sh
-
-# Run the development environment
-./start-dev.sh
-```
-
-**For Windows:**
+**Run the setup script:**
 ```batch
-# Run the batch file
-start-dev.bat
+setup.bat
 ```
 
-### Option 2: Manual Setup
+This will automatically:
+1. Install all backend and frontend dependencies
+2. Set up the media upload system with Multer
+3. Create necessary upload directories
+4. Verify system configuration
+5. Start both servers in separate windows
+6. Display helpful information and troubleshooting tips
+
+### Option 2: Manual Setup (All Platforms)
 
 1. **Clone the repository:**
 ```bash
@@ -91,12 +141,17 @@ cd backend
 # Install dependencies
 npm install
 
+# Install media upload dependencies
+npm install multer@^1.4.5-lts.1
+
 # Copy environment file
 cp .env.example .env
 
-# Edit .env with your configuration
+# Create upload directories
+mkdir -p uploads/images uploads/videos uploads/thumbnails
+
 # Start the backend server
-npm start
+npm run dev
 ```
 
 3. **Set up the Frontend (in a new terminal):**
@@ -130,8 +185,33 @@ net start MongoDB
 Once both servers are running:
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5001
-- **API Health Check**: http://localhost:5001/api/health
+- **Backend API**: http://localhost:5000
+- **API Health Check**: http://localhost:5000/api/health
+- **Test Media Access**: http://localhost:5000/uploads/images/ (for uploaded images)
+
+## 🎮 Using the Application
+
+### **Creating Posts with Media:**
+1. **Navigate to** http://localhost:3000
+2. **Sign up or sign in** to your account
+3. **Click the "+" button** or image icon to create a post
+4. **Add content** and select images/videos
+5. **Files upload automatically** with progress indicators
+6. **Submit your post** - media displays directly in the feed
+
+### **Managing Posts:**
+1. **View your posts** in the feed or profile
+2. **Click the three dots** on your posts for options
+3. **Delete posts** with confirmation dialog (your posts only)
+4. **Real-time updates** across all connected users
+
+### **Media Features:**
+- **Drag & Drop**: Drop files directly onto the upload area
+- **Multiple Files**: Select up to 10 files at once
+- **Progress Tracking**: See upload progress for each file
+- **Error Handling**: Retry failed uploads automatically
+- **Full Display**: Images and videos show directly in posts
+- **Click to Enlarge**: Click images for full-screen view
 
 ## 🔐 Authentication System
 
@@ -191,23 +271,30 @@ VIBELY/
 │   │   └── passport.js        # OAuth configuration
 │   ├── middleware/            # Custom middleware
 │   │   ├── auth.js           # JWT authentication
+│   │   ├── upload.js         # File upload with Multer
 │   │   └── validation.js     # Input validation
 │   ├── models/               # MongoDB/Mongoose models
 │   │   ├── User.js          # User model with OAuth support
-│   │   ├── Post.js          # Post model
+│   │   ├── Post.js          # Post model with media support
 │   │   ├── Follow.js        # Follow relationship model
 │   │   ├── Activity.js      # Activity tracking model
+│   │   ├── Message.js       # Messaging model
 │   │   └── Notification.js  # Notification model
 │   ├── routes/              # API route handlers
 │   │   ├── auth.js         # Authentication routes
 │   │   ├── user.js         # User management routes
-│   │   ├── posts.js        # Post management routes
+│   │   ├── posts.js        # Post management + upload routes
 │   │   ├── social.js       # Social features routes
 │   │   ├── notifications.js # Notification routes
 │   │   └── activities.js   # Activity routes
 │   ├── services/           # Business logic services
 │   │   ├── emailService.js # Email service with templates
+│   │   ├── mediaService.js # Media processing service
 │   │   └── socketService.js # Socket.IO service
+│   ├── uploads/            # Media storage directories
+│   │   ├── images/         # Uploaded images
+│   │   ├── videos/         # Uploaded videos
+│   │   └── thumbnails/     # Generated thumbnails
 │   ├── .env               # Environment variables
 │   ├── server.js          # Main server file
 │   └── package.json       # Backend dependencies
@@ -216,13 +303,18 @@ VIBELY/
 │   │   ├── auth/         # OAuth callback pages
 │   │   ├── hero/         # Main dashboard page
 │   │   ├── profile/      # User profile pages
+│   │   ├── posts-showcase/ # Posts showcase page
 │   │   ├── signin/       # Sign-in page
 │   │   ├── signup/       # Sign-up page
 │   │   ├── forgot-password/ # Password reset page
 │   │   ├── reset-password/  # Password reset form
 │   │   └── search/       # User search page
 │   ├── components/       # React components
-│   │   ├── ui/          # shadcn/ui components
+│   │   ├── ui/          # shadcn/ui + custom components
+│   │   │   ├── posts-feed.tsx # Main posts feed with media
+│   │   │   ├── posts-carousel.tsx # Posts carousel display
+│   │   │   ├── create-post-popup.tsx # Post creation with uploads
+│   │   │   └── simple-image-display.tsx # Clean image display
 │   │   └── ProtectedRoute.tsx # Route protection
 │   ├── contexts/        # React Context providers
 │   │   ├── AuthContext.tsx   # Authentication state
@@ -236,9 +328,8 @@ VIBELY/
 │   │   └── api.ts       # API client with all endpoints
 │   ├── .env.local       # Frontend environment variables
 │   └── package.json     # Frontend dependencies
-├── start-dev.sh         # Development startup script (Unix)
-├── start-dev.bat        # Development startup script (Windows)
-├── setup.bat           # Windows setup script
+├── setup.bat           # One-click setup script (Windows)
+├── create-test-image.js # Test image generator
 └── README.md           # This documentation
 ```
 
@@ -256,6 +347,17 @@ VIBELY/
 - `GET /api/auth/google` - Start Google OAuth
 - `GET /api/auth/google/callback` - Google OAuth callback
 
+### **Posts & Media**
+- `POST /api/posts` - Create new post
+- `GET /api/posts` - Get posts feed
+- `GET /api/posts/user/:userId` - Get user's posts
+- `DELETE /api/posts/:postId` - Delete post (author only)
+- `POST /api/posts/:postId/like` - Like/unlike post
+- `POST /api/posts/:postId/comment` - Comment on post
+- `POST /api/posts/upload` - Upload media files
+- `GET /uploads/images/:filename` - Access uploaded images
+- `GET /uploads/videos/:filename` - Access uploaded videos
+
 ### **User Management**
 - `GET /api/user/profile` - Get user profile
 - `PUT /api/user/profile` - Update user profile
@@ -268,6 +370,7 @@ VIBELY/
 - `POST /api/posts` - Create new post
 - `GET /api/posts` - Get posts feed
 - `GET /api/posts/user/:userId` - Get user's posts
+- `DELETE /api/posts/:postId` - Delete post (author only)
 - `POST /api/posts/:postId/like` - Like/unlike post
 - `POST /api/posts/:postId/comment` - Comment on post
 - `POST /api/social/follow/:userId` - Follow/unfollow user
@@ -302,8 +405,23 @@ VIBELY/
 - **Loading States** with smooth animations
 - **Error Handling** with user-friendly messages
 
+### **Media Upload Components**
+- **Drag & Drop Upload Area** with visual feedback
+- **File Selection Interface** with multiple file support
+- **Progress Indicators** showing upload status
+- **File Validation Messages** for type/size errors
+- **Upload Retry Functionality** for failed uploads
+- **Real-time Preview** of selected files
+
+### **Post Management Components**
+- **Create Post Popup** with rich media support
+- **Posts Feed** with infinite scroll and real-time updates
+- **Posts Carousel** for profile view
+- **Delete Confirmation Dialogs** with proper authorization
+- **Dropdown Menus** using Popover components
+- **Media Display** with click-to-enlarge functionality
+
 ### **Social Components**
-- **Posts Feed** with real-time updates
 - **User Profiles** with avatar and bio
 - **Follow System** with instant updates
 - **Activity Feed** showing user interactions
@@ -338,7 +456,7 @@ VIBELY/
 **Backend (.env):**
 ```bash
 # Server Configuration
-PORT=5001
+PORT=5000
 NODE_ENV=development
 
 # Database Configuration
@@ -365,7 +483,7 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 **Frontend (.env.local):**
 ```bash
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:5001/api
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 ## 🔧 Google OAuth Setup (Optional)
@@ -376,7 +494,7 @@ To enable Google OAuth authentication:
 2. **Create a new project** or select existing one
 3. **Enable Google+ API** in APIs & Services → Library
 4. **Create OAuth 2.0 credentials** in APIs & Services → Credentials
-5. **Add authorized redirect URI**: `http://localhost:5001/api/auth/google/callback`
+5. **Add authorized redirect URI**: `http://localhost:5000/api/auth/google/callback`
 6. **Copy Client ID and Secret** to your backend `.env` file
 7. **Restart the backend server**
 
@@ -386,16 +504,28 @@ To enable Google OAuth authentication:
 1. **Visit** http://localhost:3000
 2. **Create Account** using email/password or Google OAuth
 3. **Test Authentication** flows (login, logout, password reset)
-4. **Explore Social Features** (posts, follows, notifications)
-5. **Test Real-time Features** (notifications, online status)
-6. **Try Voice Features** when visiting user profiles
+4. **Create Posts** with images and videos
+5. **Test Media Upload** (drag & drop, file selection, progress tracking)
+6. **Test Post Management** (create, view, delete your own posts)
+7. **Explore Social Features** (posts, follows, notifications)
+8. **Test Real-time Features** (notifications, online status)
+9. **Try Voice Features** when visiting user profiles
+
+### **Media Upload Testing:**
+1. **Test File Types**: Try JPEG, PNG, GIF, WebP images and MP4, MOV videos
+2. **Test File Sizes**: Try files up to 50MB each
+3. **Test Batch Upload**: Select multiple files at once (up to 10)
+4. **Test Drag & Drop**: Drag files directly onto upload area
+5. **Test Error Handling**: Try unsupported formats or oversized files
+6. **Test Display**: Verify images and videos display directly in posts
+7. **Test Direct Access**: Visit http://localhost:5000/uploads/images/ to see uploaded files
 
 ### **API Testing:**
 Use Postman, curl, or Thunder Client to test API endpoints.
 
 **Example - Register User:**
 ```bash
-curl -X POST http://localhost:5001/api/auth/register \
+curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "John",
@@ -403,6 +533,13 @@ curl -X POST http://localhost:5001/api/auth/register \
     "email": "john@example.com",
     "password": "SecurePass123"
   }'
+```
+
+**Example - Upload Media:**
+```bash
+curl -X POST http://localhost:5000/api/posts/upload \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "media=@/path/to/your/image.jpg"
 ```
 
 ## 🚀 Production Deployment
@@ -415,12 +552,43 @@ curl -X POST http://localhost:5001/api/auth/register \
 5. Configure Google OAuth with production URLs
 6. Use PM2 or similar for process management
 7. Set up SSL/HTTPS and proper logging
+8. Configure cloud storage for media files (AWS S3, Cloudinary)
 
 ### **Frontend Deployment:**
 1. Build the application: `npm run build`
 2. Deploy to Vercel, Netlify, or similar platform
 3. Set production environment variables
 4. Update OAuth redirect URLs for production domain
+5. Configure CDN for faster media delivery
+
+### **Media Storage Considerations:**
+- **Development**: Local file storage in `backend/uploads/`
+- **Production**: Recommend cloud storage (AWS S3, Cloudinary, etc.)
+- **CDN**: Use CDN for faster global media delivery
+- **Backup**: Implement regular backup strategy for uploaded media
+
+## 🎯 Project Status
+
+### **✅ Completed Features**
+- ✅ **Real-time media upload system** with progress tracking
+- ✅ **Post management** with create, view, and delete functionality
+- ✅ **Professional UI** with clean, production-ready interface
+- ✅ **One-click setup** via automated `setup.bat` script
+- ✅ **File validation** and error handling
+- ✅ **Authorization controls** for post management
+- ✅ **Static file serving** for uploaded media
+- ✅ **Real-time updates** across all connected users
+- ✅ **Comprehensive documentation** and troubleshooting guides
+
+### **🎯 Production Ready**
+The VIBELY application is now **production-ready** with:
+- Professional, clean interface without diagnostic clutter
+- Robust error handling and user feedback
+- Secure file upload and validation system
+- Proper authorization and authentication
+- Real-time features working seamlessly
+- Comprehensive setup and deployment documentation
+- Scalable architecture ready for cloud deployment
 
 ## 🐛 Troubleshooting
 
@@ -431,30 +599,111 @@ curl -X POST http://localhost:5001/api/auth/register \
    - Check connection string in `.env`
    - Verify network connectivity
 
-2. **OAuth Not Working**
+2. **Media Upload Issues**
+   - **Files not uploading**: Check file size (max 50MB) and format
+   - **Images not displaying**: Verify backend server is running on port 5000
+   - **Upload directory errors**: Run `setup.bat` to recreate directories
+   - **CORS errors**: Check FRONTEND_URL in backend `.env`
+
+3. **Static File Access Issues**
+   - **Test direct access**: Visit http://localhost:5000/uploads/images/
+   - **Check server logs**: Look for file serving errors in backend console
+   - **Verify file paths**: Ensure uploaded files exist in backend/uploads/
+
+4. **OAuth Not Working**
    - Check Google OAuth credentials in `.env`
    - Verify redirect URIs in Google Console
    - Ensure backend server is restarted after config changes
 
-3. **Real-time Features Not Working**
+5. **Real-time Features Not Working**
    - Check Socket.IO connection in browser console
    - Verify JWT token is valid
    - Ensure both frontend and backend are running
 
-4. **Email Services Not Working**
+6. **Email Services Not Working**
    - Check email configuration in `.env`
    - Verify SMTP settings for production
    - Check spam folder for test emails
 
+### **Quick Fixes:**
+```bash
+# Restart everything
+setup.bat
+
+# Manual restart
+cd backend && npm run dev
+cd frontend && npm run dev
+
+# Clear browser cache
+Ctrl + Shift + R (Windows)
+Cmd + Shift + R (Mac)
+
+# Check if ports are in use
+netstat -an | findstr :3000
+netstat -an | findstr :5000
+```
+
+## 🎯 Key Features Implemented
+
+### **Real-Time Media Upload System**
+- **Multer Integration**: Professional file upload handling with validation
+- **Progress Tracking**: Real-time upload progress indicators
+- **Multiple File Support**: Handle up to 10 files per upload
+- **File Validation**: Type, size, and format checking
+- **Error Recovery**: Automatic retry for failed uploads
+- **Direct Display**: Images and videos show directly in post cards
+
+### **Post Management System**
+- **Create Posts**: Rich content creation with media support
+- **Delete Posts**: Author-only deletion with confirmation dialogs
+- **Real-Time Updates**: Instant updates across all connected users
+- **Authorization**: Secure post management with proper permissions
+- **Dropdown Menus**: Intuitive post action interfaces
+
+### **Professional UI/UX**
+- **Clean Interface**: Removed diagnostic clutter for production-ready look
+- **Responsive Design**: Works seamlessly across all device sizes
+- **Smooth Animations**: Framer Motion for polished interactions
+- **Error Handling**: User-friendly error messages and recovery options
+- **Loading States**: Professional loading indicators throughout
+
+### **One-Click Setup**
+- **Automated Installation**: Single `setup.bat` file handles everything
+- **Dependency Management**: Automatic installation of all required packages
+- **Directory Creation**: Automatic setup of upload directories
+- **Server Management**: Starts both servers in separate windows
+- **Configuration Verification**: Checks system setup and provides feedback
+
 ## 📚 Technologies Used
 
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS, shadcn/ui, Framer Motion
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose, Socket.IO
-- **Authentication**: JWT, Passport.js, Google OAuth 2.0
-- **Email**: Nodemailer with HTML templates
-- **Real-time**: Socket.IO for live features
-- **Voice**: Web Speech API for voice synthesis
-- **Development**: ESLint, Prettier, nodemon
+### **Frontend Stack**
+- **Next.js 14** - React framework with App Router
+- **React 18** - UI library with hooks and context
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Modern component library
+- **Framer Motion** - Animation library
+- **Socket.IO Client** - Real-time communication
+- **Lucide React** - Icon library
+
+### **Backend Stack**
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **MongoDB** - NoSQL database
+- **Mongoose** - MongoDB object modeling
+- **Socket.IO** - Real-time bidirectional communication
+- **Multer** - File upload middleware
+- **JWT** - JSON Web Tokens for authentication
+- **Passport.js** - Authentication middleware
+- **bcryptjs** - Password hashing
+- **Nodemailer** - Email sending
+
+### **Development Tools**
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **nodemon** - Development server auto-restart
+- **Autoprefixer** - CSS vendor prefixing
+- **PostCSS** - CSS processing
 
 ## 🤝 Contributing
 

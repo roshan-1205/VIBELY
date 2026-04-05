@@ -4,6 +4,8 @@ const Activity = require('../models/Activity');
 const Notification = require('../models/Notification');
 const Follow = require('../models/Follow');
 const auth = require('../middleware/auth');
+const { upload, handleUploadError } = require('../middleware/upload');
+const MediaService = require('../services/mediaService');
 const { 
   validatePost, 
   validateComment,
@@ -113,6 +115,356 @@ router.get('/user/:userId', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/posts/upload
+// @desc    Upload media files for posts
+// @access  Private
+router.post('/upload', auth, upload.array('media', 10), handleUploadError, async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No files uploaded'
+      });
+    }
+
+    // Process uploaded files
+    const processedMedia = await MediaService.processMediaFiles(req.files);
+
+    res.json({
+      success: true,
+      data: {
+        images: processedMedia.images,
+        videos: processedMedia.videos,
+        totalFiles: req.files.length
+      },
+      message: 'Files uploaded successfully'
+    });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    
+    // Clean up uploaded files on error
+    if (req.files) {
+      await MediaService.cleanupFiles(req.files);
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error uploading files'
+    });
+  }
+});
+
+// @route   POST /api/posts/create-test-post
+// @desc    Create a test post with a working image
+// @access  Private
+router.post('/create-test-post', auth, async (req, res) => {
+  try {
+    console.log('Creating test post with working image...');
+    
+    const post = new Post({
+      author: req.user._id,
+      content: 'Test post with image - if you see an image below, the display system works!',
+      postType: 'image',
+      images: [
+        {
+          url: 'https://via.placeholder.com/400x300/0066cc/ffffff?text=External+Test+Image',
+          alt: 'External test image',
+          thumbnail: 'https://via.placeholder.com/400x300/0066cc/ffffff?text=External+Test+Image'
+        },
+        {
+          url: 'http://localhost:5000/uploads/images/test.svg',
+          alt: 'Local test image',
+          thumbnail: 'http://localhost:5000/uploads/images/test.svg'
+        }
+      ],
+      visibility: 'public',
+      isScheduled: false,
+      isPublished: true
+    });
+
+    await post.save();
+    await post.populate('author', 'firstName lastName email avatar');
+
+    console.log('Test post created with images:', post.images.map(img => img.url));
+
+    res.json({
+      success: true,
+      data: { post },
+      message: 'Test post created with working images'
+    });
+
+  } catch (error) {
+    console.error('Test post creation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error creating test post',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/posts/list-files
+// @desc    List all uploaded files
+// @access  Public
+router.get('/list-files', (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const uploadsDir = path.join(__dirname, '../uploads');
+    const imagesDir = path.join(uploadsDir, 'images');
+    const videosDir = path.join(uploadsDir, 'videos');
+    
+    const result = {
+      uploadsDir,
+      directories: {
+        uploads: fs.existsSync(uploadsDir),
+        images: fs.existsSync(imagesDir),
+        videos: fs.existsSync(videosDir)
+      },
+      files: {
+        images: [],
+        videos: []
+      }
+    };
+    
+    if (fs.existsSync(imagesDir)) {
+      result.files.images = fs.readdirSync(imagesDir).map(filename => ({
+        filename,
+        path: path.join(imagesDir, filename),
+        url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/uploads/images/${filename}`,
+        size: fs.statSync(path.join(imagesDir, filename)).size
+      }));
+    }
+    
+    if (fs.existsSync(videosDir)) {
+      result.files.videos = fs.readdirSync(videosDir).map(filename => ({
+        filename,
+        path: path.join(videosDir, filename),
+        url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/uploads/videos/${filename}`,
+        size: fs.statSync(path.join(videosDir, filename)).size
+      }));
+    }
+    
+    res.json({
+      success: true,
+      data: result
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error listing files',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/posts/check-file/:filename
+// @desc    Check if uploaded file exists
+// @access  Public
+router.get('/check-file/:filename', (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const filename = req.params.filename;
+    const imagePath = path.join(__dirname, '../uploads/images', filename);
+    const videoPath = path.join(__dirname, '../uploads/videos', filename);
+    
+    const imageExists = fs.existsSync(imagePath);
+    const videoExists = fs.existsSync(videoPath);
+    
+    let filePath = null;
+    let fileType = null;
+    let fileStats = null;
+    
+    if (imageExists) {
+      filePath = imagePath;
+      fileType = 'image';
+      fileStats = fs.statSync(imagePath);
+    } else if (videoExists) {
+      filePath = videoPath;
+      fileType = 'video';
+      fileStats = fs.statSync(videoPath);
+    }
+    
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    
+    res.json({
+      success: true,
+      data: {
+        filename,
+        exists: imageExists || videoExists,
+        type: fileType,
+        path: filePath,
+        size: fileStats ? fileStats.size : null,
+        expectedUrl: `${baseUrl}/uploads/${fileType}s/${filename}`,
+        directTestUrl: `${baseUrl}/uploads/${fileType}s/${filename}`,
+        uploadsDir: path.join(__dirname, '../uploads'),
+        imagesDir: path.join(__dirname, '../uploads/images'),
+        videosDir: path.join(__dirname, '../uploads/videos')
+      }
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'File check error',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/posts/diagnostic
+// @desc    Complete diagnostic information
+// @access  Public
+router.get('/diagnostic', (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const uploadsDir = path.join(__dirname, '../uploads');
+    const imagesDir = path.join(uploadsDir, 'images');
+    const videosDir = path.join(uploadsDir, 'videos');
+    const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
+    
+    // Check directory structure
+    const diagnostics = {
+      timestamp: new Date().toISOString(),
+      baseUrl,
+      directories: {
+        uploads: fs.existsSync(uploadsDir),
+        images: fs.existsSync(imagesDir),
+        videos: fs.existsSync(videosDir),
+        thumbnails: fs.existsSync(thumbnailsDir)
+      },
+      files: {
+        testImage: fs.existsSync(path.join(imagesDir, 'test.svg')),
+        imageCount: 0,
+        videoCount: 0
+      },
+      testUrls: {
+        staticTest: `${baseUrl}/test-image.html`,
+        testImage: `${baseUrl}/uploads/images/test.svg`,
+        externalTest: 'https://via.placeholder.com/300x200/0066cc/ffffff?text=External+Test'
+      },
+      serverConfig: {
+        staticMiddleware: 'Should be configured in server.js',
+        uploadEndpoint: `${baseUrl}/api/posts/upload`,
+        maxFileSize: '50MB',
+        supportedFormats: ['JPEG', 'PNG', 'GIF', 'WebP', 'MP4', 'MPEG', 'MOV', 'WebM']
+      }
+    };
+    
+    // Count files in directories
+    try {
+      if (fs.existsSync(imagesDir)) {
+        const imageFiles = fs.readdirSync(imagesDir);
+        diagnostics.files.imageCount = imageFiles.length;
+        diagnostics.files.imageFiles = imageFiles.slice(0, 10); // Show first 10
+      }
+      
+      if (fs.existsSync(videosDir)) {
+        const videoFiles = fs.readdirSync(videosDir);
+        diagnostics.files.videoCount = videoFiles.length;
+        diagnostics.files.videoFiles = videoFiles.slice(0, 10); // Show first 10
+      }
+    } catch (error) {
+      diagnostics.files.error = error.message;
+    }
+    
+    res.json({
+      success: true,
+      data: diagnostics,
+      instructions: [
+        '1. Check that all directories exist (should be true)',
+        '2. Test the testImage URL - should show blue test image',
+        '3. Test the staticTest URL - should show HTML test page',
+        '4. If testImage fails, static serving is broken',
+        '5. If staticTest fails, server configuration issue',
+        '6. Check browser console for detailed error messages'
+      ]
+    });
+    
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Diagnostic error',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/posts/test-image
+// @desc    Test image serving
+// @access  Public
+router.get('/test-image', (req, res) => {
+  try {
+    // Create a simple test response
+    const testImageUrl = `${process.env.BACKEND_URL || 'http://localhost:5000'}/uploads/images/test.jpg`;
+    
+    res.json({
+      success: true,
+      data: {
+        message: 'Image serving test',
+        testImageUrl,
+        uploadsPath: '/uploads',
+        staticServing: 'Should be configured in server.js',
+        instructions: [
+          '1. Place a test image at backend/uploads/images/test.jpg',
+          '2. Access it at: ' + testImageUrl,
+          '3. If it loads, static serving is working',
+          '4. If not, check server.js static middleware'
+        ]
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Test endpoint error',
+      error: error.message
+    });
+  }
+});
+
+// @route   POST /api/posts/test
+// @desc    Test post creation without validation (for debugging)
+// @access  Private
+router.post('/test', auth, async (req, res) => {
+  try {
+    console.log('Test post creation with data:', JSON.stringify(req.body, null, 2));
+    
+    const post = new Post({
+      author: req.user._id,
+      content: req.body.content || 'Test post',
+      postType: 'text',
+      visibility: 'public',
+      isScheduled: false,
+      isPublished: true
+    });
+
+    await post.save();
+    await post.populate('author', 'firstName lastName email avatar');
+
+    res.json({
+      success: true,
+      data: { post },
+      message: 'Test post created successfully'
+    });
+
+  } catch (error) {
+    console.error('Test post creation error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error creating test post',
+      error: error.message
+    });
+  }
+});
+
 // @route   POST /api/posts
 // @desc    Create a new post
 // @access  Private
@@ -131,19 +483,27 @@ router.post('/', auth, validatePost, handleValidationErrors, async (req, res) =>
       scheduledDate
     } = req.body;
 
+    // Validate that we have either content or media
+    if ((!content || !content.trim()) && images.length === 0 && videos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Post must have either content or media'
+      });
+    }
+
     // Check if post should be scheduled
     const isScheduled = scheduledDate && new Date(scheduledDate) > new Date();
     
     const post = new Post({
       author: req.user._id,
-      content,
+      content: content || '',
       postType,
       quoteAuthor: postType === 'quote' ? quoteAuthor : undefined,
-      images,
-      videos,
+      images: Array.isArray(images) ? images : [],
+      videos: Array.isArray(videos) ? videos : [],
       location,
-      tags: tags.filter(tag => tag && tag.trim()),
-      mentions: mentions.filter(mention => mention && mention.trim()),
+      tags: Array.isArray(tags) ? tags.filter(tag => tag && tag.trim()) : [],
+      mentions: Array.isArray(mentions) ? mentions.filter(mention => mention && mention.trim()) : [],
       visibility,
       scheduledDate: isScheduled ? new Date(scheduledDate) : undefined,
       isScheduled,

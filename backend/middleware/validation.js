@@ -110,25 +110,52 @@ const validateProfileUpdate = [
 // Validation rules for posts
 const validatePost = [
   body('content')
+    .optional()
     .trim()
-    .isLength({ min: 1, max: 500 })
-    .withMessage('Post content must be between 1 and 500 characters'),
+    .isLength({ max: 500 })
+    .withMessage('Post content cannot exceed 500 characters'),
 
   body('images')
     .optional()
     .isArray()
     .withMessage('Images must be an array'),
 
-  body('images.*.url')
+  body('videos')
     .optional()
-    .isURL()
-    .withMessage('Each image must have a valid URL'),
+    .isArray()
+    .withMessage('Videos must be an array'),
 
-  body('images.*.alt')
+  body('postType')
+    .optional()
+    .isIn(['text', 'image', 'video', 'quote'])
+    .withMessage('Post type must be text, image, video, or quote'),
+
+  body('visibility')
+    .optional()
+    .isIn(['public', 'followers', 'private'])
+    .withMessage('Visibility must be public, followers, or private'),
+
+  body('tags')
+    .optional()
+    .isArray()
+    .withMessage('Tags must be an array'),
+
+  body('mentions')
+    .optional()
+    .isArray()
+    .withMessage('Mentions must be an array'),
+
+  body('location')
     .optional()
     .trim()
     .isLength({ max: 100 })
-    .withMessage('Image alt text cannot exceed 100 characters')
+    .withMessage('Location cannot exceed 100 characters'),
+
+  body('quoteAuthor')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('Quote author cannot exceed 100 characters')
 ];
 
 // Validation rules for comments

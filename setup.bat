@@ -1,57 +1,148 @@
 @echo off
-echo 🛠️  VIBELY - One-Time Setup
-echo ================================
+echo ========================================
+echo VIBELY SETUP - COMPLETE INSTALLATION
+echo ========================================
+echo.
 
-REM Check if Node.js is installed
-node --version >nul 2>&1
-if errorlevel 1 (
-    echo ❌ Node.js is not installed. Please install Node.js 16+ first.
-    echo Visit: https://nodejs.org/
-    pause
-    exit /b 1
-)
+echo This script will:
+echo - Install all dependencies
+echo - Set up media upload system
+echo - Create necessary directories
+echo - Start both servers
+echo.
 
-echo ✅ Node.js found: 
-node --version
+set /p choice="Continue with setup? (y/n): "
+if /i "%choice%" neq "y" goto :end
 
 echo.
-echo 📦 Installing Backend Dependencies...
+echo ========================================
+echo STEP 1: BACKEND SETUP
+echo ========================================
+echo.
+
+echo Installing backend dependencies...
 cd backend
-if exist "node_modules" (
-    echo ⚠️  Backend dependencies already exist. Skipping...
+if not exist "node_modules" (
+    echo Running npm install...
+    npm install
 ) else (
-    call npm install
-    if errorlevel 1 (
-        echo ❌ Backend dependency installation failed
-        pause
-        exit /b 1
-    )
-    echo ✅ Backend dependencies installed
+    echo Dependencies already installed
 )
+
+echo.
+echo Installing multer for file uploads...
+npm install multer@^1.4.5-lts.1
+
+echo.
+echo Creating upload directories...
+if not exist "uploads" mkdir "uploads"
+if not exist "uploads\images" mkdir "uploads\images"
+if not exist "uploads\videos" mkdir "uploads\videos"
+if not exist "uploads\thumbnails" mkdir "uploads\thumbnails"
+
+echo ✅ Backend setup complete
 cd ..
 
 echo.
-echo 🎨 Installing Frontend Dependencies...
+echo ========================================
+echo STEP 2: FRONTEND SETUP
+echo ========================================
+echo.
+
+echo Installing frontend dependencies...
 cd frontend
-if exist "node_modules" (
-    echo ⚠️  Frontend dependencies already exist. Skipping...
+if not exist "node_modules" (
+    echo Running npm install...
+    npm install
 ) else (
-    call npm install --legacy-peer-deps
-    if errorlevel 1 (
-        echo ❌ Frontend dependency installation failed
-        pause
-        exit /b 1
-    )
-    echo ✅ Frontend dependencies installed
+    echo Dependencies already installed
 )
+
+echo ✅ Frontend setup complete
 cd ..
 
 echo.
-echo 🎉 Setup Complete!
+echo ========================================
+echo STEP 3: CREATING TEST FILES
+echo ========================================
 echo.
-echo Next steps:
-echo 1. Run 'start-dev.bat' to start the development servers
-echo 2. Visit http://localhost:3000 for the frontend
-echo 3. Backend API will be available at http://localhost:5000
+
+echo Creating test image...
+node create-test-image.js
+
 echo.
-pause
+echo ========================================
+echo STEP 4: ENVIRONMENT CHECK
+echo ========================================
+echo.
+
+echo Checking backend configuration...
+findstr /C:"app.use('/uploads'" backend\server.js >nul
+if %errorlevel%==0 (
+    echo ✅ Static file serving configured
+) else (
+    echo ❌ Static file serving not configured
+)
+
+echo.
+echo Checking upload directories...
+if exist "backend\uploads\images" (
+    echo ✅ Images directory exists
+) else (
+    echo ❌ Images directory missing
+)
+
+if exist "backend\uploads\videos" (
+    echo ✅ Videos directory exists
+) else (
+    echo ❌ Videos directory missing
+)
+
+echo.
+echo ========================================
+echo STEP 5: STARTING SERVERS
+echo ========================================
+echo.
+
+echo Starting backend server...
+start "VIBELY Backend" cmd /k "cd backend && npm run dev"
+
+echo Waiting for backend to start...
+timeout /t 3 /nobreak >nul
+
+echo Starting frontend server...
+start "VIBELY Frontend" cmd /k "cd frontend && npm run dev"
+
+echo.
+echo ========================================
+echo SETUP COMPLETE!
+echo ========================================
+echo.
+echo ✅ Backend server: http://localhost:5000
+echo ✅ Frontend server: http://localhost:3000
+echo ✅ Media upload system ready
+echo.
+echo FEATURES AVAILABLE:
+echo - Real-time image and video uploads
+echo - Full media display in post cards
+echo - File validation and error handling
+echo - Drag and drop support
+echo - Progress indicators
+echo.
+echo TESTING:
+echo 1. Go to: http://localhost:3000
+echo 2. Create a post with images/videos
+echo 3. Images should display directly in posts
+echo.
+echo TROUBLESHOOTING:
+echo - If images don't load: Check browser console
+echo - If upload fails: Check file size (max 50MB)
+echo - If servers don't start: Check ports 3000/5000
+echo.
+echo Both servers are now running in separate windows.
+echo Close those windows to stop the servers.
+echo.
+
+:end
+echo Press any key to exit...
+pause >nul

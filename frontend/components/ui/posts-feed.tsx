@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, MessageSquare, Share2, MoreHorizontal } from 'lucide-react'
+import { Heart, MessageSquare, Share2, MoreHorizontal, Trash2, Image as ImageIcon } from 'lucide-react'
 import { apiService, type Post } from '@/services/api'
 import { useSocket } from '@/contexts/SocketContext'
+import { useAuth } from '@/contexts/AuthContext'
 import { ProfileAvatar } from './profile-avatar'
 import { Button } from './button'
 import { Card } from './card'
 import { Input } from './input'
+import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { SimpleImageDisplay } from './simple-image-display'
 import Link from 'next/link'
 
 interface PostsFeedProps {
@@ -21,7 +24,9 @@ export const PostsFeed = ({ userId, className = '' }: PostsFeedProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [newPostContent, setNewPostContent] = useState('')
   const [isCreatingPost, setIsCreatingPost] = useState(false)
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
   const { onNewPost, onPostUpdate, isConnected } = useSocket()
+  const { user } = useAuth()
 
   useEffect(() => {
     loadPosts()
@@ -105,6 +110,30 @@ export const PostsFeed = ({ userId, className = '' }: PostsFeedProps) => {
     }
   }
 
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setDeletingPostId(postId)
+      const response = await apiService.deletePost(postId)
+      
+      if (response.success) {
+        // Remove the post from the local state
+        setPosts(posts.filter(post => post._id !== postId))
+      } else {
+        console.error('Failed to delete post:', response.message)
+        alert('Failed to delete post. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      alert('Failed to delete post. Please try again.')
+    } finally {
+      setDeletingPostId(null)
+    }
+  }
+
   const formatTimeAgo = (dateString: string) => {
     const now = new Date()
     const postDate = new Date(dateString)
@@ -164,7 +193,50 @@ export const PostsFeed = ({ userId, className = '' }: PostsFeedProps) => {
               onChange={(e) => setNewPostContent(e.target.value)}
               className="border-0 bg-gray-50 text-lg"
             />
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  className="hidden"
+                  id="quick-media-upload"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || [])
+                    if (files.length > 0) {
+                      try {
+                        const response = await apiService.uploadMedia(files)
+                        if (response.success && response.data) {
+                          // Create post with uploaded media
+                          const postData = {
+                            content: newPostContent.trim() || 'Shared media',
+                            postType: response.data.images.length > 0 ? 'image' as const : 'video' as const,
+                            images: response.data.images,
+                            videos: response.data.videos
+                          }
+                          
+                          const postResponse = await apiService.createPost(postData)
+                          if (postResponse.success && postResponse.data) {
+                            setPosts([postResponse.data.post, ...posts])
+                            setNewPostContent('')
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error uploading media:', error)
+                        alert('Failed to upload media. Please try again.')
+                      }
+                      e.target.value = ''
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="quick-media-upload"
+                  className="cursor-pointer p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                  title="Add photos or videos"
+                >
+                  <ImageIcon className="w-5 h-5" />
+                </label>
+              </div>
               <Button 
                 onClick={handleCreatePost}
                 disabled={!newPostContent.trim() || isCreatingPost}
@@ -217,25 +289,60 @@ export const PostsFeed = ({ userId, className = '' }: PostsFeedProps) => {
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                
+                {/* Post Menu - Only show for post author */}
+                {user && user._id === post.author._id && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-2" align="end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeletePost(post._id)}
+                        disabled={deletingPostId === post._id}
+                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {deletingPostId === post._id ? 'Deleting...' : 'Delete Post'}
+                      </Button>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
 
               {/* Post Content */}
               <div className="mb-4">
                 <p className="text-gray-800 leading-relaxed">{post.content}</p>
                 
-                {/* Images */}
-                {post.images && post.images.length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 gap-2">
-                    {post.images.map((image, idx) => (
-                      <img
-                        key={idx}
-                        src={image.url}
-                        alt={image.alt || 'Post image'}
-                        className="rounded-lg max-h-96 w-full object-cover"
-                      />
+                {/* Simplified Image Display */}
+                <SimpleImageDisplay images={post.images} />
+
+                {/* Videos */}
+                {post.videos && post.videos.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    {post.videos.map((video, idx) => (
+                      <div key={idx} className="rounded-lg overflow-hidden">
+                        <video
+                          src={video.url}
+                          poster={video.thumbnail}
+                          controls
+                          className="w-full rounded-lg max-h-96"
+                          preload="metadata"
+                          onError={(e) => {
+                            console.error('❌ Video failed to load:', video.url);
+                            e.currentTarget.style.border = '2px solid red';
+                          }}
+                          onLoadedData={() => {
+                            console.log('✅ Video loaded successfully:', video.url);
+                          }}
+                        >
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
                     ))}
                   </div>
                 )}
