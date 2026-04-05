@@ -101,13 +101,46 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vibely')
-.then(() => {
-  console.log('✅ Connected to MongoDB');
-  // Initialize Socket.IO after database connection
-  socketService.initialize(server);
-})
-.catch((err) => console.error('❌ MongoDB connection error:', err));
+const DATABASE_TYPE = process.env.DATABASE_TYPE || 'supabase'; // 'mongodb' or 'supabase'
+
+if (DATABASE_TYPE === 'supabase') {
+  // Supabase PostgreSQL connection
+  const { Pool } = require('pg');
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres.xmziootltbhwxmigvqhv:Rs%409826348254@aws-0-ap-south-1.pooler.supabase.com:6543/postgres',
+    ssl: { rejectUnauthorized: false }
+  });
+  
+  pool.connect()
+    .then(() => {
+      console.log('✅ Connected to Supabase PostgreSQL');
+      // Initialize Socket.IO after database connection
+      socketService.initialize(server);
+    })
+    .catch((err) => console.error('❌ Supabase connection error:', err));
+    
+  // Make pool available to routes
+  app.use((req, res, next) => {
+    req.db = pool;
+    req.dbType = 'supabase';
+    next();
+  });
+} else {
+  // MongoDB connection (original)
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/vibely')
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    // Initialize Socket.IO after database connection
+    socketService.initialize(server);
+  })
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  
+  // Make mongoose available to routes
+  app.use((req, res, next) => {
+    req.dbType = 'mongodb';
+    next();
+  });
+}
 
 // Make socketService available to routes
 app.use((req, res, next) => {
