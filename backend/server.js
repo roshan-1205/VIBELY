@@ -37,6 +37,7 @@ app.use(helmet());
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://vibely-1205.web.app',
     'http://localhost:3000',
     'http://localhost:3001'
   ],
@@ -128,7 +129,27 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Vibely API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    version: '1.0.0'
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to Vibely API',
+    status: 'running',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      users: '/api/user',
+      posts: '/api/posts',
+      social: '/api/social',
+      notifications: '/api/notifications',
+      activities: '/api/activities',
+      messages: '/api/messages'
+    }
   });
 });
 

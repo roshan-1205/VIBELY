@@ -78,12 +78,12 @@ export default function RealtimeDemoPage() {
   const handleFollowUser = async (userId: string) => {
     try {
       const response = await apiService.followUser(userId)
-      if (response.success) {
+      if (response.success && response.data) {
         // Update search results to reflect follow status
         setSearchResults(prev => 
           prev.map(user => 
             user._id === userId 
-              ? { ...user, isFollowing: response.data.isFollowing }
+              ? { ...user, isFollowing: response.data!.isFollowing }
               : user
           )
         )

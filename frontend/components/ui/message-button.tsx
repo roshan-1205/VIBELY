@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 interface MessageButtonProps {
   userId?: string
   variant?: 'default' | 'ghost' | 'outline'
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
   className?: string
   showLabel?: boolean
 }

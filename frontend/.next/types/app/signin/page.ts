@@ -1,4 +1,4 @@
-// File: C:\Users\ROSHAN KUMAR SINGH\OneDrive\Desktop\New folder\VIBELY\frontend\app\signin\page.tsx
+// File: C:\Users\ROSHAN KUMAR SINGH\OneDrive\Desktop\internship\VIBELY\frontend\app\signin\page.tsx
 import * as entry from '../../../../app/signin/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

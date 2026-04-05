@@ -390,7 +390,7 @@ export function MessagingPopup({ isOpen, onClose, initialUserId }: MessagingPopu
       
       if (response.success && response.data) {
         // Add message to current conversation
-        setMessages(prev => [...prev, response.data.message])
+        setMessages(prev => [...prev, response.data!.message])
         
         // Send via socket for real-time delivery to other user
         if (socket) {

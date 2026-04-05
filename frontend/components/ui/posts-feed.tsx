@@ -101,7 +101,7 @@ export const PostsFeed = ({ userId, className = '' }: PostsFeedProps) => {
       if (response.success && response.data) {
         setPosts(posts.map(post => 
           post._id === postId 
-            ? { ...response.data.post, isLikedBy: response.data.isLiked }
+            ? { ...response.data!.post, isLikedBy: response.data!.isLiked }
             : post
         ))
       }

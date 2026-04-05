@@ -18,7 +18,7 @@ export interface WelcomeMessage {
 }
 
 class VoiceService {
-  private synth: SpeechSynthesis
+  private synth: SpeechSynthesis | null = null
   private voices: SpeechSynthesisVoice[] = []
   private isInitialized = false
   private defaultSettings: VoiceSettings = {
@@ -36,20 +36,22 @@ class VoiceService {
   }
 
   private async initializeVoices(): Promise<void> {
+    if (!this.synth) return Promise.resolve()
+    
     return new Promise((resolve) => {
       // Load voices
       const loadVoices = () => {
-        this.voices = this.synth.getVoices()
+        this.voices = this.synth!.getVoices()
         this.isInitialized = true
         console.log('Voice service initialized with', this.voices.length, 'voices')
         resolve()
       }
 
       // Voices might load asynchronously
-      if (this.synth.getVoices().length > 0) {
+      if (this.synth!.getVoices().length > 0) {
         loadVoices()
       } else {
-        this.synth.addEventListener('voiceschanged', loadVoices, { once: true })
+        this.synth!.addEventListener('voiceschanged', loadVoices, { once: true })
         // Fallback timeout
         setTimeout(loadVoices, 1000)
       }

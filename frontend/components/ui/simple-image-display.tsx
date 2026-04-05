@@ -18,7 +18,11 @@ export const SimpleImageDisplay = ({ images }: SimpleImageDisplayProps) => {
 
   const handleImageError = (url: string) => {
     console.error('❌ Image failed to load:', url)
-    setLoadErrors(prev => new Set([...prev, url]))
+    setLoadErrors(prev => {
+      const newSet = new Set(prev)
+      newSet.add(url)
+      return newSet
+    })
   }
 
   const handleImageLoad = (url: string) => {

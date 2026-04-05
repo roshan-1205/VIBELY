@@ -283,12 +283,26 @@ export const generateRobotTheme = (palette: ColorPalette): RobotTheme => {
     lightingColor: adjustColorTemperature(palette.accent, 20), // Warm lighting
     skinVariations: {
       base: skinColor,
-      highlight: adjustBrightness(hexToRgb(skinColor) || [139, 92, 246], 0.2),
-      shadow: adjustBrightness(hexToRgb(skinColor) || [139, 92, 246], -0.3),
+      highlight: rgbToHex(adjustBrightness(
+        hexToRgb(skinColor) ? [hexToRgb(skinColor)!.r, hexToRgb(skinColor)!.g, hexToRgb(skinColor)!.b] : [139, 92, 246], 
+        0.2
+      )),
+      shadow: rgbToHex(adjustBrightness(
+        hexToRgb(skinColor) ? [hexToRgb(skinColor)!.r, hexToRgb(skinColor)!.g, hexToRgb(skinColor)!.b] : [139, 92, 246], 
+        -0.3
+      )),
       warm: skinVariation1,
       cool: skinVariation2
     }
   }
+}
+
+/**
+ * Convert RGB values to hex color
+ */
+const rgbToHex = (rgb: number[]): string => {
+  const [r, g, b] = rgb
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
 }
 
 /**

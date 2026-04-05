@@ -1,4 +1,4 @@
-// File: C:\Users\ROSHAN KUMAR SINGH\OneDrive\Desktop\New folder\VIBELY\frontend\app\layout.tsx
+// File: C:\Users\ROSHAN KUMAR SINGH\OneDrive\Desktop\internship\VIBELY\frontend\app\layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

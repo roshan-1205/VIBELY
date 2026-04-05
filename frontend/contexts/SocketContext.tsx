@@ -10,13 +10,13 @@ interface SocketContextType {
   isConnected: boolean
   onlineUsers: string[]
   // Event handlers
-  onNewNotification: (callback: (notification: NotificationItem) => void) => void
-  onNewPost: (callback: (post: Post) => void) => void
-  onPostUpdate: (callback: (data: { postId: string; update: any }) => void) => void
-  onUserOnlineStatus: (callback: (data: { userId: string; isOnline: boolean }) => void) => void
-  onStatsUpdate: (callback: (data: { userId: string; posts?: number; followers?: number; following?: number }) => void) => void
-  onFollowUpdate: (callback: (data: { followerId: string; targetUserId: string; isFollowing: boolean; followerCount?: number; followingCount?: number }) => void) => void
-  onPostStatsUpdate: (callback: (data: { authorId: string; postCount: number }) => void) => void
+  onNewNotification: (callback: (notification: NotificationItem) => void) => () => void
+  onNewPost: (callback: (post: Post) => void) => () => void
+  onPostUpdate: (callback: (data: { postId: string; update: any }) => void) => () => void
+  onUserOnlineStatus: (callback: (data: { userId: string; isOnline: boolean }) => void) => () => void
+  onStatsUpdate: (callback: (data: { userId: string; posts?: number; followers?: number; following?: number }) => void) => () => void
+  onFollowUpdate: (callback: (data: { followerId: string; targetUserId: string; isFollowing: boolean; followerCount?: number; followingCount?: number }) => void) => () => void
+  onPostStatsUpdate: (callback: (data: { authorId: string; postCount: number }) => void) => () => void
   // Emit methods
   emitTypingStart: (targetUserId: string) => void
   emitTypingStop: (targetUserId: string) => void

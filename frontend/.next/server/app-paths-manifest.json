@@ -1,8 +1,5 @@
 {
-  "/hero/page": "app/hero/page.js",
-  "/signin/page": "app/signin/page.js",
-  "/search/page": "app/search/page.js",
-  "/notifications-demo/page": "app/notifications-demo/page.js",
   "/page": "app/page.js",
-  "/profile/[userId]/page": "app/profile/[userId]/page.js"
+  "/signin/page": "app/signin/page.js",
+  "/hero/page": "app/hero/page.js"
 }

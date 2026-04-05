@@ -8,54 +8,117 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Bell, Users, MessageSquare, Heart, Plus } from 'lucide-react'
 import Link from 'next/link'
-
-interface NotificationItem {
-  id: string
-  user: string
-  avatarUrl?: string
-  message: string
-  time: string
-}
+import { NotificationItem } from '@/services/api'
 
 export default function NotificationsDemoPage() {
   const [customNotifications, setCustomNotifications] = useState<NotificationItem[]>([
     {
-      id: "1",
-      user: "Emma Wilson",
-      avatarUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+      _id: "1",
+      recipient: "current-user",
+      sender: {
+        _id: "user1",
+        firstName: "Emma",
+        lastName: "Wilson",
+        email: "emma@example.com",
+        avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+        bio: "",
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      type: "follow",
       message: "Started following you.",
-      time: "5m ago",
+      isRead: false,
+      timeAgo: "5m ago",
+      createdAt: new Date().toISOString(),
     },
     {
-      id: "2",
-      user: "James Rodriguez",
-      avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+      _id: "2",
+      recipient: "current-user",
+      sender: {
+        _id: "user2",
+        firstName: "James",
+        lastName: "Rodriguez",
+        email: "james@example.com",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+        bio: "",
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      type: "like",
       message: "Liked your robot customization.",
-      time: "15m ago",
+      isRead: false,
+      timeAgo: "15m ago",
+      createdAt: new Date().toISOString(),
     },
     {
-      id: "3",
-      user: "Sarah Chen",
-      avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
+      _id: "3",
+      recipient: "current-user",
+      sender: {
+        _id: "user3",
+        firstName: "Sarah",
+        lastName: "Chen",
+        email: "sarah@example.com",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
+        bio: "",
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      type: "comment",
       message: "Commented: 'Amazing robot design!'",
-      time: "1h ago",
+      isRead: false,
+      timeAgo: "1h ago",
+      createdAt: new Date().toISOString(),
     },
     {
-      id: "4",
-      user: "Michael Brown",
-      avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+      _id: "4",
+      recipient: "current-user",
+      sender: {
+        _id: "user4",
+        firstName: "Michael",
+        lastName: "Brown",
+        email: "michael@example.com",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+        bio: "",
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      type: "mention",
       message: "Shared your profile.",
-      time: "2h ago",
+      isRead: false,
+      timeAgo: "2h ago",
+      createdAt: new Date().toISOString(),
     },
   ])
 
   const addNotification = () => {
     const newNotification: NotificationItem = {
-      id: Date.now().toString(),
-      user: "New User",
-      avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face",
+      _id: Date.now().toString(),
+      recipient: "current-user",
+      sender: {
+        _id: "new-user",
+        firstName: "New",
+        lastName: "User",
+        email: "newuser@example.com",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&h=40&fit=crop&crop=face",
+        bio: "",
+        isEmailVerified: true,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      type: "welcome",
       message: "Just joined Vibely!",
-      time: "now",
+      isRead: false,
+      timeAgo: "now",
+      createdAt: new Date().toISOString(),
     }
     setCustomNotifications(prev => [newNotification, ...prev])
   }
@@ -185,11 +248,25 @@ export default function NotificationsDemoPage() {
                         <span className="text-sm font-medium">Navigation Bar</span>
                         <AvatarNotifications items={[
                           {
-                            id: "nav1",
-                            user: "Alice",
-                            avatarUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+                            _id: "nav1",
+                            recipient: "current-user",
+                            sender: {
+                              _id: "alice-user",
+                              firstName: "Alice",
+                              lastName: "Smith",
+                              email: "alice@example.com",
+                              avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face",
+                              bio: "",
+                              isEmailVerified: true,
+                              isActive: true,
+                              createdAt: new Date().toISOString(),
+                              updatedAt: new Date().toISOString()
+                            },
+                            type: "mention",
                             message: "Sent you a message",
-                            time: "2m ago"
+                            isRead: false,
+                            timeAgo: "2m ago",
+                            createdAt: new Date().toISOString(),
                           }
                         ]} />
                       </div>

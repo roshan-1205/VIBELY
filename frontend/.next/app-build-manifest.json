@@ -1,35 +1,25 @@
 {
   "pages": {
+    "/hero/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/hero/page.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/oauth-test/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/oauth-test/page.js"
-    ],
-    "/signin/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/signin/page.js"
-    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/signup/page": [
+    "/signin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/signup/page.js"
-    ],
-    "/hero/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/hero/page.js"
+      "static/chunks/app/signin/page.js"
     ]
   }
 }

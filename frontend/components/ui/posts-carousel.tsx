@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 
 // --- TYPES ---
-interface PostsCarouselProps extends React.HTMLAttributes<HTMLDivElement> {
+interface PostsCarouselProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   posts: Post[];
   onLike?: (postId: string) => void;
   onComment?: (postId: string) => void;
@@ -264,7 +264,7 @@ export const PostsCarousel = React.forwardRef<HTMLDivElement, PostsCarouselProps
                       userId={comment.user._id}
                       firstName={comment.user.firstName}
                       lastName={comment.user.lastName}
-                      size="xs"
+                      size="sm"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm">
