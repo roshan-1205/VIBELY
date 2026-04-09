@@ -69,6 +69,11 @@ router.post('/register', validateRegister, handleValidationErrors, async (req, r
       // Don't fail registration if email fails
     }
 
+    // Send welcome email (async, don't wait for it)
+    emailService.sendWelcomeEmail(user).catch(error => {
+      console.error('Failed to send welcome email:', error);
+    });
+
     // Create welcome activity
     await Activity.createActivity({
       user: user._id,
@@ -141,6 +146,19 @@ router.post('/login', validateLogin, handleValidationErrors, async (req, res) =>
     // Update last login
     user.lastLogin = new Date();
     await user.save();
+
+    // Send login alert email (async, don't wait for it)
+    const loginInfo = {
+      method: 'Email & Password',
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent')
+    };
+    
+    emailService.sendLoginAlertEmail(user, loginInfo).catch(error => {
+      console.error('Failed to send login alert email:', error);
+    });
+
+    console.log('Login successful for user:', user._id);
 
     res.json({
       success: true,
@@ -451,6 +469,21 @@ router.get('/google/callback',
       // Generate JWT token
       const token = generateToken(req.user._id);
       
+      // Update last login
+      req.user.lastLogin = new Date();
+      await req.user.save();
+
+      // Send login alert email (async, don't wait for it)
+      const loginInfo = {
+        method: 'Google OAuth',
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent')
+      };
+      
+      emailService.sendLoginAlertEmail(req.user, loginInfo).catch(error => {
+        console.error('Failed to send OAuth login alert email:', error);
+      });
+      
       // Redirect to frontend with token
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?token=${token}&provider=google`;
       res.redirect(redirectUrl);
@@ -477,6 +510,21 @@ router.get('/microsoft/callback',
     try {
       // Generate JWT token
       const token = generateToken(req.user._id);
+      
+      // Update last login
+      req.user.lastLogin = new Date();
+      await req.user.save();
+
+      // Send login alert email (async, don't wait for it)
+      const loginInfo = {
+        method: 'Microsoft OAuth',
+        ipAddress: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent')
+      };
+      
+      emailService.sendLoginAlertEmail(req.user, loginInfo).catch(error => {
+        console.error('Failed to send OAuth login alert email:', error);
+      });
       
       // Redirect to frontend with token
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?token=${token}&provider=microsoft`;

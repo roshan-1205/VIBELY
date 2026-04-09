@@ -239,14 +239,22 @@ Once both servers are running:
 ## 📧 Email System
 
 ### **Professional Email Templates:**
-- ✅ **Welcome Email** after registration
-- ✅ **Email Verification** with secure tokens
-- ✅ **Password Reset** with time-limited links
-- ✅ **Account Notifications** for important events
+- ✅ **Welcome Email** after registration with platform overview and feature highlights
+- ✅ **Login Alert Email** for security notifications sent on every login attempt
+- ✅ **Email Verification** with secure tokens and 24-hour expiration
+- ✅ **Password Reset** with time-limited links (10 minutes for security)
+
+### **SMTP Integration:**
+- ✅ **Gmail SMTP** configured with secure app password authentication
+- ✅ **Real-time Email Sending** for immediate notifications on user actions
+- ✅ **Professional HTML Templates** with responsive design and Vibely branding
+- ✅ **Security Features** including login alerts with IP address and device information
+- ✅ **Configurable Email Types** - enable/disable specific email notifications via environment variables
 
 ### **Email Configuration:**
-- **Development**: Uses Ethereal Email (fake SMTP for testing)
-- **Production**: Configurable with Gmail, SendGrid, AWS SES, etc.
+- **Development**: Uses Ethereal Email (fake SMTP for testing and development)
+- **Production**: Configured with Gmail SMTP for real email delivery to users
+- **Security**: TLS encryption, app-specific passwords, secure token handling, and error recovery
 
 ## 🔄 Real-time Features
 
@@ -472,8 +480,19 @@ SESSION_SECRET=your-session-secret
 # CORS Configuration
 FRONTEND_URL=http://localhost:3000
 
-# Email Configuration
-EMAIL_FROM="Vibely <noreply@vibely.com>"
+# Email Configuration (SMTP)
+EMAIL_SERVICE=gmail
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_EMAIL=roshankumarsingh021@gmail.com
+SMTP_PASSWORD=ymcbpwlefawrlcyn
+EMAIL_FROM="Vibely <roshankumarsingh021@gmail.com>"
+
+# Email Features Control
+SEND_WELCOME_EMAIL=true
+SEND_LOGIN_ALERT=true
+SEND_VERIFICATION_EMAIL=true
 
 # OAuth Configuration (Optional)
 GOOGLE_CLIENT_ID=your_google_client_id
@@ -520,7 +539,37 @@ To enable Google OAuth authentication:
 6. **Test Display**: Verify images and videos display directly in posts
 7. **Test Direct Access**: Visit http://localhost:5000/uploads/images/ to see uploaded files
 
-### **API Testing:**
+### **Email Feature Testing:**
+1. **Test Email Configuration**:
+   ```bash
+   # Run email service test
+   node test-email-service.js
+   
+   # Setup email feature
+   node setup-email-feature.js
+   ```
+
+2. **Test Registration Emails**:
+   - Register a new user via frontend or API
+   - Check for welcome email in inbox
+   - Check for email verification email
+   - Verify email verification link works
+
+3. **Test Login Alert Emails**:
+   - Login with existing credentials
+   - Check for login alert email with details
+   - Test OAuth login alerts (Google/Microsoft)
+   - Verify IP address and device info in email
+
+4. **Test Password Reset Emails**:
+   - Use "Forgot Password" feature
+   - Check for password reset email
+   - Verify reset link works and expires correctly
+
+5. **Email Configuration Testing**:
+   - Test with SMTP credentials (real emails)
+   - Test without SMTP (development mode)
+   - Verify email templates render correctly
 Use Postman, curl, or Thunder Client to test API endpoints.
 
 **Example - Register User:**
