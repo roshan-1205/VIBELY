@@ -94,8 +94,10 @@ cd VIBELY
 ```
 
 ### 2. Install Dependencies
+
+#### Quick Installation (Recommended)
 ```bash
-# Install root dependencies
+# Install all dependencies at once
 npm install
 
 # Install backend dependencies
@@ -105,6 +107,130 @@ npm install
 # Install frontend dependencies
 cd ../frontend
 npm install
+```
+
+#### Manual Installation (If Issues Occur)
+
+**Root Dependencies:**
+```bash
+# In project root directory
+npm install node-fetch@^3.3.2 socket.io-client@^4.8.3
+```
+
+**Backend Dependencies:**
+```bash
+# Navigate to backend directory
+cd backend
+
+# Core dependencies
+npm install express@^4.18.2 mongoose@^8.0.3 cors@^2.8.5 dotenv@^16.3.1
+
+# Authentication dependencies
+npm install jsonwebtoken@^9.0.2 bcryptjs@^2.4.3 passport@^0.7.0
+npm install passport-google-oauth20@^2.0.0 passport-microsoft@^2.1.0
+
+# Session and security
+npm install express-session@^1.19.0 connect-mongo@^6.0.0 helmet@^7.1.0
+npm install express-rate-limit@^7.1.5 express-validator@^7.3.2
+
+# File upload and email
+npm install multer@^1.4.5-lts.1 nodemailer@^8.0.4
+
+# Real-time communication
+npm install socket.io@^4.8.3
+
+# Database (if using Supabase)
+npm install @supabase/supabase-js@^2.101.1 pg@^8.20.0
+
+# Development dependency
+npm install --save-dev nodemon@^3.0.2
+```
+
+**Frontend Dependencies:**
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Core Next.js dependencies
+npm install next@14.0.0 react@^18 react-dom@^18
+
+# UI and styling
+npm install tailwindcss@^3.3.0 tailwindcss-animate@^1.0.7
+npm install @radix-ui/react-avatar@^1.1.11 @radix-ui/react-label@^2.0.2
+npm install @radix-ui/react-popover@^1.1.15 @radix-ui/react-slot@^1.0.2
+npm install class-variance-authority@^0.7.0 clsx@^2.0.0 tailwind-merge@^2.0.0
+
+# Animation and 3D
+npm install framer-motion@^10.16.5 @splinetool/react-spline@^4.1.0
+npm install @splinetool/runtime@^1.12.74
+
+# Icons and utilities
+npm install lucide-react@^0.294.0
+
+# Real-time communication
+npm install socket.io-client@^4.8.3
+
+# Supabase (if using)
+npm install @supabase/ssr@^0.10.0 @supabase/supabase-js@^2.101.1
+
+# Development dependencies
+npm install --save-dev typescript@^5 @types/node@^20 @types/react@^18
+npm install --save-dev @types/react-dom@^18 eslint@^8 eslint-config-next@14.0.0
+npm install --save-dev autoprefixer@^10.0.1 postcss@^8
+```
+
+#### Troubleshooting Dependencies
+
+**If npm install fails:**
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Delete node_modules and package-lock.json
+rm -rf node_modules package-lock.json  # Linux/Mac
+rmdir /s node_modules & del package-lock.json  # Windows
+
+# Reinstall
+npm install
+```
+
+**If you get peer dependency warnings:**
+```bash
+# For frontend (Next.js sometimes has peer dependency issues)
+cd frontend
+npm install --legacy-peer-deps
+
+# Or use yarn instead
+npm install -g yarn
+yarn install
+```
+
+**If specific packages fail:**
+```bash
+# Install with specific Node version (if using nvm)
+nvm use 18
+npm install
+
+# Force install problematic packages
+npm install --force
+
+# Install specific versions
+npm install package-name@specific-version
+```
+
+**Check installed versions:**
+```bash
+# Check Node.js version
+node --version
+
+# Check npm version
+npm --version
+
+# List installed packages
+npm list
+
+# Check for outdated packages
+npm outdated
 ```
 
 ### 3. Environment Configuration
@@ -546,6 +672,250 @@ Special thanks to:
 - [ ] **CDN Integration**: CloudFront/CloudFlare integration
 - [ ] **Database Optimization**: Query optimization and indexing
 - [ ] **Image Processing**: Automatic image compression and resizing
+
+## 🐛 Common Issues & Solutions
+
+### 🔧 Dependency Installation Issues
+
+#### Problem: `npm install` fails
+```bash
+# Solution 1: Clear cache and reinstall
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+
+# Solution 2: Use different Node version
+nvm install 18
+nvm use 18
+npm install
+
+# Solution 3: Use yarn instead
+npm install -g yarn
+yarn install
+```
+
+#### Problem: Peer dependency warnings
+```bash
+# For frontend
+cd frontend
+npm install --legacy-peer-deps
+
+# Or ignore peer deps
+npm install --force
+```
+
+#### Problem: Permission errors (Linux/Mac)
+```bash
+# Fix npm permissions
+sudo chown -R $(whoami) ~/.npm
+sudo chown -R $(whoami) /usr/local/lib/node_modules
+
+# Or use nvm instead of system Node.js
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 18
+nvm use 18
+```
+
+#### Problem: Windows build tools missing
+```bash
+# Install Windows build tools
+npm install -g windows-build-tools
+
+# Or install Visual Studio Build Tools
+# Download from: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019
+```
+
+### 🗄️ Database Connection Issues
+
+#### Problem: MongoDB connection failed
+```bash
+# Check connection string format
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+
+# Verify in MongoDB Atlas:
+# 1. Database user exists with correct password
+# 2. IP address is whitelisted (0.0.0.0/0 for development)
+# 3. Cluster is running and accessible
+```
+
+#### Problem: Database authentication failed
+```bash
+# Create new database user in MongoDB Atlas
+# 1. Go to Database Access
+# 2. Add New Database User
+# 3. Set username and password
+# 4. Grant read/write permissions
+# 5. Update MONGODB_URI with new credentials
+```
+
+### 🌐 CORS and API Issues
+
+#### Problem: CORS errors in browser
+```bash
+# Check backend .env file
+FRONTEND_URL=http://localhost:3000
+
+# For production
+FRONTEND_URL=https://your-netlify-app.netlify.app
+
+# Restart backend server after changing
+```
+
+#### Problem: API calls failing
+```bash
+# Check frontend .env.local
+NEXT_PUBLIC_API_URL=http://localhost:5001/api
+
+# Verify backend is running on correct port
+# Check browser network tab for actual error
+```
+
+### 📧 Email Service Issues
+
+#### Problem: Email not sending
+```bash
+# Verify Gmail settings:
+# 1. 2-factor authentication enabled
+# 2. App password generated (not regular password)
+# 3. SMTP settings correct:
+
+EMAIL_SERVICE=gmail
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_EMAIL=your-email@gmail.com
+SMTP_PASSWORD=your-16-character-app-password
+```
+
+#### Problem: Gmail app password not working
+```bash
+# Generate new app password:
+# 1. Google Account → Security
+# 2. 2-Step Verification → App passwords
+# 3. Select "Mail" and generate
+# 4. Use 16-character password (no spaces)
+```
+
+### 🔐 Authentication Issues
+
+#### Problem: JWT token errors
+```bash
+# Generate strong JWT secret
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+
+# Update .env file
+JWT_SECRET=your-generated-secret-here
+```
+
+#### Problem: Google OAuth not working
+```bash
+# Verify Google Cloud Console settings:
+# 1. OAuth 2.0 Client ID created
+# 2. Authorized redirect URIs:
+#    - http://localhost:5001/api/auth/google/callback (development)
+#    - https://your-backend.com/api/auth/google/callback (production)
+# 3. Credentials in .env file
+```
+
+### 📁 File Upload Issues
+
+#### Problem: File uploads failing
+```bash
+# Check upload directories exist
+mkdir -p backend/uploads/images
+mkdir -p backend/uploads/videos
+mkdir -p backend/uploads/thumbnails
+
+# Verify file size limits (default 50MB)
+# Check file types (jpg, png, gif, mp4, mov, etc.)
+```
+
+#### Problem: Uploaded files not accessible
+```bash
+# Verify static file serving in server.js
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+# Check file permissions (Linux/Mac)
+chmod -R 755 backend/uploads/
+```
+
+### 🚀 Development Server Issues
+
+#### Problem: Port already in use
+```bash
+# Find process using port
+netstat -ano | findstr :3000  # Windows
+lsof -ti:3000  # Mac/Linux
+
+# Kill process
+taskkill /PID <PID> /F  # Windows
+kill -9 <PID>  # Mac/Linux
+
+# Or use different port
+PORT=3001 npm run dev
+```
+
+#### Problem: Hot reload not working
+```bash
+# Clear Next.js cache
+rm -rf frontend/.next
+
+# Restart development server
+cd frontend
+npm run dev
+```
+
+### 🔍 Debug Commands
+
+#### Check system information
+```bash
+# Node.js version
+node --version
+
+# npm version
+npm --version
+
+# Check installed packages
+npm list
+
+# Check for security vulnerabilities
+npm audit
+
+# Fix vulnerabilities
+npm audit fix
+```
+
+#### Check running processes
+```bash
+# Windows
+netstat -ano | findstr :3000
+netstat -ano | findstr :5001
+
+# Mac/Linux
+lsof -i :3000
+lsof -i :5001
+```
+
+#### Test API endpoints
+```bash
+# Health check
+curl http://localhost:5001/api/health
+
+# Test with verbose output
+curl -v http://localhost:5001/api/auth/me
+```
+
+### 📞 Getting Help
+
+If you're still having issues:
+
+1. **Check the logs**: Look at terminal output for error messages
+2. **Browser console**: Check for JavaScript errors (F12)
+3. **GitHub Issues**: [Create an issue](https://github.com/roshan-1205/VIBELY/issues) with:
+   - Error message
+   - Steps to reproduce
+   - System information (OS, Node version)
+   - Screenshots if applicable
 
 ---
 
