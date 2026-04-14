@@ -1,0 +1,25 @@
+[build]
+  publish = "out"
+  command = "npm run build"
+
+[build.environment]
+  NEXT_PUBLIC_API_URL = "https://vibely-8bqm.onrender.com/api"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true

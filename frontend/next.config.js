@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Use standalone output for Vercel
+  output: 'standalone',
   trailingSlash: true,
   images: {
     unoptimized: true

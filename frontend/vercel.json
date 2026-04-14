@@ -1,7 +1,5 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "outputDirectory": "out",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://vibely-8bqm.onrender.com/api"
   }
