@@ -23,7 +23,7 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://vibely-1205.web.app
+        value: https://vibely12.netlify.app
       - key: EMAIL_SERVICE
         value: gmail
       - key: SMTP_HOST
