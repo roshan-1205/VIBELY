@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Vibely Development Startup Script
 echo "🚀 Starting Vibely Development Environment..."
 
 # Check if Node.js is installed
@@ -9,66 +8,76 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
-# Check if MongoDB is running (optional check)
-if command -v mongod &> /dev/null; then
-    if ! pgrep -x "mongod" > /dev/null; then
-        echo "⚠️  MongoDB doesn't appear to be running. Please start MongoDB first."
-        echo "   macOS: brew services start mongodb-community"
-        echo "   Linux: sudo systemctl start mongod"
-        echo "   Windows: net start MongoDB"
-    fi
+# Check if ports are available
+echo "🔍 Checking if ports are available..."
+if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null ; then
+    echo "⚠️  Port 3000 is already in use. Please close the application using it."
+    read -p "Press Enter to continue anyway..."
 fi
 
-# Function to start backend
-start_backend() {
-    echo "📦 Starting Backend Server..."
-    cd backend
-    
-    # Install dependencies if node_modules doesn't exist
-    if [ ! -d "node_modules" ]; then
-        echo "📥 Installing backend dependencies..."
-        npm install
-    fi
-    
-    # Start backend in development mode
-    npm run dev &
-    BACKEND_PID=$!
-    echo "✅ Backend started (PID: $BACKEND_PID)"
-    cd ..
-}
+if lsof -Pi :5001 -sTCP:LISTEN -t >/dev/null ; then
+    echo "⚠️  Port 5001 is already in use. Please close the application using it."
+    read -p "Press Enter to continue anyway..."
+fi
 
-# Function to start frontend
-start_frontend() {
-    echo "🎨 Starting Frontend Server..."
-    cd frontend
-    
-    # Install dependencies if node_modules doesn't exist
-    if [ ! -d "node_modules" ]; then
-        echo "📥 Installing frontend dependencies..."
-        npm install
-    fi
-    
-    # Start frontend in development mode
-    npm run dev &
-    FRONTEND_PID=$!
-    echo "✅ Frontend started (PID: $FRONTEND_PID)"
-    cd ..
-}
+echo "📦 Starting Backend Server..."
+cd backend
 
-# Start both servers
-start_backend
-sleep 3  # Give backend time to start
-start_frontend
+# Install dependencies if node_modules doesn't exist
+if [ ! -d "node_modules" ]; then
+    echo "📥 Installing backend dependencies..."
+    npm install
+else
+    echo "✅ Backend dependencies already installed"
+fi
+
+# Start backend in development mode
+echo "🔄 Starting backend server..."
+if command -v gnome-terminal &> /dev/null; then
+    gnome-terminal --title="Vibely Backend" -- bash -c "npm run dev; exec bash"
+elif command -v osascript &> /dev/null; then
+    osascript -e 'tell app "Terminal" to do script "cd \"'$(pwd)'\" && npm run dev"'
+else
+    npm run dev &
+fi
+
+echo "✅ Backend started"
+cd ..
+
+sleep 3
+
+echo "🎨 Starting Frontend Server..."
+cd frontend
+
+# Install dependencies if node_modules doesn't exist
+if [ ! -d "node_modules" ]; then
+    echo "📥 Installing frontend dependencies..."
+    npm install --legacy-peer-deps
+else
+    echo "✅ Frontend dependencies already installed"
+fi
+
+# Start frontend in development mode
+echo "🔄 Starting frontend server..."
+if command -v gnome-terminal &> /dev/null; then
+    gnome-terminal --title="Vibely Frontend" -- bash -c "npm run dev; exec bash"
+elif command -v osascript &> /dev/null; then
+    osascript -e 'tell app "Terminal" to do script "cd \"'$(pwd)'\" && npm run dev"'
+else
+    npm run dev &
+fi
+
+echo "✅ Frontend started"
+cd ..
 
 echo ""
 echo "🎉 Vibely Development Environment Started!"
 echo ""
 echo "📱 Frontend: http://localhost:3000"
-echo "🔧 Backend:  http://localhost:5000"
-echo "📊 API Docs: http://localhost:5000/api/health"
+echo "🔧 Backend:  http://localhost:5001"
+echo "📊 API Docs: http://localhost:5001/api/health"
 echo ""
-echo "Press Ctrl+C to stop all servers"
+echo "Press Ctrl+C to stop the servers"
 
-# Wait for user interrupt
-trap 'echo ""; echo "🛑 Stopping servers..."; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0' INT
+# Keep script running
 wait

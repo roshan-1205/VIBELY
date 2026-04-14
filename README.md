@@ -4,8 +4,42 @@ A comprehensive full-stack social media platform built with Next.js and Node.js,
 
 ## 🌟 Live Demo
 
-- **Frontend (Netlify)**: [https://vibely12.netlify.app](https://vibely12.netlify.app)
+- **Frontend (Vercel)**: [https://vibely-frontend-orpin.vercel.app](https://vibely-frontend-orpin.vercel.app)
+- **Backend API (Render)**: [https://vibely-8bqm.onrender.com](https://vibely-8bqm.onrender.com)
 - **Repository**: [https://github.com/roshan-1205/VIBELY](https://github.com/roshan-1205/VIBELY)
+
+## 🚀 Quick Start
+
+### Starting Vibely Development Environment
+
+#### Option 1: One-Click Start (Windows)
+```bash
+# Double-click or run in terminal
+start-dev.bat
+```
+
+#### Option 2: One-Click Start (Linux/Mac)
+```bash
+# Make executable and run
+chmod +x start-dev.sh
+./start-dev.sh
+```
+
+#### Option 3: Manual Start
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend  
+cd frontend
+npm run dev
+```
+
+### Access Points
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5001
+- **API Health Check**: http://localhost:5001/api/health
 
 ## 🚀 Key Features
 
@@ -258,7 +292,7 @@ JWT_EXPIRE=7d
 SESSION_SECRET=your-session-secret-change-in-production
 
 # CORS Configuration
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=https://vibely-frontend-orpin.vercel.app
 
 # Email Configuration (Gmail SMTP)
 EMAIL_SERVICE=gmail
@@ -414,34 +448,48 @@ VIBELY/
 |----------|-------------|---------|
 | `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:5001/api` |
 
-## 🚀 Deployment
+## 🚀 Deployment Status
 
-### Frontend Deployment (Netlify) ✅ **COMPLETED**
+### ✅ Production Deployment (LIVE)
 
-The frontend is already deployed on Netlify:
-- **Live URL**: https://vibely12.netlify.app
-- **Build Status**: ✅ Successful
-- **Deployment**: Automatic from GitHub
+#### Frontend - Vercel
+- **Status**: ✅ **DEPLOYED & LIVE**
+- **URL**: [https://vibely-frontend-orpin.vercel.app](https://vibely-frontend-orpin.vercel.app)
+- **Platform**: Vercel
+- **Build**: Automatic from GitHub main branch
+- **Environment**: Production optimized with static export
 
-### Backend Deployment (Coming Soon)
+#### Backend - Render  
+- **Status**: ✅ **DEPLOYED & LIVE**
+- **URL**: [https://vibely-8bqm.onrender.com](https://vibely-8bqm.onrender.com)
+- **Platform**: Render (Free Tier)
+- **Build**: Automatic from GitHub main branch
+- **Database**: MongoDB Atlas (Cloud)
+- **Features**: Real-time Socket.IO, File uploads, Email service
 
-#### Render Deployment
-1. **Connect Repository**: Link your GitHub repository to Render
-2. **Environment Variables**: Set all backend environment variables
-3. **Build Settings**:
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-   - Root Directory: `backend`
+#### Database - MongoDB Atlas
+- **Status**: ✅ **CONNECTED & OPERATIONAL**
+- **Platform**: MongoDB Atlas (Cloud)
+- **Region**: Auto-selected optimal region
+- **Backup**: Automatic cloud backups enabled
 
-#### Railway Deployment
-1. **Connect Repository**: Link to Railway
-2. **Environment Variables**: Configure in Railway dashboard
-3. **Auto-deploy**: Enabled from main branch
+### 🔗 Live Application Features
+- ✅ User registration and authentication
+- ✅ Google OAuth integration  
+- ✅ Real-time messaging with Socket.IO
+- ✅ File upload (images/videos)
+- ✅ Email notifications (welcome, alerts)
+- ✅ Social features (posts, likes, follows)
+- ✅ Responsive mobile design
+- ✅ Production-grade security
 
-#### Heroku Deployment
-1. **Create App**: `heroku create your-app-name`
-2. **Set Environment Variables**: `heroku config:set VAR=value`
-3. **Deploy**: `git push heroku main`
+### 🌐 Architecture Overview
+```
+Frontend (Vercel) ←→ Backend (Render) ←→ Database (MongoDB Atlas)
+     ↓                    ↓                      ↓
+Static Next.js      Node.js/Express        Cloud NoSQL
+React App           Socket.IO Server       Auto-scaling
+```
 
 ## 📧 Email Service Setup
 
@@ -529,7 +577,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
 FRONTEND_URL=http://localhost:3000
 
 # For production, update to your deployed frontend URL
-FRONTEND_URL=https://your-app.netlify.app
+FRONTEND_URL=https://vibely-frontend-orpin.vercel.app
 ```
 
 #### Email Service Issues

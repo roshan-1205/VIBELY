@@ -18,9 +18,9 @@ if not errorlevel 1 (
     pause >nul
 )
 
-netstat -ano | findstr :5000 >nul 2>&1
+netstat -ano | findstr :5001 >nul 2>&1
 if not errorlevel 1 (
-    echo ⚠️  Port 5000 is already in use. Please close the application using it.
+    echo ⚠️  Port 5001 is already in use. Please close the application using it.
     echo Press any key to continue anyway...
     pause >nul
 )
@@ -77,8 +77,8 @@ echo.
 echo 🎉 Vibely Development Environment Started!
 echo.
 echo 📱 Frontend: http://localhost:3000
-echo 🔧 Backend:  http://localhost:5000
-echo 📊 API Docs: http://localhost:5000/api/health
+echo 🔧 Backend:  http://localhost:5001
+echo 📊 API Docs: http://localhost:5001/api/health
 echo.
 echo Press any key to exit...
 pause >nul
