@@ -25,6 +25,15 @@ build/
 **/.env.local
 **/.env.production
 
+# Deployment configuration files with secrets
+render.yaml
+**/render.yaml
+
+# Any file containing credentials
+*credentials*
+*secrets*
+*config*.json
+
 # Database files with sensitive data
 *.sql
 *.db
