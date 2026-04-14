@@ -2,39 +2,48 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
 
 export const ShuffleHero = () => {
   return (
-    <section className="w-full px-8 py-20 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between gap-8 lg:gap-16">
-        {/* Left Text */}
-        <div className="flex-1 flex justify-end">
+    <section className="w-full px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 lg:py-20 max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-6 sm:gap-8 lg:gap-16">
+        {/* Left Text - Hidden on mobile, shown on larger screens */}
+        <div className="hidden lg:flex flex-1 justify-end">
           <div className="text-right">
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
               Explore
             </h2>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight -ml-8">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight -ml-4 lg:-ml-8">
               The Future
             </h2>
           </div>
         </div>
         
-        {/* Shuffle Grid */}
-        <div className="relative flex-shrink-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-3xl blur-3xl"></div>
+        {/* Mobile Title - Shown only on mobile */}
+        <div className="block lg:hidden text-center mb-4 sm:mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+            Explore The Future
+          </h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight mt-1">
+            ❤️
+          </h2>
+        </div>
+        
+        {/* Shuffle Grid - Responsive container */}
+        <div className="relative flex-shrink-0 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-2xl sm:rounded-3xl blur-2xl sm:blur-3xl"></div>
           <div className="relative z-10">
             <ShuffleGrid />
           </div>
         </div>
         
-        {/* Right Text */}
-        <div className="flex-1 flex justify-start">
+        {/* Right Text - Hidden on mobile, shown on larger screens */}
+        <div className="hidden lg:flex flex-1 justify-start">
           <div className="text-left">
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
               With Us
             </h2>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-6xl md:text-7xl lg:text-8xl leading-tight ml-8">
+            <h2 className="text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-extrabold leading-tight ml-4 lg:ml-8">
               ❤️
             </h2>
           </div>
@@ -134,21 +143,20 @@ const generateSquares = () => {
       key={sq.id}
       layout
       transition={{ duration: 1.5, type: "spring" }}
-      className="w-full h-full rounded-lg overflow-hidden bg-muted relative group cursor-pointer border"
+      className="w-full h-full rounded-md sm:rounded-lg overflow-hidden bg-muted relative group cursor-pointer border hover:border-primary/50 transition-colors duration-300"
       style={{
         backgroundImage: `url(${sq.src})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        minHeight: "100px",
-        minWidth: "100px"
+        aspectRatio: "1/1"
       }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-      <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center">
-          <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-4 h-4 sm:w-6 sm:h-6 bg-white/90 rounded-full flex items-center justify-center">
+          <svg className="w-2 h-2 sm:w-3 sm:h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
           </svg>
         </div>
@@ -177,11 +185,31 @@ const ShuffleGrid = () => {
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      <div className="grid grid-cols-4 grid-rows-4 h-[500px] w-[500px] gap-2 rounded-2xl overflow-hidden shadow-2xl bg-background border">
+    <div className="relative w-full mx-auto">
+      {/* Responsive Grid Container */}
+      <div className="
+        grid grid-cols-4 grid-rows-4 
+        w-full aspect-square
+        gap-1 sm:gap-2 md:gap-3
+        rounded-xl sm:rounded-2xl 
+        overflow-hidden 
+        shadow-lg sm:shadow-xl md:shadow-2xl 
+        bg-background 
+        border border-border/50
+        max-w-[280px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[480px] xl:max-w-[500px]
+        mx-auto
+      ">
         {squares.map((sq) => sq)}
       </div>
-      <div className="absolute -inset-4 bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-blue-600/10 rounded-3xl -z-10"></div>
+      
+      {/* Background Glow Effect */}
+      <div className="
+        absolute -inset-2 sm:-inset-4 
+        bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-blue-600/10 
+        rounded-2xl sm:rounded-3xl 
+        -z-10 
+        blur-xl sm:blur-2xl
+      "></div>
     </div>
   );
 };

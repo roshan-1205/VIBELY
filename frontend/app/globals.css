@@ -88,6 +88,52 @@
     border-bottom-color: #FF3D00;
   }
 
+  /* Mobile-first responsive utilities */
+  .mobile-container {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+  
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-heading {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+  
+  .mobile-button {
+    @apply px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base;
+  }
+  
+  .mobile-input {
+    @apply text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-3;
+  }
+  
+  .mobile-card {
+    @apply p-4 sm:p-6 md:p-8;
+  }
+  
+  .mobile-grid {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .mobile-flex {
+    @apply flex-col sm:flex-row;
+  }
+  
+  .mobile-space {
+    @apply space-y-4 sm:space-y-6 md:space-y-8;
+  }
+
+  /* Touch-friendly interactive elements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t z-50 sm:relative sm:bg-transparent sm:backdrop-blur-none sm:border-t-0;
+  }
+
   /* Custom Scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
@@ -136,6 +182,20 @@
   /* Smooth scroll behavior */
   .smooth-scroll {
     scroll-behavior: smooth;
+  }
+  
+  /* Mobile viewport fixes */
+  .mobile-vh {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+  
+  /* Safe area padding for mobile devices */
+  .safe-area-padding {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 

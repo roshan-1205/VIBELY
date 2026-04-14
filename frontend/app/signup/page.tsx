@@ -275,23 +275,23 @@ export default function SignUpPage() {
   }
 
   return (
-    <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
+    <section className="flex min-h-screen bg-zinc-50 px-3 sm:px-4 py-8 sm:py-16 md:py-32 dark:bg-transparent">
       <form
         onSubmit={handleSubmit}
         className="bg-card m-auto h-fit w-full max-w-sm rounded-[calc(var(--radius)+.125rem)] border p-0.5 shadow-md dark:[--color-muted:var(--color-zinc-900)]"
       >
-        <div className="p-8 pb-6">
+        <div className="p-4 sm:p-8 pb-4 sm:pb-6">
           <div>
             <Link
               href="/"
               aria-label="go home"
             >
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold text-sm sm:text-base">
                 V
               </div>
             </Link>
-            <h1 className="text-title mb-1 mt-4 text-xl font-semibold">Create a Vibely Account</h1>
-            <p className="text-sm">Welcome! Create an account to get started</p>
+            <h1 className="text-title mb-1 mt-3 sm:mt-4 text-lg sm:text-xl font-semibold">Create a Vibely Account</h1>
+            <p className="text-xs sm:text-sm">Welcome! Create an account to get started</p>
           </div>
           
           <div className="mt-6 grid grid-cols-2 gap-3">

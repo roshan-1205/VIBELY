@@ -167,30 +167,30 @@ export default function SignInPage() {
   }
 
   return (
-    <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
+    <section className="flex min-h-screen bg-zinc-50 px-3 sm:px-4 py-8 sm:py-16 md:py-32 dark:bg-transparent">
       <form
         onSubmit={handleSubmit}
         className="bg-card m-auto h-fit w-full max-w-sm rounded-[calc(var(--radius)+.125rem)] border p-0.5 shadow-md dark:[--color-muted:var(--color-zinc-900)]"
       >
-        <div className="p-8 pb-6">
+        <div className="p-4 sm:p-8 pb-4 sm:pb-6">
           <div>
             <Link
               href="/"
               aria-label="go home"
             >
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-md flex items-center justify-center text-primary-foreground font-bold text-sm sm:text-base">
                 V
               </div>
             </Link>
-            <h1 className="text-title mb-1 mt-4 text-xl font-semibold">Sign In to Vibely</h1>
-            <p className="text-sm">Welcome back! Please sign in to your account</p>
+            <h1 className="text-title mb-1 mt-3 sm:mt-4 text-lg sm:text-xl font-semibold">Sign In to Vibely</h1>
+            <p className="text-xs sm:text-sm">Welcome back! Please sign in to your account</p>
           </div>
           
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             <Button
               type="button"
               variant="outline"
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
               disabled={isSubmitting}
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
             >
@@ -199,6 +199,7 @@ export default function SignInPage() {
                 width="0.98em"
                 height="1em"
                 viewBox="0 0 256 262"
+                className="w-3 h-3 sm:w-4 sm:h-4"
               >
                 <path
                   fill="#4285f4"
@@ -223,7 +224,7 @@ export default function SignInPage() {
             <Button
               type="button"
               variant="outline"
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-3"
               disabled={isSubmitting}
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/microsoft`}
             >
@@ -232,6 +233,7 @@ export default function SignInPage() {
                 width="1em"
                 height="1em"
                 viewBox="0 0 256 256"
+                className="w-3 h-3 sm:w-4 sm:h-4"
               >
                 <path fill="#f1511b" d="M121.666 121.666H0V0h121.666z"></path>
                 <path fill="#80cc28" d="M256 121.666H134.335V0H256z"></path>
@@ -242,31 +244,31 @@ export default function SignInPage() {
             </Button>
           </div>
           
-          <hr className="my-4 border-dashed" />
+          <hr className="my-3 sm:my-4 border-dashed" />
           
           {/* Success Message */}
           {successMessage && (
-            <Alert variant="success" className="mb-4">
+            <Alert variant="success" className="mb-3 sm:mb-4">
               <CheckCircle />
-              <AlertDescription>{successMessage}</AlertDescription>
+              <AlertDescription className="text-xs sm:text-sm">{successMessage}</AlertDescription>
             </Alert>
           )}
           
           {/* General Error Message */}
           {(error || formErrors.general) && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mb-3 sm:mb-4">
               <AlertCircle />
-              <AlertDescription>
+              <AlertDescription className="text-xs sm:text-sm">
                 {error || formErrors.general}
               </AlertDescription>
             </Alert>
           )}
           
-          <div className="space-y-5">
-            <div className="space-y-2">
+          <div className="space-y-3 sm:space-y-5">
+            <div className="space-y-1 sm:space-y-2">
               <Label
                 htmlFor="email"
-                className="block text-sm"
+                className="block text-xs sm:text-sm"
               >
                 Email
               </Label>
@@ -279,17 +281,17 @@ export default function SignInPage() {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={isSubmitting}
-                className={formErrors.email ? 'border-red-500 focus:border-red-500' : ''}
+                className={`text-sm ${formErrors.email ? 'border-red-500 focus:border-red-500' : ''}`}
               />
               {formErrors.email && (
-                <p className="text-sm text-red-600 mt-1">{formErrors.email}</p>
+                <p className="text-xs text-red-600 mt-1">{formErrors.email}</p>
               )}
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-2">
               <Label
                 htmlFor="password"
-                className="text-title text-sm"
+                className="text-title text-xs sm:text-sm"
               >
                 Password
               </Label>
@@ -304,25 +306,26 @@ export default function SignInPage() {
                   onChange={handleChange}
                   disabled={isSubmitting}
                   minLength={6}
-                  className={formErrors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                  className={`text-sm ${formErrors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}`}
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   disabled={isSubmitting}
                 >
                   {showPassword ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      className="sm:w-4 sm:h-4"
                     >
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                       <line x1="1" y1="1" x2="23" y2="23" />
@@ -330,14 +333,15 @@ export default function SignInPage() {
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      className="sm:w-4 sm:h-4"
                     >
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
@@ -346,7 +350,7 @@ export default function SignInPage() {
                 </button>
               </div>
               {formErrors.password && (
-                <p className="text-sm text-red-600 mt-1">{formErrors.password}</p>
+                <p className="text-xs text-red-600 mt-1">{formErrors.password}</p>
               )}
             </div>
             
@@ -355,25 +359,25 @@ export default function SignInPage() {
                 <input
                   type="checkbox"
                   id="remember"
-                  className="rounded border-gray-300"
+                  className="rounded border-gray-300 w-3 h-3 sm:w-4 sm:h-4"
                 />
-                <Label htmlFor="remember" className="text-sm">
+                <Label htmlFor="remember" className="text-xs sm:text-sm">
                   Remember me
                 </Label>
               </div>
-              <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+              <Link href="/forgot-password" className="text-xs sm:text-sm text-primary hover:underline">
                 Forgot password?
               </Link>
             </div>
             
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full text-sm" 
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
                   Signing In...
                 </div>
               ) : (
@@ -383,13 +387,13 @@ export default function SignInPage() {
           </div>
         </div>
         
-        <div className="bg-muted rounded-[var(--radius)] border p-3">
-          <p className="text-accent-foreground text-center text-sm">
+        <div className="bg-muted rounded-[var(--radius)] border p-2 sm:p-3">
+          <p className="text-accent-foreground text-center text-xs sm:text-sm">
             Don't have an account?
             <Button
               asChild
               variant="link"
-              className="px-2"
+              className="px-1 sm:px-2 text-xs sm:text-sm"
             >
               <Link href="/signup">Sign Up</Link>
             </Button>
