@@ -29,7 +29,7 @@ chmod +x start-dev.sh
 ```bash
 # Terminal 1 - Backend
 cd backend
-npm run dev
+npm start or npm run dev
 
 # Terminal 2 - Frontend  
 cd frontend
@@ -140,7 +140,7 @@ npm install
 
 # Install frontend dependencies
 cd ../frontend
-npm install
+npm install --legacy-peer-deps
 ```
 
 #### Manual Installation (If Issues Occur)
